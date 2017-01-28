@@ -1,0 +1,53 @@
+#include <emscripten/bind.h>
+#include "htmloutput.h"
+
+std::string history_string;
+html_output o;
+
+extern "C" {
+	void advance(int chosen_link) //if clicked link, count up from 0 sequentially. keyboard press, count down from -1 sequentially, with neutral link = -link_count - 1.
+	{
+		int link_in_order; //either a non-negative number or -1
+		if (chosen_link >= 0) link_in_order = chosen_link; //mouse clicked
+		else if (chosen_link < 0) //keyboard pressed
+		{
+			chosen_link = -chosen_link - 1;
+			if (chosen_link > o.link_position.size()) error("this link doesn't exist");
+			link_in_order = o.link_position.at(chosen_link);
+			if (link_in_order == -1) return;
+		}
+
+		if (link_in_order >= o.links.size()) return; //referenced a link which doesn't exist
+		if (o.links.at(link_in_order).second == nullptr) return; //link_in_order is now a valid index. if the link is nullptr, it's a dummy link
+
+		//reconstruct the message without clickable links.
+		//we can't move the existing DOM message to the history section, because we'll have a nesting error if the </span> of the cmessage is in the middle of a paragraph.
+		//if we did move something, we could use http://stackoverflow.com/a/33724397, which moves them to a fragment before moving them again. operating on non-visible elements is faster.
+
+		history_string.append("<p>");
+		for (int increm = 0; ; ++increm)
+		{
+			if (increm >= o.texts.size()) break;
+			if (o.suppress_history_section_number == increm)
+			{
+				history_string.append(o.texts.at(increm).substr(0, o.suppress_history_char_offset));
+				break;
+			}
+			history_string.append(o.texts.at(increm));
+
+			if (increm >= o.links.size()) break;
+			if (o.links.at(increm).second == nullptr) history_string.append("<a class='disabled_link'>" + o.links.at(increm).first + "</a>");
+			else history_string.append(((increm == link_in_order) ? "<a class='chosen_link_in_history'>" : "<a>") + o.links.at(increm).first + "</a>");
+		}
+		history_string.append("</p>");
+		convert_newlines_to_paragraph_tags_in_place(history_string);
+
+		std::function<void()> to_be_called = o.links.at(link_in_order).second;
+		o = html_output(); //reset it
+		to_be_called();
+	}
+}
+
+EMSCRIPTEN_BINDINGS(my_module) {
+	emscripten::function("i", &advance);
+}

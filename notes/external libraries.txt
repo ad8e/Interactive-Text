@@ -1,0 +1,2 @@
+If you use an external product such as RPG VX, RAGS, Inform, Java, etc:
+Users often give up rather than make multiple downloads. A bundle must be offered if separate elements are required. You can have a main download and a bundle download next to each other.

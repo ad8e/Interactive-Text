@@ -1,0 +1,13 @@
+notes on link structure:
+we start with <a>, instead of <button>. this is semantically wrong, but restyling buttons to be text requires a lot of code, see http://stackoverflow.com/a/12642009/
+we don't use href="#" because that inserts an extra history entry. clicking another "#" link after the first doesn't insert another history entry because you're already on the "#" page, but this single history pollution creates trouble for the browser's back/forward button. and it really doesn't make sense to middle-click this button, which would open a new tab.
+since we don't have an href, we insert an onclick handler, and an enter handler in the onkeypress handler.
+https://www.w3.org/TR/html5/text-level-semantics.html#the-a-element says "If pressing the link triggers an action but does not change browser focus or page location, authors are advised to consider using the button role instead of the link role."
+https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_button_role comments that spacebar is used for buttons. but it looks like a link, so users expect enter. so we don't override the role.
+
+href-less <a>, onclick(), enter-handling, css styling, and tabindex="0"
+	Chrome doesn't need tabindex 0, but other browsers do.
+
+links have ids so that you can toggle ther tabindex when keyboard shortcuts are turned off.
+
+the shortcut letter, [r], comes after the link, instead of before. because the user's concentration wants to read the link text in entirety before being interrupted by the command.

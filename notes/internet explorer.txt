@@ -1,0 +1,4 @@
+Why in the world doesn't Internet Explorer 11 work with local files?
+Says that document.head.appendChild is not defined.
+Ok, but then I tried window.addEventListener. Then it claims addEventListener not supported.
+Using document.addEventListener gives same problem.

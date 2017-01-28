@@ -1,0 +1,23 @@
+I wrote a screenreader help section. Testing NVDA, this section does get read in the beginning.
+However, NVDA overrides the keyboard buttons. That's unfortunate.
+focus() forces NVDA to read the title, then tab title, then the focus()d element.
+from testing, role="status" works far better than focus() + tabindex="-1". focus() re-reads the title constantly, and it is very unreliable. plus, focus() requires outline:none; to suppress the dotted box that appears constantly after the first time you press tab
+
+https://www.reddit.com/r/noveltranslations/comments/5pv7as/concerning_kcdss_website_problem/dcu4xjw/
+Since I have astigmatism I have no choice but to read in read mode with grey background.
+The high contrast black background hurts my eyes but I could read one or two chapters max without read mode.
+I just wish that your site could have a milder dark background that's readable even at low brightness. 
+
+Accessibility:
+"Some people cannot use a mouse, including many older users with limited fine motor control. An accessible website does not rely on the mouse; it provides all functionality via a keyboard. Then people with disabilities can use assistive technologies that mimic the keyboard, such as speech input."
+Use case: half-blind person.
+	http://www.karlgroves.com/2013/09/05/the-6-simplest-web-accessibility-tests-anyone-can-do/
+	"Colors on the site are essentially removed entirely. All background is black and all foreground text is a significantly brighter color such as white or yellow (users can customize this)."
+	that means that we can't rely on colors to distinguish things. in particular, links must be underlineable.
+	"30% of respondents state they used High Contrast Modes...there are far more people with low-vision than those who are totally blind"
+Use case: blind person. Can he hear where the links are and learn how to trigger them? Can he rebind the keys?
+	the CSS places the link description as [q], which isn't selectable. Screen readers do read it, which is repetitive, but very helpful. I guess I don't care very much.
+	note that the "title" element is not read by screenreaders: https://silktide.com/things-i-learned-by-pretending-to-be-blind-for-a-week/
+Use case: keyboard-only. He should still be able to rebind keys, especially if his layout is nonstandard.
+	that means that the option keys are tabbable for accessibility. so they're tabbable at the beginning, but disappear from tab order after that.
+Use case: mouse-only. You don't need the distracting keyboard shortcuts, so they go away.

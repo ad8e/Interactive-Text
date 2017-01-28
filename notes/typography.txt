@@ -1,0 +1,33 @@
+if you change the font, change the <body>'s font in shell.html, because that's the font that line-spacing looks at
+
+we don't scale the text size, because the user can scale text size using his browser controls. plus, text size is a function of the user's distance to his screen and visual acuity, and is mostly independent of line length or window width. that is, if the user rescales his window, the best text size still wouldn't change.
+the default constants are not based on any science or typography whatsoever. if you find credible research, then nudge the default numbers according to the conclusiveness of that research, and add links to the papers in these comments.
+
+
+we change the page margins in response to how many characters fit on a line. margins start at 0% at small screens, and gradually grow to max_margin% for huge screens.
+optimal line length is an optical geometric property, because the goal is to place text within a reasonable bounding box in your eyes. thus, its value is solely determined by its unit in arcminutes of the user's vision. (and maybe font size, if there are other concerns)
+
+(Influence...Reading from Screen, Dyson Haselgrove 2001. see Figure 2 on p598)
+small increase in reading speed at 100 characters per line vs 55 characters per line. small decrease in reading comprehension at 100 characters per line. but the p values in the paper are insufficiently convincing to draw meaningful conclusions from a single paper. the bars in the figures are standard error, not confidence intervals, and even the standard error overlaps, which makes the results especially worthless.
+(The Effects of Line Length on Reading Online News. http:psychology.wichita.edu/surl/usabilitynews/72/LineLength.asp)
+their results are no effect of line length on comprehension, long lines are read faster. again, p-values insufficient to draw firm conclusions.
+I'm guessing: probably the real benefit is landmarks, and arcminutes and characters/line are irrelevant. the text should be laid out so that the beginning of each line looks different, just like ascenders and descenders. having unique line styles lets the user remember what the beginning of the line looks like, and thus lets him jump there faster. for example, if every paragraph is 4 lines long, then every line is either 1 or 2 off from a paragraph indentation, and is thus easily referenceable from a landmark.
+so long vertical paragraphs are bad, because the landmarks are too far away from the lines, so it's hard to move from landmark to line. and super long single line paragraphs are bad, because the landmarks become indistinguishable. but paragraphs of 1-5 lines are good, because every line is at most 2 lines away from a landmark. Remember that the bottom of the paragraph, the last line, is a half-landmark due to its not being a full line, so the middle line of the 5-line paragraph is 2 lines from the bottom landmark and 3 lines from the top landmark.
+does that also mean that right-justification, with ragged left, is good? oh, it's not. the jagged edge is too much information, because it's not a simple number 12345, so your brain doesn't memorize it automatically, so it becomes a distraction. plus, it's really hard for your eyes to jump to a ragged edge, a straight edge is a much easier target.
+but in this vein, centered text is better than right justified, because the raggedness is mirrored, so you don't have to remember the raggedness from the beginning of the line to the end of the line, just during the jumps. Ends of paragraphs do become very annoying in both right justified and centered text.
+
+thus, since the research is inconclusive, the margin considerations should be dominated by other concerns. 
+concern 1: distinguishing history from main text. an easily distinguishable margin is wanted.
+concern 2: distance for mouse to travel to a link. a square-ish text block is wanted.
+concern 3: distance for eye to travel to an arbitrary element (for example, referencing something). square-ish text block.
+concern 4: how much text can appear on a single page before the user is forced to scroll. low margins wanted.
+Given a 16:9 screen, and the text starting 75% down the screen, a max_margin of (1 - (9*.75)/16)/2 = 30% is reasonable, at minimum, if all we care about is putting the text into a nice square. in that case, it would be important to consider a user's window height too. but people have other screen ratios too.
+margin is a ratio of the window width, because if the user makes his screen huge relative to the text size, he probably wants his text length to grow as well.
+
+our formula of margin =  scaled_width^2/(scaled_width^2 + 1) is an approximation unsupported by any reasoning. it's used just because it has the right asymptotes at infinity and zero.
+when width approaches 0, space comes at a premium, and margin should shrink to 0. also, if the margin is less than about 1em, then there's no point in having a margin, just clamp it to the edges.
+the main point of the margin is to distinguish main text from history text. and values less than 1em are just annoying.
+
+http://graphicdesign.stackexchange.com/a/9154: the major factors for line spacing are x-height, line length, font size, and stroke weight.
+formula: asymptotically, line space = line length^2/(line length^2 + 1)
+we square line length, since at both low lengths and near-zero lengths, the dominating factor is a consistent minimum necessary separation. squaring the length captures this behavior near zero.

@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en-us">
+<meta charset="utf-8">
+<title>A Wonderful Help Page</title>
+<style>
+body {font-family: "Open Sans", sans-serif;}
+
+/* bold-only, non-blue links are hard to distinguish and unconventional */
+a:not([href]) {color: blue;}
+a[onclick]:not([href]) {cursor: pointer;}
+a:hover, a.hover {text-decoration: underline;}
+
+.disabled_link {text-decoration: line-through;}
+.disabled_link:hover {text-decoration: none;}
+
+/* surround with brackets. used to separate options */
+.ca::after {content: "]";}
+.ca::before {content: "[";}
+
+/* bold links in history have an intuitive meaning, links surrounded with brackets have unclear meaning, overlapping with the keyboard shortcuts */
+.chosen_link_in_history {font-weight: bold;}
+
+/* hide text so that a screenreader can find it, but not visual users */
+.screenreader {
+	height: 1px;
+	width: 1px;
+	position: absolute;
+	overflow: hidden;
+	top: -10px;
+}
+
+p {margin-bottom: 0px}
+section {margin-bottom: 0px}
+</style>
+<!-- lets the javascript know when the C++ module is safely loaded and ready to use -->
+<script type='text/javascript'>
+var emscripten_loaded = false;
+</script>
+
+<!-- helper script for css manipulation -->
+<script type='text/javascript'>
+var new_stylesheet = document.createElement('style');
+new_stylesheet.type = "text/css";
+document.head.appendChild(new_stylesheet);
+var stylesheet = new_stylesheet.sheet;
+
+function changecss(selector, property, value) {
+	/* from stackoverflow. selectorText: e.g. '#myId', '.myClass', 'thead td'
+	 * style: e.g. 'fontSize'
+	 * value: the new value. if a string, such as when style = "content", you might need nested quotes, like "\" text \""
+	 */
+	for (var i = 0; i < document.styleSheets.length; ++i) {
+		rules = document.styleSheets[i].cssRules;
+		for (var n in rules) {
+			if (rules[n].selector == selector) {
+				rules[n].style[property] = value;
+				return;
+			}
+		}
+	}
+	//wasn't found, so insert a new rule
+	try {stylesheet.insertRule(selector + ' {' + property + ':' + value + '}', stylesheet.cssRules.length);}
+	catch (err) {alert("Stylesheet failed, couldn't add or find style!");}
+}
+</script>
+
+<!-- keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick() -->
+<script type='text/javascript'>
+var keyboard_shortcuts_enabled = true;
+var rebindingkey = false;
+var rebindingkeynumber = 0;
+
+function changekeybind(number) {
+	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal'; //if you click on different rebinds in succession, stop rebinding the first
+	if ((rebindingkeynumber == number) && (rebindingkey == true))
+	{
+		rebindingkey = false; //if you click the same rebind twice, stop rebinding entirely
+		return;
+	}
+	rebindingkey = true;
+	rebindingkeynumber = number;
+	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'bold';
+}
+var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 32]; //qwerasdf Space
+for (var n in keycoderaw) {
+	if (!(localStorage.getItem("keycode " + n) === null))
+		keycoderaw[n] = localStorage.getItem("keycode " + n).charCodeAt();
+}
+document.onkeypress = function(e) {
+	if (e.repeat) return;
+	if (rebindingkey)
+	{
+		//note: e.which is required, instead of e.charCode, because charCode doesn't support Enter
+		if (e.which == 0)
+		{
+			alert("You pressed an unsupported key. Only actual glyphs are supported, like letters, numbers, and punctuation. That excludes keys like arrows and Ctrl. This is because of javascript problems.");
+			return;
+		}
+		if (e.which == 13)
+		{
+			alert("Don't use Enter as a keybind please, you need Enter to select links outside of the first eight with your keyboard. Plus, Enter causes trouble with javascript's fromCharCode.");
+			return;
+		}
+		rebindingkey = false;
+		//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
+		keycoderaw[rebindingkeynumber] = e.which;
+		localStorage.setItem("keycode " + rebindingkeynumber, String.fromCharCode(e.which));
+		changecss('.l' + rebindingkeynumber + '::after', 'content', '\'[' + String.fromCharCode(e.which) + ']\'');
+		document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal';
+		return;
+	}
+	for (var n in keycoderaw)
+	{
+		if ((e.which == keycoderaw[n]) && emscripten_loaded && keyboard_shortcuts_enabled)
+		{
+			Module.i(-n - 1);
+			return;
+		}
+	}
+	if (e.which == 13) //trigger onclick() with enter key. 13 = enter key.
+	{
+		if (typeof document.activeElement.onclick == 'function') document.activeElement.onclick();
+		return;
+	}
+};
+</script>
+
+<!-- underline links -->
+<script type='text/javascript'>
+var underline_links = false;
+if (!(localStorage.getItem("underline links") === null))
+	underline_links = (localStorage.getItem("underline links") === "true");
+function style_links() {
+	if (underline_links) changecss("a", "text-decoration", "underline");
+	else changecss("a", "text-decoration", "none");
+}
+style_links();
+function flip_links() {
+	underline_links = !underline_links;
+	style_links();
+	localStorage.setItem("underline links", underline_links);
+}
+</script>
+
+<p class="screenreader" role="contentinfo">Keyboard commands. Press keys to choose links in order. The 8 keys in order are q, w, e, r, and a, s, d, f. There is also a neutral link, spacebar, which is usually a cancel or back function. Keys can be rebound. Tab and enter to select links without a keybind.</p>
+
+<!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
+<div style="display: flex; flex-direction: column-reverse;">
+	<div id="non_options_section">
+		<div class="emscripten" id="status" style="text-align:center">Downloading...</div>
+
+		<!-- low opacity and 90% font size let the user distinguish history from the main message. the opacity is at the maximum easily-distinguished level, since we need history to be readable. -->
+		<div id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap;"></div>
+		<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
+		<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
+		<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
+		<div id='scrolltarget' style="padding-bottom:0.3em"></div>
+		<hr>
+		<!-- 75vh preserves some of the previous scrollback to maintain context -->
+		<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
+		<div id='m' role="status" style="margin-top:1em; height:75vh; white-space:pre-wrap;" aria-live="polite"></div>
+	</div>
+	<div id="options_section" style="text-align:center">Options:
+		<a id="cu" class="ca" tabindex="0" onclick="flip_links();">Underline links</a>
+		<a id="ch" class="ca" tabindex="0" onclick="prompt_history_retention();">History retention</a>
+		<a id="ck" class="ca" tabindex="0" onclick="flip_keyboard_enabled();">Keyboard shortcuts</a>
+		<span id="keyboard_rebinding_options">
+		rebind keys:
+		<a id="c0" class="l0" tabindex="0" onclick="changekeybind(0);"><span class="screenreader">1 is</span></a>
+		<a id="c1" class="l1" tabindex="0" onclick="changekeybind(1);"><span class="screenreader">2 is</span></a>
+		<a id="c2" class="l2" tabindex="0" onclick="changekeybind(2);"><span class="screenreader">3 is</span></a>
+		<a id="c3" class="l3" tabindex="0" onclick="changekeybind(3);"><span class="screenreader">4 is</span></a>
+		<a id="c4" class="l4" tabindex="0" onclick="changekeybind(4);"><span class="screenreader">5 is</span></a>
+		<a id="c5" class="l5" tabindex="0" onclick="changekeybind(5);"><span class="screenreader">6 is</span></a>
+		<a id="c6" class="l6" tabindex="0" onclick="changekeybind(6);"><span class="screenreader">7 is</span></a>
+		<a id="c7" class="l7" tabindex="0" onclick="changekeybind(7);"><span class="screenreader">8 is</span></a>
+		<a id="c8" class="l8" tabindex="0" onclick="changekeybind(8);"><span class="screenreader">neutral is</span></a>
+		</span>
+	</div>
+</div>
+<!-- emscripten's javascript -->
+<script type='text/javascript'>
+var statusElement = document.getElementById('status');
+var Module = {
+	print: function(text) {
+		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+		console.log(text);
+	},
+	printErr: function(text) {
+		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+		console.error(text);
+	},
+	setStatus: function(text) {
+		statusElement.textContent = text;
+	},
+	totalDependencies: 0,
+	monitorRunDependencies: function(left) {
+		this.totalDependencies = Math.max(this.totalDependencies, left);
+		Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+	}
+};
+window.onerror = function() {
+	Module.setStatus('Exception thrown, see JavaScript console');
+	Module.setStatus = function(text) {
+		if (text) Module.printErr('[post-exception status] ' + text);
+	};
+};
+</script>
+
+<!-- enable/disable keyboard shortcuts -->
+<script type='text/javascript'>
+if (!(localStorage.getItem("keyboard shortcuts enabled") === null))
+	keyboard_shortcuts_enabled = (localStorage.getItem("keyboard shortcuts enabled") === "true");
+keyboard_enable_implement();
+
+function keyboard_enable_implement() {
+	document.getElementById("ck").textContent = "Keyboard shortcuts " + (keyboard_shortcuts_enabled ? "enabled" : "disabled");
+	for (var n in keycoderaw) {
+		if (keyboard_shortcuts_enabled)
+			changecss(".l" + n + "::after", "content", "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"");
+		else changecss(".l" + n + "::after", "content", "\"\"");
+	}
+	if (keyboard_shortcuts_enabled) document.getElementById("keyboard_rebinding_options").style.display = "";
+	else document.getElementById("keyboard_rebinding_options").style.display = "none"; //visibility=hidden doesn't keep it in place. the rest of the options still shift around
+	localStorage.setItem("keyboard shortcuts enabled", keyboard_shortcuts_enabled);
+}
+function flip_keyboard_enabled() {
+	keyboard_shortcuts_enabled = !keyboard_shortcuts_enabled;
+	keyboard_enable_implement();
+	enable_disable_tabbing_for_keybound_links(); //links are tabbable only if they aren't keybound
+}
+
+function enable_disable_tabbing_for_keybound_links() {
+	for (var n in keycoderaw) {
+		var possible_link = document.getElementById('l' + n);
+		if (possible_link !== null) {
+			if (keyboard_shortcuts_enabled)
+				possible_link.setAttribute('tabindex', '-1');
+			else possible_link.setAttribute('tabindex', '0');
+		}
+	}
+}
+</script>
+
+<!-- history handler -->
+<script type='text/javascript'>
+var history_retention = 6;
+if (!(localStorage.getItem("history retention") === null))
+	history_retention = parseInt(localStorage.getItem("history retention"));
+function set_history_retention(number) {
+	history_retention = number;
+	document.getElementById("ch").textContent = (history_retention < 0) ? "Retaining all history" : "Retaining " + history_retention + " history entries";
+}
+set_history_retention(history_retention); //write the options text
+var id = 0;
+var trailing_id = 0; //the history section contains each id in [trailing id, id).
+function clear_old_history() {
+	if (history_retention != -1)
+	{
+		for (; trailing_id < id - history_retention; ++trailing_id) {
+			var obsolete_history = document.getElementById("history " + trailing_id);
+			obsolete_history.parentNode.removeChild(obsolete_history);
+		}
+	}
+}
+function append_text_to_history(text) {
+	var history_container = document.getElementById('H');
+	if (history_retention != 0) {
+		var new_history = document.createElement('section');
+		new_history.id = "history " + (id++);
+		new_history.innerHTML = Module.Pointer_stringify(text);
+		history_container.appendChild(new_history);
+	}
+	clear_old_history();
+}
+function prompt_history_retention() {
+	var value = prompt("Enter number of history entries to retain. Blank for no limit.", (history_retention == -1) ? "" : history_retention);
+
+	if (value != null) {
+		var history_retention_new = parseInt(value);
+		if (isNaN(history_retention_new) || (history_retention_new < 0)) history_retention_new = -1; //collapse to -1, instead of NaN, because of serialization
+		set_history_retention(history_retention_new);
+		localStorage.setItem("history retention", history_retention);
+		clear_old_history();
+	}
+}
+</script>
+
+<!-- new message handler -->
+<script type='text/javascript'>
+var main_body = document.getElementById('m');
+var scrolltarget = document.getElementById('scrolltarget');
+function change_message(text) {
+	main_body.innerHTML = Module.Pointer_stringify(text);
+	enable_disable_tabbing_for_keybound_links();
+	scrolltarget.scrollIntoView(true);
+}
+</script>
+{{{ SCRIPT }}}
+
+<!-- library to get x-height of font of <body>. for use in determining line spacing. should be replaced by TextMetrics, https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics, once it is implemented. -->
+<script type="text/javascript">
+//credit to Sebastian Lasse at http://stackoverflow.com/a/35260300/
+function getMetrics(fontName, fontSize) {
+	// store the old text metrics function on the Canvas2D prototype
+	CanvasRenderingContext2D.prototype.measureTextWidth = CanvasRenderingContext2D.prototype.measureText;
+	var getCSSValue = function(element, property) {return document.defaultView.getComputedStyle(element, null).getPropertyValue(property);};
+
+	CanvasRenderingContext2D.prototype.measureText = function(textstring) {
+		var metrics = this.measureTextWidth(textstring),
+			fontFamily = getCSSValue(this.canvas, "font-family"),
+			fontSize = getCSSValue(this.canvas, "font-size").replace("px", ""),
+			isSpace = !(/\S/.test(textstring));
+		metrics.fontsize = fontSize;
+		// for text lead values, we meaure a multiline text container.
+		var leadDiv = document.createElement("div");
+		leadDiv.style.position = "absolute";
+		leadDiv.style.opacity = 0;
+		leadDiv.style.font = fontSize + "px " + fontFamily;
+		leadDiv.innerHTML = textstring + "<br/>" + textstring;
+		document.body.appendChild(leadDiv);
+		// make some initial guess at the text leading (using the standard TeX ratio)
+		metrics.leading = 1.2 * fontSize;
+		// then we try to get the real value from the browser
+		var leadDivHeight = getCSSValue(leadDiv, "height");
+		leadDivHeight = leadDivHeight.replace("px", "");
+		if (leadDivHeight >= fontSize * 2) {
+			metrics.leading = (leadDivHeight / 2) | 0;
+		}
+		document.body.removeChild(leadDiv);
+		// if we're not dealing with white space, we can compute metrics
+		if (!isSpace) {
+			// Have characters, so measure the text
+			var canvas = document.createElement("canvas");
+			var padding = 100;
+			canvas.width = metrics.width + padding;
+			canvas.height = 3 * fontSize;
+			canvas.style.opacity = 1;
+			canvas.style.fontFamily = fontFamily;
+			canvas.style.fontSize = fontSize;
+			var ctx = canvas.getContext("2d");
+			ctx.font = fontSize + "px " + fontFamily;
+			var w = canvas.width,
+				h = canvas.height,
+				baseline = h / 2;
+			// Set all canvas pixeldata values to 255, with all the content
+			// data being 0. This lets us scan for data[i] != 255.
+			ctx.fillStyle = "white";
+			ctx.fillRect(-1, -1, w + 2, h + 2);
+			ctx.fillStyle = "black";
+			ctx.fillText(textstring, padding / 2, baseline);
+			var pixelData = ctx.getImageData(0, 0, w, h).data;
+			// canvas pixel data is w*4 by h*4, because R, G, B and A are separate,
+			// consecutive values in the array, rather than stored as 32 bit ints.
+			var i = 0,
+				w4 = w * 4,
+				len = pixelData.length;
+			// Finding the ascent uses a normal, forward scanline
+			while (++i < len && pixelData[i] === 255) {}
+			var ascent = (i / w4) | 0;
+			// Finding the descent uses a reverse scanline
+			i = len - 1;
+			while (--i > 0 && pixelData[i] === 255) {}
+			var descent = (i / w4) | 0;
+			// find the min-x coordinate
+			for (i = 0; i < len && pixelData[i] === 255;) {
+				i += w4;
+				if (i >= len) {
+					i = (i - len) + 4;
+				}
+			}
+			var minx = ((i % w4) / 4) | 0;
+			// find the max-x coordinate
+			var step = 1;
+			for (i = len - 3; i >= 0 && pixelData[i] === 255;) {
+				i -= w4;
+				if (i < 0) {
+					i = (len - 3) - (step++) * 4;
+				}
+			}
+			var maxx = ((i % w4) / 4) + 1 | 0;
+			// set font metrics
+			metrics.ascent = (baseline - ascent);
+			metrics.descent = (descent - baseline);
+			metrics.bounds = {
+				minx: minx - (padding / 2),
+				maxx: maxx - (padding / 2),
+				miny: 0,
+				maxy: descent - ascent
+			};
+			metrics.height = 1 + (descent - ascent);
+		}
+		// if we ARE dealing with whitespace, most values will just be zero.
+		else {
+			// Only whitespace, so we can't measure the text
+			metrics.ascent = 0;
+			metrics.descent = 0;
+			metrics.bounds = {
+				minx: 0,
+				maxx: metrics.width, // Best guess
+				miny: 0,
+				maxy: 0
+			};
+			metrics.height = 0;
+		}
+		return metrics;
+	};
+	var s = document.getElementsByTagName('script')[0];
+	var canvas = document.createElement("canvas");
+	canvas.width = 220;
+	canvas.height = 220;
+	document.body.appendChild(canvas); //seems that Chrome complains about getImageData if I don't append this canvas
+	var context = canvas.getContext("2d");
+	canvas.style.font = [fontSize, fontName].join(' ');
+	context.font = [fontSize, fontName].join(' ');
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	// draw bounding box and text
+	var xHeight = context.measureText("x").height;
+	var capHeight = context.measureText("H").height;
+	var metrics = context.measureText("Default i"); //for finding average char width. "i" is for catching serifs
+	var xStart = (canvas.width - metrics.width) / 2;
+	metrics.fontsize = parseInt(metrics.fontsize);
+	metrics.offset = Math.ceil((metrics.leading - metrics.height) / 2);
+	metrics.width = JSON.parse(JSON.stringify(metrics.width));
+	metrics.capHeight = capHeight;
+	metrics.xHeight = xHeight;
+	metrics.ascender = metrics.capHeight - metrics.xHeight;
+	metrics.descender = metrics.descent;
+	Array.prototype.slice.call(
+		document.getElementsByTagName('canvas'), 0
+	).forEach(function(c, i) {
+		if (i > 0) document.body.removeChild(c);
+	});
+	canvas.parentNode.removeChild(canvas);
+	return metrics;
+}
+</script>
+
+<!-- set margins according to window width, and set line spacing in response to line length -->
+<script type='text/javascript'>
+//the dimensions for a 1000px font aren't accurate for lower-size fonts. because Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size. so there's significant distortion depending on font size.
+//however, font measurements in our library don't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom.
+//thus, instead of getting true font ratios, we get large ones at 1000px.
+var x_height_ratio = 0.52; //default value, for when the canvas font measuring fails. 0.52 is high, but it's better to have the default be a little too open than a little too cramped
+var average_width_ratio = 0.4; //for the letters in the string "Default i"
+function set_ratios(element) {
+	var font_metrics = getMetrics(window.getComputedStyle(element).fontFamily, "1000px");
+	//getComputedStyle returns pixels. parseFloat strips the px unit and turns it into a float
+	x_height_ratio = font_metrics.xHeight / 1000;
+	average_width_ratio = font_metrics.width / 1000 / 9; //divide by 9 because the word we used, "Default i", has 9 characters. sadly, we can't do that in the font script because /9 seems to not work with the JSON stuff.
+}
+set_ratios(document.body);
+//we can only get the font size once, at document load, because there's no cheap way to detect font size changes. but since the font library doesn't respect true pixel size anyway, this doesn't matter
+//window.addEventListener("resize", set_ratios(document.body), false); //this leads to infinite recursion, and probably doesn't work in every browser. http://stackoverflow.com/a/2658045/
+
+//the visual size of a font is very different from its font size. most of its size is determined by its x-height. thus, here we blend the x-height and the font size to produce a more accurate font measure.
+var x_height_proportion = 0.7; //how much the x-height should matter in determining the effective font size. the remaining proportion is determined by the font size. try testing with Open Sans (x-height 0.535), Verdana (0.545), Garamond (0.384), and TNR (0.448) since they have the highest and lowest x-heights.
+var effective_font_height_multiplier = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find the "effective font height" as a ratio of the stated font size.
+var effective_font_height_of_reference_05_x_height_font =  0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
+var expansion_ratio_relative_to_reference_font = effective_font_height_multiplier / effective_font_height_of_reference_05_x_height_font;
+//font size is used here instead of the more accurate (ascent + descent), in order to respect the font designer's intentions.
+
+//standard font 1em in the current font size, converted to px.
+//the ratio used in conversion is (height + width / 2). we divide width by 2, because it doesn't seem to matter as much when determining the font size.
+//we get the font size from the main message, because that's the section designed for best reading.
+function fixed_arc_relative_to_standard_font() {
+	var px_of_fixed_arc = parseFloat(window.getComputedStyle(document.getElementById('m')).fontSize) * (effective_font_height_multiplier + average_width_ratio / 2);
+	return px_of_fixed_arc / (effective_font_height_of_reference_05_x_height_font + 0.4 / 2);
+}
+
+//all these default values are chosen by eyeballing, and without any peer-reviewed research.
+var width_constant_margin_scaling = 70; //in em, for the standard font. when line length equals this value, the margin will be half of its maximum value.
+var max_margin = 0.30; //this constant determines the margin's maximum proportion of the window width
+
+var minimum_line_spacing = 1.25; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
+var maximum_line_spacing = 1.5; //line spacing for very wide passages
+var line_length_for_line_spacing_scaling = 40; //in em, for the standard font. when line length equals this value, the line spacing will be the average of the minimum and maximum.
+
+var paragraph_margin_multiple = 0.4; //paragraph margin as a multiple of the line spacing
+var section_margin_multiple = 1.2;
+
+function rescale_line_spacing(element) {
+	var line_length = element.clientWidth / fixed_arc_relative_to_standard_font();
+	//clientWidth is better than scrollWidth, because a horizontal scrollbar can be created by a single word whose length is larger than the containing box.
+	//if your box has a horizontal scrollbar by default, then scrollWidth might be more reasonable, but that is a horrible situation to design for. you don't want horizontal scrollbars.
+	var scaled_line_length = Math.pow(line_length / line_length_for_line_spacing_scaling, 2);
+	var new_line_height_ratio = (maximum_line_spacing * scaled_line_length + minimum_line_spacing)/(scaled_line_length + 1) * expansion_ratio_relative_to_reference_font;
+	element.style.lineHeight = (new_line_height_ratio).toString();
+
+	changecss("#" + element.id + " p", "margin-top", new_line_height_ratio * paragraph_margin_multiple + "em");
+	changecss("#" + element.id + " section", "margin-top", new_line_height_ratio * section_margin_multiple + "em");
+}
+
+function remargin_main(event){
+	var relative_effective_font_size = fixed_arc_relative_to_standard_font();
+
+	var available_width = main_body.parentElement.clientWidth;
+	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / relative_effective_font_size, 2);
+	var margin_scaling = scaled_width / (scaled_width + 1);
+	if (margin_scaling * available_width * max_margin < relative_effective_font_size)
+		margin_scaling = 0; //clamp to edge if it's too small to effectively distinguish main text from history text.
+	main_body.style.marginLeft = (100 * max_margin * margin_scaling).toString() + "%";
+	main_body.style.marginRight = (100 * max_margin * margin_scaling).toString() + "%";
+
+	rescale_line_spacing(document.getElementById("H"));
+	rescale_line_spacing(main_body);
+}
+window.addEventListener('DOMContentLoaded', remargin_main);
+window.addEventListener('resize', remargin_main);
+</script>
+</html>

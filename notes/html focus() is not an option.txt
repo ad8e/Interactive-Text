@@ -1,0 +1,42 @@
+Formerly, to access non-keybound links, I emitted a tabindex=-1 element and focused it. since all the non-keybound links were in a group, it was best to leave the natural tab order as-is and only set the initial tab focus.
+However, later I realized that having non-keybound links out of order is helpful, as descriptive elements. then, for a fully unimpaired person, tab should skip all the keybound links, for fastest access.
+
+Remember that focus() also scrolls, so scrollIntoView() after focus(), not before.
+
+Attempt 1: From testing, if the DOM element that owns the existing focus is destroyed, the next object to receive a tab's focus is erratic, and behaves differently on Firefox and Chrome.
+
+On Firefox, the focus is "ghostly shifted" to the first text-order element to appear, and then the first tab will shift forward and backward from this first element. So a tab will reach the element whose tab order is after the first element, and a shift tab will reach the element whose tab order is before the first element.
+
+On Chrome, the first tab's focus will appear on the first text-order element no matter what tabindex is.
+
+That means that tabindex is a nonworking solution if the DOM element is destroyed.
+
+
+Attempt 2: Firefox respects tabindex the first time you tab, when no element has had initial focus. So maybe if you call document.activeElement.blur(); before deleting the old text, it might reset the tab state to an initial position?
+Nope, it does nothing.
+
+Attempt 3: The alternative is focus(). Inserting a ghost element with tabindex='-1' style='outline:none', and then calling focus() on it, does make tab focus on the element I want it to focus on. However, this has the problem of screwing up screenreaders. Whenever focus() is called, a screenreader (NVDA tested) might do one of three things:
+
+1. read the new message text like I want it to (20% chance)
+2. read the Window title, then tab title, then the focus()d element, which is horrible (70% chance)
+3. read nothing at all (10% chance)
+
+aria-hidden doesn't help. autofocus does nothing.
+
+Attempt 4: focus() is not an acceptable solution, so the only alternative is to not destroy the DOM element. So the DOM element must be moved.
+However, the moved-element graveyard will fill up if we continually push things there. And we can't delete a graveyard element if it contains our focus element, or else we'll be in the destroyed-focus-element situation. In my situation, interactive fiction will fill this graveyard up to gigabytes in a few hours.
+Thus, when deleting history log elements, we must check the element and all its children to make sure focus is not contained there, and then dance around it if it is.
+
+Attempt 5: However, it turns out that moving an element kills its focus anyway (at least on Firefox). So you can't just move it to a graveyard, you have to not touch it at all.
+
+Once you have a surviving object that you haven't moved anywhere, you need to set tabindex='-1' on it, or else this graveyard object will mess with your tab order. However, if you do set its tabindex to -1, then (at least on Firefox), tab order now behaves like the destroyed-DOM-object situation once again.
+
+Attempt 6:
+
+1. don't move that disappearing object anywhere!
+2. instead, take that object, and then hide it.
+3. build your new object around it: the old object must be placed exactly where you want the tab placement to be, in text order. Your new content will be half before it and half after it.
+4. check all of the hidden object's subnodes (recursively) for activeElement to find out where its focus is. For every non-active element that isn't a parent of the node with focus, you must delete it or else the screen reader will complain a lot. For the surviving nodes, make sure they are completely invisible and have no content, but don't use display:none, that will destroy the focus. Set tabindex = -1 on the focused node.
+5. If your focus wasn't in the object you deleted, then find the object that owns the focus and set its tabindex to between the tabindex of the first half and second half.
+
+I have run out of patience, and I am not going to implement this proposed solution, leaving mysteriously half-deleted, half-hidden elements in the middle of new text. After 5 failed attempts, I don't have much hope left, and I don't want to saddle maintainers with pages of in-depth comments, strange unintuitive behavior, and unexpected performance concerns, just for screenreaders. I am going to stick with my old focus() solution.

@@ -1,0 +1,5 @@
+reset options?
+research survey on typography line spacing
+
+in Firefox, the first tab will find links in the history, instead of links in the main passage.
+	I could set tabindex='1' to solve this, but that would clobber any user links.

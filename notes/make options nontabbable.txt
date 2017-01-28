@@ -1,0 +1,16 @@
+
+	<!-- gray out options and make them non-tabbable. if desired, the first link the user chooses can call this. if you want them to be non-tabbable always, this script is not necessary, just make their tabindex='-1'-->
+	<script type='text/javascript'>
+	function remove_options_focus()
+	{
+		var options_panel = document.getElementById("options_section");
+		options_panel.style.opacity = 0.6;
+		var options_elements = options_panel.getElementsByTagName('*');
+		for (var i = 0; i < options_elements.length; ++i) {
+			options_elements[i].setAttribute('tabindex', '-1');
+			//option.removeAttribute('tabindex'); //doesn't work in chrome, because they're selectable by default without having tabindex
+			//options_elements[i].tabindex = -1; //this doesn't work
+			//options_elements[i].tabindex = '-1'; //this doesn't work
+		}
+	}
+	</script>

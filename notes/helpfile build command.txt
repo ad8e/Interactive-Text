@@ -1,0 +1,11 @@
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html --bind -s RESERVED_FUNCTION_POINTERS=1 -std=c++1z -s NO_EXIT_RUNTIME=1
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html --bind -s RESERVED_FUNCTION_POINTERS=1 -std=c++1z -s NO_EXIT_RUNTIME=1 -O3 --closure 1
+
+for Chrome/IE:
+python -m SimpleHTTPServer 8080
+http://localhost:8080/a.html
+
+use sdk-master-64bit for the latest emscripten.
+1.37's non-closured, O3 output is 168KB, an improvement of 80KB over 1.35.
+1.37's closured, O3 output is 127KB, an improvement of 30KB over 1.35.
+https://kripken.github.io/emscripten-site/docs/building_from_source/building_emscripten_from_source_using_the_sdk.html#building-emscripten-from-source-using-the-sdk

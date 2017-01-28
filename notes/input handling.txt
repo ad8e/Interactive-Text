@@ -1,0 +1,6 @@
+http://stackoverflow.com/a/5829387/ doesn't work for many keys like -, ', `
+the array technique of onkeydown doesn't work cross-browser, because different browsers have different codes. for example, ; and = lead to different codes on FF and Chrome
+http://stackoverflow.com/a/23377822/ for keydown instead of keypress, which would support those funny chararacters, but with extra work. you'd need a 256-size array listing out the various keys, one for each browser, and some browser sniffing
+https://github.com/wesbos/keycodes/blob/gh-pages/scripts.js
+
+Also, if you are displaying paragraphs of text, it's usually better not to override the arrow keys, because keyboard users need them to scroll around the page.

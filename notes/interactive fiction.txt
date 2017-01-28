@@ -1,0 +1,8 @@
+The old style of text games, like Zork, relies on the user entering commands into a console.
+The user types "look painting", but the text already specifies a painting; why not turn the text into a link "[p]ainting"? It's more friendly. Typing "lp" is faster than "l painting" and then Enter. Even experienced players, playing famous, well-written games, have issues with text commands. You can see an example here: http://www.allthingsjacq.com/intfic_clubfloyd_20080904.html There's always a wrangle between what the user expects is possible, what the author supports, and what the user needs to do. Having links solves that problem.
+And nowadays, experienced players are few. If you write a game in the classic IF style, your audience will be small.
+The only good reason to separate the command and the description is to hide commands from the user. This lets the user display his "skill" in finding relevant objects.
+If you really want to hide links to promote "skill", you can unstyle the links to make them identical to text. Then the user clicks on the text if he thinks there should be a link there.
+The flexibility gained by console input is usually insignificant, because the user can't use something until you describe it. So the text is already there, you just need to make it a link. Standard commands like look, west, climb, shoot, can be keybound to buttons.
+And since there aren't obscure input commands you need to worry about, you can deliver more content with the same amount of effort. Most users won't see any of the clever "just-in-case" console stuff that you write.
+There's a good reason why Twine has supplanted conventional interpreters: it's better.
