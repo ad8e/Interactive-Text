@@ -65,7 +65,7 @@ function changecss(selector, property, value) {
 
 <!-- keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick() -->
 <script type='text/javascript'>
-var keyboard_shortcuts_enabled = true;
+var keyboard_shortcuts_enabled = !(localStorage.getItem("keyboard shortcuts enabled") === "false");
 var rebindingkey = false;
 var rebindingkeynumber = 0;
 
@@ -95,7 +95,7 @@ document.onkeypress = function(e) {
 			alert("You pressed an unsupported key. Only actual glyphs are supported, like letters, numbers, and punctuation. That excludes keys like arrows and Ctrl. This is because of javascript problems.");
 			return;
 		case 13:
-			alert("Don't use Enter as a keybind please, you need Enter to select links outside of the first eight with your keyboard. Plus, Enter causes trouble with javascript's fromCharCode.");
+			alert("Enter is disallowed as a keybind, because you need Enter to select links when tabbing. Plus, Enter causes trouble with javascript's fromCharCode.");
 			return;
 		case 32:
 			alert("Space is allowed, but not recommended, because it will scroll your page down.");
@@ -183,7 +183,7 @@ function flip_links() {
 var history_on_top = (localStorage.getItem("history on top") === "true");
 function set_history_position() {
 	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
-	changecss("#m", "height", history_on_top ? "75vh" : "auto"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it distinguishes history and main message
+	changecss("#m", "height", history_on_top ? "75vh" : "auto"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful.
 	changecss("#non_options_section", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
 	changecss("#scrolltarget", "display", (history_on_top ? "inline" : "none"));
 	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");
@@ -227,21 +227,15 @@ window.onerror = function() {
 
 <!-- enable/disable keyboard shortcuts -->
 <script type='text/javascript'>
-if (!(localStorage.getItem("keyboard shortcuts enabled") === null))
-	keyboard_shortcuts_enabled = (localStorage.getItem("keyboard shortcuts enabled") === "true");
-keyboard_enable_implement();
-
 function keyboard_enable_implement() {
 	document.getElementById("ck").textContent = "Keyboard shortcuts " + (keyboard_shortcuts_enabled ? "enabled" : "disabled");
-	for (var n in keycoderaw) {
-		if (keyboard_shortcuts_enabled)
-			changecss(".l" + n + "::after", "content", "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"");
-		else changecss(".l" + n + "::after", "content", "\"\"");
-	}
-	if (keyboard_shortcuts_enabled) document.getElementById("keyboard_rebinding_options").style.display = "";
-	else document.getElementById("keyboard_rebinding_options").style.display = "none"; //visibility=hidden doesn't keep it in place. the rest of the options still shift around
+	for (var n in keycoderaw)
+		changecss(".l" + n + "::after", "content", keyboard_shortcuts_enabled ? "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"" : "\"\"");
+	document.getElementById("keyboard_rebinding_options").style.display = keyboard_shortcuts_enabled ? "" : "none"; //visibility=hidden doesn't keep it in place. the rest of the options still shift around
 	localStorage.setItem("keyboard shortcuts enabled", keyboard_shortcuts_enabled);
 }
+keyboard_enable_implement();
+
 function flip_keyboard_enabled() {
 	keyboard_shortcuts_enabled = !keyboard_shortcuts_enabled;
 	keyboard_enable_implement();
@@ -252,9 +246,7 @@ function enable_disable_tabbing_for_keybound_links() {
 	for (var n in keycoderaw) {
 		var possible_link = document.getElementById('l' + n);
 		if (possible_link !== null) {
-			if (keyboard_shortcuts_enabled)
-				possible_link.setAttribute('tabindex', '-1');
-			else possible_link.setAttribute('tabindex', '0');
+			possible_link.setAttribute('tabindex', keyboard_shortcuts_enabled ? '-1' : '0');
 		}
 	}
 }
