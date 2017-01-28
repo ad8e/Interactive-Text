@@ -78,10 +78,15 @@ void guestbook_incrementor() {
 
 
 void tech_demo() {
-	o("This")("link", tech_demo)("was produced by writing o(\"link\", tech_demo) in C++, and it calls the function tech_demo() when pressed, which happens to be this passage you're already in.")("This link is disabled", nullptr)(".")("This link has no keybind, and therefore you can tab to it", tech_demo, a)(". Disabled links consume keybinds by default, but")("this disabled link has no keybind", nullptr, a)(". This is useful for keeping buttons in consistent keyboard order when some of them are missing.\n");
+	o("This")("link", tech_demo)("was produced by writing o(\"link\", tech_demo) in C++, and it calls the function tech_demo() when pressed, which happens to be this passage you're already in.");
 	o("You see a board which was implemented in C++. It currently has")(incrementor)("amateur scribbles.")("Add a beautiful drawing", guestbook_incrementor)(".");
-	o(suppress_history)("\nThis text will appear in the main message, but not in the history log. There is an optional neutral link, which has a keybind out of order. This is useful for a")("back button", main_menu, n)("or continue button, and is bound to spacebar. Its harmlessness is what makes it \"neutral\". \nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
+	o(suppress_history)("\nThis text will appear in the main message, but not in the history log. The last link is useful for a")("back button", main_menu, n)("or continue button.\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
 	o(R"(<div style="text-align:center;"><img src="Fractal_fern_explained.png" alt="image demo" style="width:333px; height:465px"></div><div style="text-align:right;">A centered image, and right-justified text.</span>)")(r);
+}
+
+void tech_demo_feature()
+{
+	o("This link is disabled", nullptr)(".")("This link has no keybind, and therefore you can tab to it", tech_demo, a)(". Disabled links consume keybinds by default, but")("this disabled link has no keybind", nullptr, a)(". This is useful for keeping buttons in consistent keyboard order when some of them are missing.\n");
 }
 
 void main_menu() {

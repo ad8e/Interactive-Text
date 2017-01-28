@@ -192,7 +192,7 @@ public:
 		convert_newlines_to_paragraph_tags_in_place(output_string);
 
 		if (history_string == "\n") EM_ASM_({change_message($0)}, output_string.c_str());
-		else EM_ASM_({append_text_to_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
+		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
 
 		history_string.clear();
 	}

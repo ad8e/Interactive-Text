@@ -43,21 +43,21 @@ var new_stylesheet = document.createElement('style');
 new_stylesheet.type = "text/css";
 document.head.appendChild(new_stylesheet);
 var stylesheet = new_stylesheet.sheet;
-
 function changecss(selector, property, value) {
 	/* from stackoverflow. selectorText: e.g. '#myId', '.myClass', 'thead td'
 	 * style: e.g. 'fontSize'
 	 * value: the new value. if a string, such as when style = "content", you might need nested quotes, like "\" text \""
 	 */
-	for (var i = 0; i < document.styleSheets.length; ++i) {
+	for (var i = 0; i < document.styleSheets.length; i++) {
 		rules = document.styleSheets[i].cssRules;
 		for (var n in rules) {
-			if (rules[n].selector == selector) {
+			if (rules[n].selectorText == selector) {
 				rules[n].style[property] = value;
 				return;
 			}
 		}
 	}
+	console.log("couldn't find rule, so making a new rule. " + selector + ' {' + property + ':' + value + '}');
 	//wasn't found, so insert a new rule
 	try {stylesheet.insertRule(selector + ' {' + property + ':' + value + '}', stylesheet.cssRules.length);}
 	catch (err) {alert("Stylesheet failed, couldn't add or find style!");}
@@ -81,7 +81,7 @@ function changekeybind(number) {
 	rebindingkeynumber = number;
 	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'bold';
 }
-var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 32]; //qwerasdf Space
+var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 103]; //qwerasdf g
 for (var n in keycoderaw) {
 	if (!(localStorage.getItem("keycode " + n) === null))
 		keycoderaw[n] = localStorage.getItem("keycode " + n).charCodeAt();
@@ -91,15 +91,15 @@ document.onkeypress = function(e) {
 	if (rebindingkey)
 	{
 		//note: e.which is required, instead of e.charCode, because charCode doesn't support Enter
-		if (e.which == 0)
-		{
+		switch (e.which) {
+		case 0:
 			alert("You pressed an unsupported key. Only actual glyphs are supported, like letters, numbers, and punctuation. That excludes keys like arrows and Ctrl. This is because of javascript problems.");
 			return;
-		}
-		if (e.which == 13)
-		{
+		case 13:
 			alert("Don't use Enter as a keybind please, you need Enter to select links outside of the first eight with your keyboard. Plus, Enter causes trouble with javascript's fromCharCode.");
 			return;
+		case 32:
+			alert("Space is allowed, but not recommended, because it will scroll your page down.");
 		}
 		rebindingkey = false;
 		//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
@@ -127,12 +127,9 @@ document.onkeypress = function(e) {
 
 <!-- underline links -->
 <script type='text/javascript'>
-var underline_links = false;
-if (!(localStorage.getItem("underline links") === null))
-	underline_links = (localStorage.getItem("underline links") === "true");
+var underline_links = (localStorage.getItem("underline links") === "true");
 function style_links() {
-	if (underline_links) changecss("a", "text-decoration", "underline");
-	else changecss("a", "text-decoration", "none");
+	changecss("a", "text-decoration", underline_links ? "underline" : "none");
 }
 style_links();
 function flip_links() {
@@ -144,25 +141,28 @@ function flip_links() {
 
 <p class="screenreader" role="contentinfo">Keyboard commands. Press keys to choose links in order. The 8 keys in order are q, w, e, r, and a, s, d, f. There is also a neutral link, spacebar, which is usually a cancel or back function. Keys can be rebound. Tab and enter to select links without a keybind.</p>
 
+<div class="emscripten" id="status" style="text-align:center">Downloading...</div>
+
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
 <div style="display: flex; flex-direction: column-reverse;">
-	<div id="non_options_section">
-		<div class="emscripten" id="status" style="text-align:center">Downloading...</div>
+	<div id="non_options_section" style="display: flex;">
+		<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
+		<!-- 75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it distinguishes history and main message -->
+		<div id='m' role="status" style="margin-top:1em; white-space:pre-wrap; height:75vh" aria-live="polite"></div>
 
-		<!-- low opacity and 90% font size let the user distinguish history from the main message. the opacity is at the maximum easily-distinguished level, since we need history to be readable. -->
-		<div id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap;"></div>
+		<hr style="margin:0.5em">
 		<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
 		<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
 		<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
-		<div id='scrolltarget' style="padding-bottom:0.3em"></div>
-		<hr>
-		<!-- 75vh preserves some of the previous scrollback to maintain context -->
-		<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
-		<div id='m' role="status" style="margin-top:1em; height:75vh; white-space:pre-wrap;" aria-live="polite"></div>
+		<div id='scrolltarget' style="padding-bottom:0.3em; padding-top:0.3em"></div>
+
+		<!-- low opacity and 90% font size let the user distinguish history from the main message. the opacity is at the maximum easily-distinguished level, since we need history to be readable. -->
+		<div id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap; display: flex;"></div>
 	</div>
 	<div id="options_section" style="text-align:center">Options:
 		<a id="cu" class="ca" tabindex="0" onclick="flip_links();">Underline links</a>
 		<a id="ch" class="ca" tabindex="0" onclick="prompt_history_retention();">History retention</a>
+		<a id="cp" class="ca" tabindex="0" onclick="flip_history_position();">History on bottom</a>
 		<a id="ck" class="ca" tabindex="0" onclick="flip_keyboard_enabled();">Keyboard shortcuts</a>
 		<span id="keyboard_rebinding_options">
 		rebind keys:
@@ -178,6 +178,24 @@ function flip_links() {
 		</span>
 	</div>
 </div>
+
+<!-- history on top -->
+<script type='text/javascript'>
+//true only if localstorage says it's true
+var history_on_top = (localStorage.getItem("history on top") === "true");
+function set_history_position() {
+	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
+	changecss("#non_options_section", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
+	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");
+}
+set_history_position();
+function flip_history_position() {
+	history_on_top = !history_on_top;
+	set_history_position();
+	localStorage.setItem("history on top", history_on_top);
+}
+</script>
+
 <!-- emscripten's javascript -->
 <script type='text/javascript'>
 var statusElement = document.getElementById('status');
@@ -263,13 +281,13 @@ function clear_old_history() {
 		}
 	}
 }
-function append_text_to_history(text) {
-	var history_container = document.getElementById('H');
+var history_container = document.getElementById('H');
+function insert_history(text) {
 	if (history_retention != 0) {
 		var new_history = document.createElement('section');
 		new_history.id = "history " + (id++);
 		new_history.innerHTML = Module.Pointer_stringify(text);
-		history_container.appendChild(new_history);
+		history_container.insertBefore(new_history, history_container.firstChild);
 	}
 	clear_old_history();
 }
@@ -293,7 +311,8 @@ var scrolltarget = document.getElementById('scrolltarget');
 function change_message(text) {
 	main_body.innerHTML = Module.Pointer_stringify(text);
 	enable_disable_tabbing_for_keybound_links();
-	scrolltarget.scrollIntoView(true);
+	if (history_on_top) scrolltarget.scrollIntoView(true);
+	else window.scrollTo(0, 0);
 }
 </script>
 {{{ SCRIPT }}}
