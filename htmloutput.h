@@ -191,7 +191,7 @@ public:
 		//the cost of doing things correctly, by converting links afterwards, would require tracking the history suppression marker. I did that for a while, but then removed that code.
 		convert_newlines_to_paragraph_tags_in_place(output_string);
 
-		if (history_string == "\n") EM_ASM_({change_message($0)}, output_string.c_str());
+		if (history_string.size() <= 1) EM_ASM_({change_message($0)}, output_string.c_str()); //either empty string or \n, which is created by empty string
 		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
 
 		history_string.clear();

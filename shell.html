@@ -30,7 +30,7 @@ a:hover, a.hover {text-decoration: underline;}
 }
 
 p {margin-bottom: 0px}
-section {margin-bottom: 0px}
+li {margin-bottom: 0px}
 </style>
 <!-- lets the javascript know when the C++ module is safely loaded and ready to use -->
 <script type='text/javascript'>
@@ -48,7 +48,7 @@ function changecss(selector, property, value) {
 	 * style: e.g. 'fontSize'
 	 * value: the new value. if a string, such as when style = "content", you might need nested quotes, like "\" text \""
 	 */
-	for (var i = 0; i < document.styleSheets.length; i++) {
+	for (var i = 0; i < document.styleSheets.length; ++i) {
 		rules = document.styleSheets[i].cssRules;
 		for (var n in rules) {
 			if (rules[n].selectorText == selector) {
@@ -57,7 +57,6 @@ function changecss(selector, property, value) {
 			}
 		}
 	}
-	console.log("couldn't find rule, so making a new rule. " + selector + ' {' + property + ':' + value + '}');
 	//wasn't found, so insert a new rule
 	try {stylesheet.insertRule(selector + ' {' + property + ':' + value + '}', stylesheet.cssRules.length);}
 	catch (err) {alert("Stylesheet failed, couldn't add or find style!");}
@@ -144,20 +143,19 @@ function flip_links() {
 <div class="emscripten" id="status" style="text-align:center">Downloading...</div>
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
-<div style="display: flex; flex-direction: column-reverse;">
-	<div id="non_options_section" style="display: flex;">
+<div style="display: flex; display: -webkit-flex; flex-direction: column-reverse;">
+	<div id="non_options_section" style="display: flex; display: -webkit-flex;">
 		<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
-		<!-- 75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it distinguishes history and main message -->
-		<div id='m' role="status" style="margin-top:1em; white-space:pre-wrap; height:75vh" aria-live="polite"></div>
+		<div id='m' role="status" style="margin-top:1em; white-space:pre-wrap;" aria-live="polite"></div>
 
 		<hr style="margin:0.5em">
 		<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
 		<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
 		<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
-		<div id='scrolltarget' style="padding-bottom:0.3em; padding-top:0.3em"></div>
+		<div id='scrolltarget' style="padding-bottom:0.3em;"></div>
 
 		<!-- low opacity and 90% font size let the user distinguish history from the main message. the opacity is at the maximum easily-distinguished level, since we need history to be readable. -->
-		<div id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap; display: flex;"></div>
+		<ul id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap; display: flex; display: -webkit-flex; list-style: circle; padding-left: 1em;"></ul>
 	</div>
 	<div id="options_section" style="text-align:center">Options:
 		<a id="cu" class="ca" tabindex="0" onclick="flip_links();">Underline links</a>
@@ -185,7 +183,9 @@ function flip_links() {
 var history_on_top = (localStorage.getItem("history on top") === "true");
 function set_history_position() {
 	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
+	changecss("#m", "height", history_on_top ? "75vh" : "auto"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it distinguishes history and main message
 	changecss("#non_options_section", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
+	changecss("#scrolltarget", "display", (history_on_top ? "inline" : "none"));
 	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");
 }
 set_history_position();
@@ -284,7 +284,7 @@ function clear_old_history() {
 var history_container = document.getElementById('H');
 function insert_history(text) {
 	if (history_retention != 0) {
-		var new_history = document.createElement('section');
+		var new_history = document.createElement('li');
 		new_history.id = "history " + (id++);
 		new_history.innerHTML = Module.Pointer_stringify(text);
 		history_container.insertBefore(new_history, history_container.firstChild);
@@ -496,7 +496,7 @@ var maximum_line_spacing = 1.5; //line spacing for very wide passages
 var line_length_for_line_spacing_scaling = 40; //in em, for the standard font. when line length equals this value, the line spacing will be the average of the minimum and maximum.
 
 var paragraph_margin_multiple = 0.4; //paragraph margin as a multiple of the line spacing
-var section_margin_multiple = 1.2;
+var section_margin_multiple = 1.0;
 
 function rescale_line_spacing(element) {
 	var line_length = element.clientWidth / fixed_arc_relative_to_standard_font();
@@ -507,7 +507,7 @@ function rescale_line_spacing(element) {
 	element.style.lineHeight = (new_line_height_ratio).toString();
 
 	changecss("#" + element.id + " p", "margin-top", new_line_height_ratio * paragraph_margin_multiple + "em");
-	changecss("#" + element.id + " section", "margin-top", new_line_height_ratio * section_margin_multiple + "em");
+	changecss("#" + element.id + " li", "margin-top", new_line_height_ratio * section_margin_multiple + "em");
 }
 
 function remargin_main(event){
