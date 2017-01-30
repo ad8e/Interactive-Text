@@ -183,7 +183,7 @@ function flip_links() {
 var history_on_top = (localStorage.getItem("history on top") === "true");
 function set_history_position() {
 	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
-	changecss("#m", "height", history_on_top ? "75vh" : "50vh"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use "auto".
+	changecss("#m", "min-height", history_on_top ? "75vh" : "50vh"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use "auto".
 	changecss("#non_options_section", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
 	changecss("#scrolltarget", "display", (history_on_top ? "inline" : "none"));
 	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");
@@ -451,7 +451,7 @@ function getMetrics(fontName, fontSize) {
 <script type='text/javascript'>
 //the dimensions for a 1000px font aren't accurate for lower-size fonts. because Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size. so there's significant distortion depending on font size.
 //however, font measurements in our library don't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom.
-//thus, instead of getting true font ratios, we get large ones at 1000px.
+//thus, since we can't get true font ratios, we get large ones at 1000px.
 var x_height_ratio = 0.52; //default value, for when the canvas font measuring fails. 0.52 is high, but it's better to have the default be a little too open than a little too cramped
 var average_width_ratio = 0.4; //for the letters in the string "Default i"
 function set_ratios(element) {
