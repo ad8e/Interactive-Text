@@ -8,7 +8,7 @@ body {font-family: "Open Sans", sans-serif;}
 /* bold-only, non-blue links are hard to distinguish and unconventional */
 a:not([href]) {color: blue;}
 a[onclick]:not([href]) {cursor: pointer;}
-a:hover, a.hover {text-decoration: underline;}
+a[href]:hover, a[onclick]:hover {text-decoration: underline;}
 
 .disabled_link {text-decoration: line-through;}
 .disabled_link:hover {text-decoration: none;}
@@ -183,7 +183,7 @@ function flip_links() {
 var history_on_top = (localStorage.getItem("history on top") === "true");
 function set_history_position() {
 	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
-	changecss("#m", "height", history_on_top ? "75vh" : "auto"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful.
+	changecss("#m", "height", history_on_top ? "75vh" : "50vh"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use "auto".
 	changecss("#non_options_section", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
 	changecss("#scrolltarget", "display", (history_on_top ? "inline" : "none"));
 	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");

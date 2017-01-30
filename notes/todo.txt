@@ -1,15 +1,2 @@
 reset options?
 research survey on typography line spacing
-
-in Firefox, the first tab will find links in the history, instead of links in the main passage.
-	I could set tabindex='1' to solve this, but that would clobber any user links.
-I could also flip them and use flexbox.
-
-inverse history option. makes main appear on the top. no more scrollintoview. add separators to history entries since they're now in reverse order.
-
-history starts out below.
-no scroll target needed
-no 75vh
-
-history starts out above.
-scroll target with margin
