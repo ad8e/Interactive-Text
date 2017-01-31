@@ -143,20 +143,18 @@ function flip_links() {
 <div class="emscripten" id="status" style="text-align:center">Downloading...</div>
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
-<div style="display: flex; display: -webkit-flex; flex-direction: column-reverse;">
-	<div id="non_options_section" style="display: flex; display: -webkit-flex;">
-		<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
-		<div id='m' role="status" style="margin:0.5em; white-space:pre-wrap;" aria-live="polite"></div>
+<div id="flexboxflip" style="display: flex; display: -webkit-flex;">
+	<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
+	<div id='m' role="status" style="margin:0.5em; white-space:pre-wrap;" aria-live="polite"></div>
 
-		<hr style="margin:0.5em">
-		<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
-		<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
-		<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
-		<div id='scrolltarget' style="padding-bottom:0.3em;"></div>
+	<hr style="margin:0.5em">
+	<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
+	<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
+	<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
+	<div id='scrolltarget' style="padding-bottom:0.3em;"></div>
 
-		<!-- low opacity and 90% font size let the user distinguish history from the main message. the opacity is at the maximum easily-distinguished level, since we need history to be readable. -->
-		<ul id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap; display: flex; display: -webkit-flex; list-style: circle; padding-left: 1em; margin: 0;"></ul>
-	</div>
+	<!-- low opacity and 90% font size let the user distinguish history from the main message. the opacity is at the maximum easily-distinguished level, since we need history to be readable. -->
+	<ul id='H' style="font-size: 0.9em; opacity: 0.6; white-space:pre-wrap; display: flex; display: -webkit-flex; list-style: circle; padding-left: 1em; margin: 0;"></ul>
 	<div id="options_section" style="text-align:center">Options:
 		<a id="cu" class="ca" tabindex="0" onclick="flip_links();">Underline links</a>
 		<a id="ch" class="ca" tabindex="0" onclick="prompt_history_retention();">History retention</a>
@@ -176,7 +174,6 @@ function flip_links() {
 		</span>
 	</div>
 </div>
-
 <!-- history on top -->
 <script type='text/javascript'>
 //true only if localstorage says it's true
@@ -184,7 +181,8 @@ var history_on_top = (localStorage.getItem("history on top") === "true");
 function set_history_position() {
 	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
 	changecss("#m", "min-height", history_on_top ? "75vh" : "50vh"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use "auto".
-	changecss("#non_options_section", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
+	//note: if you use auto, then the options shouldn't flip when the history flips, and should instead stay on top permanently.
+	changecss("#flexboxflip", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
 	changecss("#scrolltarget", "display", (history_on_top ? "inline" : "none"));
 	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");
 }
