@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-us">
 <meta charset="utf-8">
-<title>A Wonderful Help Page</title>
+<title>Text Game Title</title>
 <style>
 body {font-family: "Open Sans", sans-serif;}
 
@@ -310,6 +310,7 @@ function change_message(text) {
 <!-- library to get x-height of font of <body>. for use in determining line spacing. should be replaced by TextMetrics, https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics, once it is implemented. -->
 <script type="text/javascript">
 //credit to Sebastian Lasse at http://stackoverflow.com/a/35260300/
+//modified to fix xheight bug in that code
 function getMetrics(fontName, fontSize) {
 	// store the old text metrics function on the Canvas2D prototype
 	CanvasRenderingContext2D.prototype.measureTextWidth = CanvasRenderingContext2D.prototype.measureText;

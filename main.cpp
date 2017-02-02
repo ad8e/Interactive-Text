@@ -9,17 +9,19 @@ void feature_list()
 scrollback history
 rebindable keyboard shortcuts for links
 support for low-vision users, keyboard-only users, mouse-only users
-automatic typography, with sophisticated line-spacing variation and margin management
-perfectly responsive, no lag
+fully performant and responsive, vastly better than any javascript engine
 code in C++, no need to use Javascript
 every feature is removable
+Public Domain license: you can treat this code as if you wrote it yourself
 
 Technical details:
 only 600 lines of novel code for the entire engine
 automatic conversion of newline to paragraphs for formatting
+sophisticated line spacing and margin management
 perfect javascript link format: no empty history entries, no empty new tabs on middle click
 roles, semantic tags, and help section for screenreader users
 tested in IE, Firefox, and Chrome (Opera, Safari untested but likely to work)
+on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving lag-free 50%-native performance. for HTML/javascript, asm.js can never be matched by javascript
 )A");
 	o("Return to the main menu", main_menu, n)(r);
 }
@@ -90,10 +92,10 @@ void tech_demo_feature()
 }
 
 void main_menu() {
-	o("What would you like to do?")("See the feature list", feature_list)(",")("see a tech demo", tech_demo)(",")("build your own game", getting_started)(", or")("receive advice on engine choice", engine_choice)(". You can choose links by clicking on them or pressing the keybind next to them.")(r);
+	o("See the feature list", feature_list)(",")("see a tech demo", tech_demo)(",")("build your own game", getting_started)(", or")("receive advice on engine choice", engine_choice)(". You can choose links by clicking on them or pressing the keybind next to them.")(r);
 }
 
 int main() {
 	EM_ASM(emscripten_loaded = true;);
-	o(R"(<h1 style="text-align:center;">Text Game Standard Engine</h1>This webpage was built in the engine.)")(suppress_history)("Explore this engine by clicking here!", main_menu)(r);
+	main_menu();
 }
