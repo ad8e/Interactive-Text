@@ -1,11 +1,10 @@
-#include <emscripten/bind.h>
 #include "htmloutput.h"
 
 std::string history_string;
 html_output o;
 
 extern "C" {
-	void advance(int chosen_link) //if clicked link, count up from 0 sequentially. keyboard press, count down from -1 sequentially, with neutral link = -link_count - 1.
+	void EMSCRIPTEN_KEEPALIVE i(int chosen_link) //if clicked link, count up from 0 sequentially. keyboard press, count down from -1 sequentially, with neutral link = -link_count - 1.
 	{
 		int link_in_order; //either a non-negative number or -1
 		if (chosen_link >= 0) link_in_order = chosen_link; //mouse clicked
@@ -46,8 +45,4 @@ extern "C" {
 		o = html_output(); //reset it
 		to_be_called();
 	}
-}
-
-EMSCRIPTEN_BINDINGS(my_module) {
-	emscripten::function("i", &advance);
 }

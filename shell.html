@@ -112,7 +112,7 @@ document.onkeypress = function(e) {
 	{
 		if ((e.which == keycoderaw[n]) && emscripten_loaded && keyboard_shortcuts_enabled)
 		{
-			Module.i(-n - 1);
+			Module._i(-n - 1);
 			return;
 		}
 	}

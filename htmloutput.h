@@ -179,7 +179,7 @@ public:
 				output_string.append("<a class='disabled_link'>" + links.at(increm).first + "</a>");
 			else
 			{
-				std::string link_preamble("<a onclick = 'Module.i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
+				std::string link_preamble("<a onclick = 'Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
 				if (id_number != -1) link_preamble.append(" id='l" + std::to_string(id_number) + "' + class='l" + std::to_string(id_number) + "'>");
 				else link_preamble.append(">"); //generic link without a keyboard bind.
 				output_string.append(link_preamble + links.at(increm).first + "</a>");
