@@ -1,2 +1,5 @@
 reset options?
 research survey on typography line spacing
+
+0 history: move history bar to options, move options to bottom permanently
+	options on bottom, so it tells the user when he's done scrolling
