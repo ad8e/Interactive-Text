@@ -39,7 +39,7 @@ extern "C" {
 			else history_string.append(((increm == link_in_order) ? "<a class='chosen_link_in_history'>" : "<a>") + o.links.at(increm).first + "</a>");
 		}
 		history_string.append("</p>");
-		convert_newlines_to_paragraph_tags_in_place(history_string);
+		history_string = convert_newlines_to_paragraph_tags(history_string);
 
 		std::function<void()> to_be_called = o.links.at(link_in_order).second;
 		o = html_output(); //reset it

@@ -29,15 +29,21 @@ inline void warning(std::string message)
 }
 constexpr int link_count = 8;
 
-//turn \n into paragraphs to improve accessibility and formatting
-inline void convert_newlines_to_paragraph_tags_in_place(std::string& input)
+//turn \n into <p> to improve accessibility and formatting
+inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
 {
-	std::size_t pos = 0;
-	while ((pos = input.find('\n', pos)) != std::string::npos) input.replace(pos, 1, "</p><p>");
-
-	//sequential substitutions cause empty paragraphs, \n\n -> </p><p></p><p> -> </p>\n<p>
-	pos = 0;
-	while ((pos = input.find("<p></p>", pos)) != std::string::npos) input.replace(pos, 7, "\n");
+	std::string result_string;
+	std::size_t old_pos = 0;
+	std::size_t pos;
+	while ((pos = input.find('\n', old_pos)) != std::string::npos)
+	{
+		std::size_t last_pos = input.find_first_not_of('\n', pos);
+		if (last_pos == std::string::npos) last_pos = input.size();
+		result_string.append(input.substr(old_pos, pos - old_pos) + "</p>" + std::string(last_pos - pos - 1, '\n') + "<p>");
+		old_pos = last_pos;
+	}
+	result_string.append(input.substr(old_pos, std::string::npos));
+	return result_string;
 }
 
 extern std::string history_string;
@@ -189,7 +195,7 @@ public:
 
 		//theoretically, we must convert newlines before converting links to <a>, because inserting </p><p> inside an <a> is disallowed in html. but IE, Chrome, and FF don't care. each link component on each line gets [] wrapped around it, rather than [] wrapped just once around the entire link, but that's ok.
 		//the cost of doing things correctly, by converting links afterwards, would require tracking the history suppression marker. I did that for a while, but then removed that code.
-		convert_newlines_to_paragraph_tags_in_place(output_string);
+		output_string = convert_newlines_to_paragraph_tags(output_string);
 
 		if (history_string.size() <= 1) EM_ASM_({change_message($0)}, output_string.c_str()); //either empty string or \n, which is created by empty string
 		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());

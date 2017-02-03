@@ -1,1 +1,0 @@
-[options] can't be in the tab index after the game starts, and it shouldn't have a fixed keybind. thus, its tabindex is only valid at the very beginning.
