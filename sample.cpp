@@ -9,6 +9,5 @@ void next_scene() {
 }
 
 int main() {
-	EM_ASM(emscripten_loaded = true;); //tell the html file we are done loading, so that it's safe to hook into the C++. leave this line at the beginning.
 	o("This is the sample project.")("Move to the next scene!", next_scene)(r);
 }

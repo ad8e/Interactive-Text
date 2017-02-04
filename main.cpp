@@ -96,6 +96,5 @@ void main_menu() {
 }
 
 int main() {
-	EM_ASM(emscripten_loaded = true;);
 	main_menu();
 }
