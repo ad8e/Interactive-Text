@@ -1,12 +1,8 @@
 #pragma once
-//o("text") to add text. 
-//o("link text", function_to_call_on_click) to add links
-//o(r) to flush your text to the screen.
-//chainable: o("first")("second")("link", function)(r).
-
 //o("text", ns) to disable the automatic spacing before the text.
 //o("text", function, n) to add the unique neutral link.
 //o("text", function, a) to add an aside link, which doesn't have a keyboard shortcut.
+//if function==nullptr, the link is nonclickable. it still has a keyboard shortcut by default, which can be removed by making it an aside link.
 //o(suppress_history) to prevent the text afterward from appearing in the scrollback history.
 
 #include <string>

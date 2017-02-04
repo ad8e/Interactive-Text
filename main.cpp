@@ -12,15 +12,14 @@ support for low-vision users, keyboard-only users, mouse-only users
 fully performant and responsive, vastly better than any javascript engine
 code in C++, no need to use Javascript
 every feature is removable
-Public Domain license: you can treat this code as if you wrote it yourself
+Public Domain license: you can use this code as if you wrote it yourself
 
 Technical details:
 only 600 lines of novel code for the entire engine
-automatic conversion of newline to paragraphs for formatting
 sophisticated line spacing and margin management
 perfect javascript link format: no empty history entries, no empty new tabs on middle click
 roles, semantic tags, and help section for screenreader users
-tested in IE, Firefox, and Chrome (Opera, Safari untested but likely to work)
+tested in IE, Firefox, and Chrome
 on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving lag-free 50%-native performance
 )A");
 	o("Return to the main menu", main_menu, n)(r);
@@ -31,7 +30,6 @@ void emscripten_notes()
 	o(R"(This engine relies on emscripten to do the heavy lifting.
 You can use the usual C++ filesystem IO, but you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage.
 Keyboard input handling is through javascript, and it doesn't support all keys. To support all keys, you'll need "onkeydown", number-to-symbol tables for each browser, and some browser sniffing. This engine uses a different method, "onkeypress", which is much simpler, avoids the browser compatibility problems, and displays symbols perfectly, but it only supports keys that have actual glyphs.
-If emscripten is complaining about being out of memory, google "emscripten TOTAL_MEMORY". You could also use ALLOW_MEMORY_GROWTH which fixes this problem but eliminates emscripten's main performance advantage. This problem will likely disappear when WebAssembly arrives. See <a href="https://groups.google.com/forum/#!topic/emscripten-discuss/09E_WEk193E">this discussion</a>.
 When testing in Chrome and IE, if you're running the html file off your computer, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
 If your std::cout messages aren't showing in the console log, add a '\n' to the end. Use cout instead of cerr, cerr doesn't seem to show up. But try to use printf instead of cout, because cout adds a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, about 250KB to the .js for this engine.
 You'll eventually want to read the emscripten docs, especially the ones on optimization.
@@ -42,10 +40,10 @@ You'll eventually want to read the emscripten docs, especially the ones on optim
 void engine_choice()
 {
 	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and this engine.
-Twine is a strong choice. It has built-in save-anywhere. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in javascript. However, Twine is limited by its performance for long games. After 10 hours of play, every click will have seconds of delay, and the game becomes unplayable. This seems to be a property of the gamestate, so restarting doesn't help. This length limitation is the make-or-break factor for Twine. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine cannot be used.
-Java is laggy and has constant UI annoyances. Ren'Py is powerful, mature, and well-supported, but its strength is Visual Novels. Old-style IF engines, like Inform, place restrictions on your format and require you to learn their language. RAGS, QSP, and Quest are dumpster fires. Adobe Flash is dying. Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary a dependency to set up and carry.*
-HTML is by far the best way to display text. Your browser has hundreds of developers working on features like fonts, bold text, sectioned displays, buttons, and pictures. No other text engine comes close to your browser in performance and flexibility. HTML is present on Windows, Linux, Mac, and mobile. You won't have to learn engine-specific features, and you won't have to worry about the engine developer disappearing. Most importantly, many users are unwilling or unable to download things, and being able to run your game in a browser causes a large boost to your audience, setting HTML above every other choice.
+Twine is a strong choice. It has built-in save-anywhere. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in javascript. However, Twine is limited by its performance for long games. After 10 hours of play, every click will have seconds of delay, and the game becomes unplayable. This seems to be a property of the gamestate, so restarting doesn't help. This length limitation is the make-or-break factor for Twine. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
+Java is laggy and its UI is buggy. Ren'Py is powerful, mature, and well-supported, but its strength is Visual Novels. Old-style IF engines, like Inform, place restrictions on your format and require you to learn their language. RAGS, QSP, and Quest are dumpster fires. Adobe Flash is dying. Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary a dependency to set up and carry.*
 This engine lets you write C++ code and get HTML. You don't need to know javascript or HTML, but you need a beginner's knowledge of C++. There aren't any engine-specific things to learn. Adding features like sidebars is as easy as searching "html sidebars" on stackoverflow.
+HTML is the best format. Your browser has hundreds of developers working on features like fonts, bold text, sectioned displays, buttons, and pictures. No other text engine comes close to your browser in performance and flexibility. HTML is present on Windows, Linux, Mac, and mobile. You won't have to learn engine-specific features, and you won't have to worry about the engine developer disappearing. Most importantly, many users are unwilling or unable to download things, and being able to run your game in a browser causes a large boost to your audience, setting HTML above every other choice.
 
 *The mandatory splash screen for free users is a big downside. "Powered by Unity" could be interpreted as expressing pride in your choice, but "Unity Personal Edition" is just making fun of your poverty and forcing you to tell everyone else.
 
@@ -63,32 +61,21 @@ void getting_started()
 emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z -s NO_EXIT_RUNTIME=1
 4. run index.html to test the compiled files. Don't use Internet Explorer for this step.
 5. to start writing, modify sample.cpp, and compile again to see your changes.
-
-To output text from C++, write o("your text here");
-To output a link, write o("click me", function_to_call_when_clicked);
-To render the page, write o(r);
-That's all you need to learn to start writing. If later, you see other features you like, come back to this tech demo to see its source code.
 )");
 	o("Return to the main menu", main_menu, n)(r);
 }
 
 int incrementor = 2;
 void guestbook_incrementor() {
+	o("Gripping a brush, you paint a masterpiece on the board.\n");
 	++incrementor;
 	tech_demo();
 }
 
-
 void tech_demo() {
-	o("This")("link", tech_demo)("was produced by writing o(\"link\", tech_demo) in C++, and it calls the function tech_demo() when pressed, which happens to be this passage you're already in.");
-	o("You see a board which was implemented in C++. It currently has")(incrementor)("amateur scribbles.")("Add a beautiful drawing", guestbook_incrementor)(".");
-	o(suppress_history)("\nThis text will appear in the main message, but not in the history log. The last link is useful for a")("back button", main_menu, n)("or continue button.\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
+	o("In front of you is a board which currently has")(incrementor)("amateur scribbles.")("Add a beautiful drawing", guestbook_incrementor)(".");
+	o(suppress_history)("\nThe last link is useful for a")("back button", main_menu, n)("or continue button.\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
 	o(R"(<div style="text-align:center;"><img src="Fractal_fern_explained.png" alt="image demo" style="width:333px; height:465px"></div><div style="text-align:right;">A centered image, and right-justified text.</span>)")(r);
-}
-
-void tech_demo_feature()
-{
-	o("This link is disabled", nullptr)(".")("This link has no keybind, and therefore you can tab to it", tech_demo, a)(". Disabled links consume keybinds by default, but")("this disabled link has no keybind", nullptr, a)(". This is useful for keeping buttons in consistent keyboard order when some of them are missing.\n");
 }
 
 void main_menu() {
