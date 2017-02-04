@@ -10,14 +10,12 @@ extern "C" {
 		if (chosen_link >= 0) link_in_order = chosen_link; //mouse clicked
 		else if (chosen_link < 0) //keyboard pressed
 		{
-			chosen_link = -chosen_link - 1;
-			if (chosen_link > o.link_position.size()) error("this link doesn't exist");
-			link_in_order = o.link_position.at(chosen_link);
+			link_in_order = o.link_position.at(-chosen_link - 1);
 			if (link_in_order == -1) return;
 		}
 
 		if (link_in_order >= o.links.size()) return; //referenced a link which doesn't exist
-		if (o.links.at(link_in_order).second == nullptr) return; //link_in_order is now a valid index. if the link is nullptr, it's a dummy link
+		if (o.links.at(link_in_order).second == nullptr) return; //if the link is nullptr, it's a dummy link
 
 		//reconstruct the message without clickable links.
 		//we can't move the existing DOM message to the history section, because we'll have a nesting error if the </span> of the cmessage is in the middle of a paragraph.

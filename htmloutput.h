@@ -16,20 +16,9 @@
 #include <array>
 #include <emscripten/emscripten.h>
 
-[[noreturn]] inline void error(std::string message)
-{
-	message.insert(0, "Error: ");
-	EM_ASM_({alert(Pointer_stringify($0));}, message.c_str());
-	std::abort();
-}
-inline void warning(std::string message)
-{
-	message.insert(0, "Warning: ");
-	EM_ASM_({alert(Pointer_stringify($0));}, message.c_str());
-}
 constexpr int link_count = 8;
 
-//turn \n into <p> to improve accessibility and formatting
+//turn \n into HTML p tags to improve accessibility and formatting
 inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
 {
 	std::string result_string;
@@ -46,23 +35,21 @@ inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
 	return result_string;
 }
 
-extern std::string history_string;
 
-//special types used for parameter matching functions in html_output
 static struct suppress_history_t {} suppress_history;
 static struct render_the_page {} r;
 static struct aside_link_with_no_keyboard_shortcut {} a;
 static struct neutral_link {} n; //neutral link gets a special shortcut
 static struct no_automatic_space_before_this_text {} ns;
+
 class html_output
 {
-	bool needs_whitespace; //this is true if the last output ended in a tab or newline
+	bool needs_whitespace = false; //this is true if the last output ended in a tab or newline
 	bool whitespace(std::string const& newstring)
 	{
+		if (newstring.empty()) return false;
 		bool old_needs_whitespace = needs_whitespace;
-		if (!newstring.empty())
-			needs_whitespace = ((newstring.back() != '\n') && (newstring.back() != '\t')); //we don't check for ' ' to respect the user's intention of having an extra space.
-		else return false;
+		needs_whitespace = ((newstring.back() != '\n') && (newstring.back() != '\t'));
 		if (!old_needs_whitespace) return false;
 		switch (newstring.front())
 		{
@@ -90,19 +77,15 @@ class html_output
 	}
 public:
 	//any text appearing after this marker will appear in the message, but won't appear in the history section
-	int suppress_history_section_number;
+	int suppress_history_section_number = -1;
 	int suppress_history_char_offset;
 
-
-	std::vector<std::string> texts;
+	std::vector<std::string> texts{""};
 	std::vector<std::pair<std::string, std::function<void(void)>>> links;
-	unsigned main_links_emitted;
+	unsigned main_links_emitted = 0;
 	std::array<int, link_count + 1> link_position; //positions of the links with keybinds. last element is the neutral link
 
-	html_output() : needs_whitespace(false), suppress_history_section_number(-1), texts{""}, main_links_emitted(0)
-	{
-		link_position.fill(-1);
-	}
+	html_output() { link_position.fill(-1); }
 
 	//" << " takes 5 keystrokes including shift, and () takes 3 keystrokes when chaining as )(. operator() has the unique advantage of arbitrary argument count
 	html_output& operator()(std::string const& text)
@@ -118,7 +101,7 @@ public:
 	template<typename output_type>
 	auto operator()(output_type const& f)
 		-> decltype(std::to_string(f), *this)& //make sure to_string exists, and then use comma operator to return html_output&
-	{return (*this)(std::to_string(f)); }
+	{ return (*this)(std::to_string(f)); }
 
 	template<typename string_type>
 	html_output& operator()(string_type const& text, no_automatic_space_before_this_text ns)
@@ -146,7 +129,7 @@ public:
 	html_output& operator()(std::string const& text, std::function<void(void)> function, neutral_link n)
 	{
 		if (link_position.at(link_count) != -1)
-			error("neutral command already set");
+			(*this)("[Warning: neutral command already set]");
 		link_position.at(link_count) = links.size();
 		return (*this)(text, function, a); //use the aside link codepath
 	}
@@ -154,10 +137,7 @@ public:
 	html_output& operator()(suppress_history_t s)
 	{
 		if (suppress_history_section_number != -1)
-		{
-			warning("suppressing history twice in a single passage");
-			return *this; //already suppressing history
-		}
+			(*this)("[Warning: suppressing history twice in a single passage]");
 		suppress_history_section_number = texts.size() - 1;
 		suppress_history_char_offset = texts.back().size();
 		return *this;
@@ -197,6 +177,8 @@ public:
 		//the cost of doing things correctly, by converting links afterwards, would require tracking the history suppression marker. I did that for a while, but then removed that code.
 		output_string = convert_newlines_to_paragraph_tags(output_string);
 
+		extern std::string history_string;
+		
 		if (history_string.size() <= 1) EM_ASM_({change_message($0)}, output_string.c_str()); //either empty string or \n, which is created by empty string
 		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
 

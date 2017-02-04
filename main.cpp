@@ -21,7 +21,7 @@ sophisticated line spacing and margin management
 perfect javascript link format: no empty history entries, no empty new tabs on middle click
 roles, semantic tags, and help section for screenreader users
 tested in IE, Firefox, and Chrome (Opera, Safari untested but likely to work)
-on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving lag-free 50%-native performance. for HTML/javascript, asm.js can never be matched by javascript
+on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving lag-free 50%-native performance
 )A");
 	o("Return to the main menu", main_menu, n)(r);
 }
