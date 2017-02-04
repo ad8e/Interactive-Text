@@ -9,7 +9,7 @@ void feature_list()
 scrollback history
 rebindable keyboard shortcuts for links
 support for low-vision users, keyboard-only users, mouse-only users
-fully performant and responsive, vastly better than any javascript engine
+fully performant and responsive, vastly better than any Javascript engine
 code in C++, no need to use Javascript
 every feature is removable
 Public Domain license: you can use this code as if you wrote it yourself
@@ -17,7 +17,7 @@ Public Domain license: you can use this code as if you wrote it yourself
 Technical details:
 only 600 lines of novel code for the entire engine
 sophisticated line spacing and margin management
-perfect javascript link format: no empty history entries, no empty new tabs on middle click
+perfect Javascript link format: no empty history entries, no empty new tabs on middle click
 roles, semantic tags, and help section for screenreader users
 tested in IE, Firefox, and Chrome
 on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving lag-free 50%-native performance
@@ -29,7 +29,7 @@ void emscripten_notes()
 {
 	o(R"(This engine relies on emscripten to do the heavy lifting.
 You can use the usual C++ filesystem IO, but you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage.
-Keyboard input handling is through javascript, and it doesn't support all keys. To support all keys, you'll need "onkeydown", number-to-symbol tables for each browser, and some browser sniffing. This engine uses a different method, "onkeypress", which is much simpler, avoids the browser compatibility problems, and displays symbols perfectly, but it only supports keys that have actual glyphs.
+Keyboard input handling is through Javascript, and it doesn't support all keys. To support all keys, you'll need "onkeydown", number-to-symbol tables for each browser, and some browser sniffing. This engine uses a different method, "onkeypress", which is much simpler, avoids the browser compatibility problems, and displays symbols perfectly, but it only supports keys that have actual glyphs.
 When testing in Chrome and IE, if you're running the html file off your computer, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
 If your std::cout messages aren't showing in the console log, add a '\n' to the end. Use cout instead of cerr, cerr doesn't seem to show up. But try to use printf instead of cout, because cout adds a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, about 250KB to the .js for this engine.
 You'll eventually want to read the emscripten docs, especially the ones on optimization.
@@ -40,10 +40,10 @@ You'll eventually want to read the emscripten docs, especially the ones on optim
 void engine_choice()
 {
 	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and this engine.
-Twine is a strong choice. It has built-in save-anywhere. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in javascript. However, Twine is limited by its performance for long games. After 10 hours of play, every click will have seconds of delay, and the game becomes unplayable. This seems to be a property of the gamestate, so restarting doesn't help. This length limitation is the make-or-break factor for Twine. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
+Twine is a strong choice. It has built-in save-anywhere. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in Javascript. However, Twine is limited by its performance for long games. After 10 hours of play, every click will have seconds of delay, and the game becomes unplayable. This seems to be a property of the gamestate, so restarting doesn't help. This length limitation is the make-or-break factor for Twine. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
 Java is laggy and its UI is buggy. Ren'Py is powerful, mature, and well-supported, but its strength is Visual Novels. Old-style IF engines, like Inform, place restrictions on your format and require you to learn their language. RAGS, QSP, and Quest are dumpster fires. Adobe Flash is dying. Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary a dependency to set up and carry.*
-This engine lets you write C++ code and get HTML. You don't need to know javascript or HTML, but you need a beginner's knowledge of C++. There aren't any engine-specific things to learn. Adding features like sidebars is as easy as searching "html sidebars" on stackoverflow.
-HTML is the best format. Your browser has hundreds of developers working on features like fonts, bold text, sectioned displays, buttons, and pictures. No other text engine comes close to your browser in performance and flexibility. HTML is present on Windows, Linux, Mac, and mobile. You won't have to learn engine-specific features, and you won't have to worry about the engine developer disappearing. Most importantly, many users are unwilling or unable to download things, and being able to run your game in a browser causes a large boost to your audience, setting HTML above every other choice.
+This engine lets you write C++ code and get HTML. You don't need to know Javascript or HTML, but you need a beginner's knowledge of C++. There aren't any engine-specific things to learn. Adding features like sidebars is as easy as searching "html sidebars" on stackoverflow.
+HTML is the best format. Your browser has hundreds of developers working on features like fonts, bold text, sectioned displays, buttons, and pictures. No other text engine comes close to your browser in performance and flexibility. HTML is multiplatform. You won't have to learn engine-specific features, and the engine won't go obsolete. Most importantly, many users are unwilling or unable to download things, and being able to run your game in a browser causes a large boost to your audience, setting HTML above every other choice.
 
 *The mandatory splash screen for free users is a big downside. "Powered by Unity" could be interpreted as expressing pride in your choice, but "Unity Personal Edition" is just making fun of your poverty and forcing you to tell everyone else.
 
