@@ -19,6 +19,7 @@
 constexpr int link_count = 8;
 
 //turn \n into HTML p tags to improve accessibility and formatting
+//this creates unnecessary p tags when the input ends in \n</p> or starts in <p>\n, but that doesn't matter very much
 inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
 {
 	std::string result_string;
@@ -44,36 +45,21 @@ static struct no_automatic_space_before_this_text {} ns;
 
 class html_output
 {
-	bool needs_whitespace = false; //this is true if the last output ended in a tab or newline
+	bool needs_whitespace = false;
 	bool whitespace(std::string const& newstring)
 	{
 		if (newstring.empty()) return false;
 		bool old_needs_whitespace = needs_whitespace;
-		needs_whitespace = ((newstring.back() != '\n') && (newstring.back() != '\t'));
+		char no_whitespace_after[] = {'\r', '\n', '\t', '{', '[', '(', '#', '$'};
+		char no_whitespace_before[] = {'@', '/', '\\', '?', '!', '.', ',', ';', ':', ')', ']', '}', '\'', '\"', '\r', '\n', '\t'};
+		needs_whitespace = true;
+		for (char n : no_whitespace_after)
+			if (newstring.back() == n) needs_whitespace = false;
 		if (!old_needs_whitespace) return false;
-		switch (newstring.front())
-		{
-		case '?':
-		case '!':
-		case '@':
-		case '/':
-		case '.':
-		case ',':
-		case ';':
-		case ':':
-		case ')':
-		case ']':
-		case '}':
-		case '\'':
-		case '\"':
-		case ' ':
-		case '\r':
-		case '\n':
-		case '\t':
-			return false;
-		default:
-			return true;
-		}
+
+		for (char n : no_whitespace_before)
+			if (newstring.front() == n) return false;
+		return true;
 	}
 public:
 	//any text appearing after this marker will appear in the message, but won't appear in the history section
@@ -115,8 +101,8 @@ public:
 	{
 		if (whitespace(text)) texts.back().append(" ");
 		links.emplace_back(std::make_pair(text, function));
-		texts.emplace_back(""); //add an empty element
-		needs_whitespace = true; //because the [e] comes after the link
+		texts.emplace_back(""); //texts insert at next element
+		needs_whitespace = true; //links shouldn't end in whitespace
 		return *this;
 	}
 
@@ -143,7 +129,7 @@ public:
 		return *this;
 	}
 
-	//return nothing, because clearing the screen and then adding more text is likely not the desired behavior.
+	//return nothing, because clearing the screen and then adding more text is likely a bug.
 	void operator()(render_the_page r)
 	{
 		int main_link_incrementor = 0;
@@ -171,7 +157,7 @@ public:
 				output_string.append(link_preamble + links.at(increm).first + "</a>");
 			}
 		}
-		output_string.append("</p>"); //append this before conversion, because last line might be '<p></p>'
+		output_string.append("</p>");
 
 		//theoretically, we must convert newlines before converting links to <a>, because inserting </p><p> inside an <a> is disallowed in html. but IE, Chrome, and FF don't care. each link component on each line gets [] wrapped around it, rather than [] wrapped just once around the entire link, but that's ok.
 		//the cost of doing things correctly, by converting links afterwards, would require tracking the history suppression marker. I did that for a while, but then removed that code.

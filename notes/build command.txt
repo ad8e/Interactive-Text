@@ -1,5 +1,5 @@
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -s RESERVED_FUNCTION_POINTERS=1 -std=c++1z -s NO_EXIT_RUNTIME=1
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -s RESERVED_FUNCTION_POINTERS=1 -std=c++1z -s NO_EXIT_RUNTIME=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --closure 1
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --closure 1
 
 for Chrome/IE:
 python -m SimpleHTTPServer 8080
