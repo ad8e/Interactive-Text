@@ -19,7 +19,8 @@ constexpr int link_count = 8;
 //this creates unnecessary p tags when the input ends in \n</p> or starts in <p>\n, but that doesn't matter very much
 inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
 {
-	std::string result_string;
+	if (input.empty()) return ""; //special case: don't add p tags
+	std::string result_string("<p>");
 	std::size_t old_pos = 0;
 	std::size_t pos;
 	while ((pos = input.find('\n', old_pos)) != std::string::npos)
@@ -29,7 +30,7 @@ inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
 		result_string.append(input.substr(old_pos, pos - old_pos) + "</p>" + std::string(last_pos - pos - 1, '\n') + "<p>");
 		old_pos = last_pos;
 	}
-	result_string.append(input.substr(old_pos, std::string::npos));
+	result_string.append(input.substr(old_pos, std::string::npos) + "</p>");
 	return result_string;
 }
 
@@ -131,7 +132,7 @@ public:
 	{
 		int main_link_incrementor = 0;
 
-		std::string output_string("<p>");
+		std::string output_string;
 		for (int increm = 0; ; ++increm)
 		{
 			if (increm >= texts.size()) break;
@@ -143,26 +144,23 @@ public:
 			if (link_position.at(link_count) == increm) id_number = link_count; //neutral link shortcut
 			else if (link_position.at(main_link_incrementor) == increm) id_number = main_link_incrementor++; //keyboard shortcut
 
-			//if (links.at(increm).first.empty()) continue; //don't output a link, because the user might have keyboard input turned off? but some games might want keyboard-only input. however, the game author should be aware that this is not a mouse-friendly action.
 			if (links.at(increm).second == nullptr)
 				output_string.append("<a class='disabled_link'>" + links.at(increm).first + "</a>");
 			else
 			{
-				std::string link_preamble("<a onclick = 'Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
-				if (id_number != -1) link_preamble.append(" id='l" + std::to_string(id_number) + "' + class='l" + std::to_string(id_number) + "'>");
-				else link_preamble.append(">"); //generic link without a keyboard bind.
-				output_string.append(link_preamble + links.at(increm).first + "</a>");
+				std::string link_preamble("<a onclick='Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
+				if (id_number != -1) link_preamble.append(" id='l" + std::to_string(id_number) + "' class='l" + std::to_string(id_number) + "'");
+				output_string.append(link_preamble + ">" + links.at(increm).first + "</a>");
 			}
 		}
-		output_string.append("</p>");
 
-		//theoretically, we must convert newlines before converting links to <a>, because inserting </p><p> inside an <a> is disallowed in html. but IE, Chrome, and FF don't care. each link component on each line gets [] wrapped around it, rather than [] wrapped just once around the entire link, but that's ok.
+		//theoretically, we must convert newlines before converting links to <a>, because </p><p> inside an <a> is disallowed in html. but IE, Chrome, and FF don't care. each link component on each line gets [] wrapped around it, rather than [] wrapped just once around the entire link, but that's ok.
 		//the cost of doing things correctly, by converting links afterwards, would require tracking the history suppression marker. I did that for a while, but then removed that code.
 		output_string = convert_newlines_to_paragraph_tags(output_string);
 
 		extern std::string history_string;
 		
-		if (history_string.size() <= 1) EM_ASM_({change_message($0)}, output_string.c_str()); //either empty string or \n, which is created by empty string
+		if (history_string.empty()) EM_ASM_({change_message($0)}, output_string.c_str());
 		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
 
 		history_string.clear();

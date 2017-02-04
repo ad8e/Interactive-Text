@@ -21,7 +21,6 @@ extern "C" {
 		//we can't move the existing DOM message to the history section, because we'll have a nesting error if the </span> of the cmessage is in the middle of a paragraph.
 		//if we did move something, we could use http://stackoverflow.com/a/33724397, which moves them to a fragment before moving them again. operating on non-visible elements is faster.
 
-		history_string.append("<p>");
 		for (int increm = 0; ; ++increm)
 		{
 			if (increm >= o.texts.size()) break;
@@ -36,7 +35,6 @@ extern "C" {
 			if (o.links.at(increm).second == nullptr) history_string.append("<a class='disabled_link'>" + o.links.at(increm).first + "</a>");
 			else history_string.append(((increm == link_in_order) ? "<a class='chosen_link_in_history'>" : "<a>") + o.links.at(increm).first + "</a>");
 		}
-		history_string.append("</p>");
 		history_string = convert_newlines_to_paragraph_tags(history_string);
 
 		std::function<void()> to_be_called = o.links.at(link_in_order).second;
