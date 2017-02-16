@@ -6,49 +6,62 @@ void tech_demo();
 void feature_list()
 {
 	o(R"A(Features:
+can be learned in one minute, because there's only one function: o() to output
 scrollback history
 rebindable keyboard shortcuts for links
 support for low-vision users, keyboard-only users, mouse-only users
 fully performant and responsive, vastly better than any Javascript engine
 code in C++, no need to use Javascript
-every feature is removable
 Public Domain license: you can use this code as if you wrote it yourself
+HTML output makes customizing the display easy; stackoverflow has every answer.
 
 Technical details:
-only 600 lines of novel code for the entire engine
 sophisticated line spacing and margin management
 perfect Javascript link format: no empty history entries, no empty new tabs on middle click
 roles, semantic tags, and help section for screenreader users
 tested in IE, Firefox, and Chrome
-on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving lag-free 50%-native performance
+on desktop browsers, asm.js and emscripten eliminate garbage collection and dynamic typing, receiving stutter-free 50%-native performance
 )A");
 	o("Return to the main menu", main_menu, n)(r);
 }
 
+void engine_choice();
 void emscripten_notes()
 {
-	o(R"(This engine relies on emscripten to do the heavy lifting.
-You can use the usual C++ filesystem IO, but you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage.
-Keyboard input handling is through Javascript, using "onkeypress", which doesn't support keys that are missing actual glyphs. To support all keys, you'll need "onkeydown", number-to-symbol tables for each browser, and browser sniffing.
-When testing in Chrome and IE, if you're running the html file off your computer, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
+	o(R"(This engine is just an output function. Emscripten does the heavy lifting. There are some catches.
+For filesystem read/write, you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage.
+Keyboard input handling is through Javascript, using "onkeypress", which only supports keys with concrete glyphs like "a" and "=". To support other keys, you'll need "onkeydown", number-to-symbol tables for each browser, and browser sniffing.
+When testing in Chrome and IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
 If your std::cout messages aren't showing in the console log, add a '\n' to the end. Use cout instead of cerr, cerr doesn't seem to show up. But try to use printf instead of cout, because cout adds a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, about 250KB to the .js for this engine.
-You'll eventually want to read the emscripten docs, especially the ones on optimization.
 )");
-	o("Return to the main menu", main_menu, n)(r);
+	o("Return", engine_choice, n)(r);
+}
+
+void other_engines()
+{
+	o(R"(Java is laggy and its UI is buggy.
+Ren'Py is powerful, mature, and well-supported, but its strength is Visual Novels.
+Old-style IF parser engines, like Inform, place restrictions on your format and require you to learn their language.
+RAGS, QSP, and Quest are dumpster fires.
+Adobe Flash is dying.
+Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary a dependency to set up and carry.
+HTML is the best format for a text game. Your browser has features like fonts, bold text, sectioned displays, buttons, and pictures, and its hundreds of developers ensure that no other text engine comes close in performance and flexibility. HTML is multiplatform. You won't have to learn engine-specific features, and the engine won't go obsolete. Most importantly, being able to run your game in a browser causes a large boost to your audience, setting HTML above every other choice.
+)");
+	o("Return", engine_choice, n)(r);
 }
 
 void engine_choice()
 {
 	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and this engine.
-Twine is a strong choice. It has built-in saves. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in Javascript. However, Twine is limited by its performance for long games. After 10 hours of play, every click will have seconds of delay, and the game becomes unplayable. This seems to be a property of the gamestate, so restarting doesn't help. This length limitation is the make-or-break factor for Twine. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
-Java is laggy and its UI is buggy. Ren'Py is powerful, mature, and well-supported, but its strength is Visual Novels. Old-style IF engines, like Inform, place restrictions on your format and require you to learn their language. RAGS, QSP, and Quest are dumpster fires. Adobe Flash is dying. Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary a dependency to set up and carry.
-This engine lets you write C++ code and get HTML. You don't need to know Javascript or HTML, but you need a beginner's knowledge of C++. Adding features like sidebars is as easy as searching "html sidebars" on stackoverflow, there aren't any engine-specific things to learn.
-HTML is the best format for a text game. Your browser has features like fonts, bold text, sectioned displays, buttons, and pictures, and its hundreds of developers ensure that no other text engine comes close in performance and flexibility. HTML is multiplatform. You won't have to learn engine-specific features, and the engine won't go obsolete. Most importantly, being able to run your game in a browser causes a large boost to your audience, setting HTML above every other choice.
+Twine is a strong choice. It has built-in saves. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in Javascript. However, games longer than 10 hours become unplayable from lag. Each choice freezes the browser for several seconds, and restarting the browser doesn't help. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
+This engine lets C++ run in a webpage, thanks to emscripten. You don't need to know Javascript or HTML. This avoids Twine's lag, but if your game runs over 10 hours, your users will need a save function. Twine has saves, but this engine doesn't. You will have to build your own save function.
 
 )");
 	o("Notes on emscripten", emscripten_notes)('\n');
+	o("Other engines", other_engines)('\n');
 	o("Return to the main menu", main_menu, n)(r);
 }
+
 
 void getting_started()
 {
@@ -56,7 +69,7 @@ void getting_started()
 1. install <a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">emscripten</a>, the compiler that does most of the work
 2. download <a href="https://github.com/ad8e/Text-Game-Standard-Engine">this project</a>
 3. open a console in the project folder (on Windows, shift right-click when nothing is selected), and compile by pasting this command:
-emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z -s NO_EXIT_RUNTIME=1
+emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -O3 --closure 1
 4. run index.html to test the compiled files. Don't use Internet Explorer for this step.
 5. to start writing, modify sample.cpp, and compile again to see your changes.
 )");
@@ -65,7 +78,7 @@ emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z 
 
 int incrementor = 0;
 void guestbook_incrementor() {
-	o("Gripping a brush, you paint a masterpiece on the board.\n");
+	o("Gripping a brush, you pour your soul onto the unsuspecting board.\n");
 	++incrementor;
 	tech_demo();
 }
@@ -80,7 +93,7 @@ void tech_demo() {
 	if (incrementor == 0) o(".");
 	else
 	{
-		if (incrementor == 1) o("which has been defaced with a shoddy doodle. Who would do such a thing?");
+		if (incrementor == 1) o("which has been defaced with a shoddy doodle.");
 		else o("which currently has")(incrementor)("amateur scribbles.");
 	}
 	o("\n")("Add a beautiful drawing?", guestbook_incrementor);
