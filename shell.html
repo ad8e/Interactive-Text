@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-us">
 <meta charset="utf-8">
-<title>Text Game Title</title>
+<title>Interactive Text</title>
 <style>
 body {font-family: "Open Sans", sans-serif;}
 
@@ -263,7 +263,7 @@ if (!(localStorage.getItem("history retention") === null))
 	history_retention = parseInt(localStorage.getItem("history retention"));
 function set_history_retention(number) {
 	history_retention = number;
-	document.getElementById("ch").textContent = (history_retention < 0) ? "Retaining all history" : "Retaining " + history_retention + " history entries";
+	document.getElementById("ch").textContent = "History kept: " + ((history_retention < 0) ? "all" : history_retention);
 }
 set_history_retention(history_retention); //write the options text
 var id = 0;

@@ -6,7 +6,7 @@ void tech_demo();
 void engine_choice();
 void emscripten_notes()
 {
-	o(R"(This engine is just an output function. Emscripten does the heavy lifting. There are some catches.
+	o(R"(Interactive Text is just an output function. Emscripten does the heavy lifting, converting the C++ to HTML. There are some catches.
 For filesystem read/write, you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage for saves.
 Keyboard input handling is through Javascript, using onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing.
 When testing in Chrome and IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
@@ -17,22 +17,23 @@ If your std::cout messages aren't showing in the console log, add a '\n' to the 
 
 void other_engines()
 {
-	o(R"(Java is laggy and its UI is buggy.
-Ren'Py is powerful, mature, and well-supported, but its strength is Visual Novels.
-Old-style IF parser engines, like Inform, place restrictions on your format and require you to learn their language.
+	o(R"(Java has severe UI and performance problems in every text game I've seen.
+Ren'Py is powerful, mature, and well-supported; it is good for Visual Novels. If you want to build a Visual Novel, Ren'Py is king.
+Old-style IF parser engines, like Inform, place restrictions on your format and require you to learn a language you will never use anywhere else. If you like the format, they're not a bad choice, but most people don't. The IF audience is small.
 RAGS, QSP, and Quest are dumpster fires.
-Adobe Flash is dying.
-Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary.
-HTML is best for a text game. Your browser has fonts, bold text, sectioned displays, buttons, and pictures. Its huge developer base ensures its supremacy in performance and flexibility. It is multiplatform. You won't have to learn engine-specific features, and it won't go obsolete. Most importantly, people play browser games, but most people won't play downloaded games.
+Adobe Flash is dying. You can still build with it, but its future is limited.
+Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary. Setting up a basic product takes a lot of work.
+HTML is best for a text game. It has colors, fonts, bold text, sectioned displays, buttons, and pictures. Its huge developer base ensures its supremacy in performance and flexibility. It is multiplatform. You won't have to learn engine-specific features that will never be useful anywhere else. Most importantly, people play browser games, but most people won't play downloaded games.
+For minor engines, be aware that if the developer vanishes into smoke, you could be left holding a useless file. Even if the engine is open-source, it's unlikely anyone else will step in. Interactive Text faces this same issue, and tries to lessen the impact by being very small, so that it's easy to modify the code. However, you should still be mindful.
 )");
 	o("Return", engine_choice, n)(r);
 }
 
 void engine_choice()
 {
-	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and this engine.
+	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and Interactive Text.
 Twine is a strong choice. It has built-in saves. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in Javascript. However, games longer than 10 hours become unplayable from lag. Each choice freezes the browser for several seconds, and restarting the browser doesn't help. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
-This engine lets C++ run in a webpage, thanks to emscripten. You don't need to know Javascript or HTML. There's no lag, but if your game runs over 10 hours, your users will need a save function, which you will need to build. Twine has saves, but this engine doesn't. Initial installation takes a while; 30 minutes of reading and an hour of waiting.
+Interactive Text is an alternative that doesn't have lag problems, but if your game runs over 10 hours, your users will need a save function, which you will need to build. Twine has saves, but Interactive Text doesn't. Interactive Text requires knowledge of C++ instead of Javascript. Your finished product will be an HTML file that can be run in a browser. Installing the C++-to-HTML compiler takes a while; 30 minutes of reading and an hour of waiting.
 
 )");
 	o("Notes on emscripten", emscripten_notes)('\n');
@@ -44,7 +45,7 @@ This engine lets C++ run in a webpage, thanks to emscripten. You don't need to k
 void getting_started()
 {
 	o(R"(1. install <a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">emscripten</a>, the compiler that does most of the work
-2. download <a href="https://github.com/ad8e/Text-Game-Standard-Engine">this project</a>
+2. download <a href="https://github.com/ad8e/Interactive-Text">this project</a>
 3. open a console in the project folder (on Windows, shift right-click when nothing is selected), and compile by pasting this command:
 emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -O3 --closure 1
 4. run index.html to test the compiled files. Don't use Internet Explorer for this step.
@@ -73,9 +74,10 @@ void tech_demo() {
 		if (incrementor == 1) o("which has been defaced with a shoddy doodle.");
 		else o("which currently has")(incrementor)("amateur scribbles.");
 	}
-	o("\n")("Add a beautiful drawing?", guestbook_incrementor);
+	o("Add a beautiful drawing?", guestbook_incrementor);
 	if (incrementor) o("\n")("Or erase the board?", erase_incrementor);
-	o(suppress_history)("\n")("Or return?", main_menu, n)("\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
+	o("\nNote the options (at the top or bottom). You can turn on history, turn on keyboard shortcuts, and flip the history from top to bottom.");
+	o(suppress_history)("\n")("Return to main menu", main_menu, n)("\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
 	o(R"(<div style="text-align:center;"><img src="Fractal_fern_explained.png" alt="image demo" style="width:333px; height:465px"></div><div style="text-align:right;">A centered image, and right-justified text.</span>)")(r);
 }
 
@@ -96,7 +98,7 @@ on desktop browsers, asm.js means unmatched performance
 mobile browsers supported with much less performance, but should still be fine
 entire display is in HTML, so customization is easy
 
-)")("Demo (you can navigate with your keyboard)", tech_demo)("\n")("Build your own game", getting_started)("\n")("Receive advice on engine choice", engine_choice)(r);
+)")("Demo", tech_demo)("\n")("Build your own game", getting_started)("\n")("Receive advice on engine choice", engine_choice)(r);
 }
 
 int main() {
