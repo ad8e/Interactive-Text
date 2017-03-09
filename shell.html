@@ -98,13 +98,14 @@ document.onkeypress = function(e) {
 			alert("Enter is a disallowed keybind, because you need Enter to select links when tabbing. Plus, Enter causes trouble with javascript's fromCharCode.");
 			return;
 		case 32:
-			alert("Space is allowed, but not recommended, because it will scroll your page down.");
+			alert("Space is not recommended because it is invisible and will scroll your page down.");
 		}
 		rebindingkey = false;
 		//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
 		keycoderaw[rebindingkeynumber] = e.which;
 		localStorage.setItem("keycode " + rebindingkeynumber, String.fromCharCode(e.which));
-		changecss('.l' + rebindingkeynumber + '::after', 'content', '\'[' + String.fromCharCode(e.which) + ']\'');
+		changecss("#l" + rebindingkeynumber + "::after", "content", keyboard_shortcuts_enabled ? "\"" + String.fromCharCode(e.which) + "\"" : "\"\""); //we still need to check keyboard_shortcuts_enabled because user might try to rebind a key and then disable shortcuts
+		changecss("#c" + rebindingkeynumber + "::after", "content", keyboard_shortcuts_enabled ? "\"[" + String.fromCharCode(e.which) + "]\"" : "\"\"");
 		document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal';
 		return;
 	}
@@ -227,8 +228,13 @@ window.onerror = function() {
 <script type='text/javascript'>
 function keyboard_enable_implement() {
 	document.getElementById("ck").textContent = "Keyboard shortcuts " + (keyboard_shortcuts_enabled ? "enabled" : "disabled");
-	for (var n in keycoderaw)
-		changecss(".l" + n + "::after", "content", keyboard_shortcuts_enabled ? "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"" : "\"\"");
+	for (var n in keycoderaw) {
+		changecss("#l" + n + "::after", "content", keyboard_shortcuts_enabled ? "\"" + String.fromCharCode(keycoderaw[n]) + "\"" : "\"\"");
+		changecss("#l" + n + "::after", "position", "relative");
+		changecss("#l" + n + "::after", "bottom", "-0.2em");
+		changecss("#l" + n + "::after", "font-size", "80%");
+		changecss("#c" + n + "::after", "content", keyboard_shortcuts_enabled ? "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"" : "\"\"");
+	}
 	document.getElementById("keyboard_rebinding_options").style.display = keyboard_shortcuts_enabled ? "" : "none"; //visibility=hidden doesn't keep it in place. the rest of the options still shift around
 	localStorage.setItem("keyboard shortcuts enabled", keyboard_shortcuts_enabled);
 }
@@ -252,7 +258,7 @@ function enable_disable_tabbing_for_keybound_links() {
 
 <!-- history handler -->
 <script type='text/javascript'>
-var history_retention = 6;
+var history_retention = 2;
 if (!(localStorage.getItem("history retention") === null))
 	history_retention = parseInt(localStorage.getItem("history retention"));
 function set_history_retention(number) {
@@ -306,9 +312,9 @@ function change_message(text) {
 </script>
 {{{ SCRIPT }}}
 
-<!-- library to get x-height of font of <body>. for use in determining line spacing. should be replaced by TextMetrics, https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics, once it is implemented. -->
+<!-- library to get x-height of font of <body>. for determining line spacing. should be replaced by TextMetrics, https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics, once it is available. -->
 <script type="text/javascript">
-//credit to Sebastian Lasse at http://stackoverflow.com/a/35260300/
+//by Sebastian Lasse at http://stackoverflow.com/a/35260300/
 //modified to fix xheight bug in that code
 function getMetrics(fontName, fontSize) {
 	// store the old text metrics function on the Canvas2D prototype

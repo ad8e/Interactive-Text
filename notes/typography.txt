@@ -1,4 +1,5 @@
 if you change the font, change the <body>'s font in shell.html, because that's the font that line-spacing looks at
+if you change the page style from black-on-white to white-on-black, increase the line spacing, and use a lighter font.
 
 we don't scale the text size, because the user can scale text size using his browser controls. plus, text size is a function of the user's distance to his screen and visual acuity, and is mostly independent of line length or window width. that is, if the user rescales his window, the best text size still wouldn't change.
 the default constants are not based on any science or typography whatsoever. if you find credible research, then nudge the default numbers according to the conclusiveness of that research, and add links to the papers in these comments.

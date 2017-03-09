@@ -1,7 +1,7 @@
 #pragma once
 /*
 o("text", ns) to disable the automatic spacing before the text.
-o("text", function, n) to add the unique neutral link.
+o("text", function, n) to add the unique neutral link. meaning: back, or continue. no action, which is why it is "neutral"
 o("text", function, a) to add an aside link, which doesn't have a keyboard shortcut.
 if function==nullptr, the link is nonclickable. it still has a keyboard shortcut by default, which can be removed by making it an aside link.
 o(suppress_history) to prevent the text afterward from appearing in the scrollback history.
