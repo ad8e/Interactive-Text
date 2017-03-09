@@ -65,7 +65,7 @@ function changecss(selector, property, value) {
 
 <!-- keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick() -->
 <script type='text/javascript'>
-var keyboard_shortcuts_enabled = !(localStorage.getItem("keyboard shortcuts enabled") === "false");
+var keyboard_shortcuts_enabled = (localStorage.getItem("keyboard shortcuts enabled") === "true");
 var rebindingkey = false;
 var rebindingkeynumber = 0;
 
@@ -258,7 +258,7 @@ function enable_disable_tabbing_for_keybound_links() {
 
 <!-- history handler -->
 <script type='text/javascript'>
-var history_retention = 2;
+var history_retention = 0;
 if (!(localStorage.getItem("history retention") === null))
 	history_retention = parseInt(localStorage.getItem("history retention"));
 function set_history_retention(number) {
