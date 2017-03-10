@@ -71,14 +71,16 @@ void tech_demo() {
 	if (incrementor == 0) o(".");
 	else
 	{
-		if (incrementor == 1) o("which has been defaced with a shoddy doodle.");
-		else o("which currently has")(incrementor)("amateur scribbles.");
+		if (incrementor == 1) o("which has been defaced.");
+		else o("which currently has")(incrementor)("scribbles.");
 	}
-	o("Add a beautiful drawing?", guestbook_incrementor);
+	o("Draw on it?", guestbook_incrementor);
 	if (incrementor) o("\n")("Or erase the board?", erase_incrementor);
-	o("\nNote the options (at the top or bottom). You can turn on history, turn on keyboard shortcuts, and flip the history from top to bottom.");
-	o(suppress_history)("\n")("Return to main menu", main_menu, n)("\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
-	o(R"(<div style="text-align:center;"><img src="Fractal_fern_explained.png" alt="image demo" style="width:333px; height:465px"></div><div style="text-align:right;">A centered image, and right-justified text.</span>)")(r);
+	o("\nNote the options (at the top or bottom). You can turn on history, turn on keyboard shortcuts, and flip the history from top to bottom.\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
+	o(suppress_history)("\n")("Return to main menu", main_menu, n);
+	o(R"(<div style="text-align:center;">)");
+	for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="image demo" style="width:333px; height:465px">)");
+	o("</div>")(r);
 }
 
 void main_menu() {

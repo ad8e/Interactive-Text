@@ -17,7 +17,7 @@ a[href]:hover, a[onclick]:hover {text-decoration: underline;}
 .ca::after {content: "]";}
 .ca::before {content: "[";}
 
-/* bold links in history have an intuitive meaning, links surrounded with brackets have unclear meaning, overlapping with the keyboard shortcuts */
+/* bold links in history have an intuitive meaning. links surrounded with brackets have unclear meaning, overlapping with the keyboard shortcuts */
 .chosen_link_in_history {font-weight: bold;}
 
 /* hide text so that a screenreader can find it, but not visual users */
@@ -92,13 +92,14 @@ document.onkeypress = function(e) {
 		//note: e.which is required, instead of e.charCode, because charCode doesn't support Enter
 		switch (e.which) {
 		case 0:
-			alert("You pressed an unsupported key. Only actual glyphs are supported, like letters, numbers, and punctuation. That excludes keys like arrows and Ctrl. This is because of javascript problems.");
+			alert("Only glyphs are supported, like letters, numbers, and punctuation. That excludes keys like arrows and Ctrl. This is because of javascript problems.");
 			return;
 		case 13:
 			alert("Enter is a disallowed keybind, because you need Enter to select links when tabbing. Plus, Enter causes trouble with javascript's fromCharCode.");
 			return;
 		case 32:
 			alert("Space is not recommended because it is invisible and will scroll your page down.");
+			return;
 		}
 		rebindingkey = false;
 		//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
@@ -144,7 +145,7 @@ function flip_links() {
 <div class="emscripten" id="status" style="text-align:center">Downloading...</div>
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
-<div id="flexboxflip" style="display: flex; display: -webkit-flex;">
+<div id="flexboxflip" style="display: flex; display: -webkit-flex; color:#222222;">
 	<!-- role="status" is for ARIA accessibility. role="main" by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
 	<div id='m' role="status" style="margin:0.5em; white-space:pre-wrap;" aria-live="polite"></div>
 
@@ -287,7 +288,7 @@ function insert_history(text) {
 	clear_old_history();
 }
 function prompt_history_retention() {
-	var value = prompt("Enter number of history entries to retain. Blank for no limit.", (history_retention == -1) ? "" : history_retention);
+	var value = prompt("Enter number of history entries to keep. Blank for no limit.", (history_retention == -1) ? "" : history_retention);
 
 	if (value != null) {
 		var history_retention_new = parseInt(value);
