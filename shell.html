@@ -140,8 +140,6 @@ function flip_links() {
 }
 </script>
 
-<p class="screenreader" role="contentinfo">Keyboard commands. Press keys to choose links in order. The 8 keys in order are q, w, e, r, and a, s, d, f. There is also a neutral link, spacebar, which is usually a cancel or back function. Keys can be rebound. Tab and enter to select links without a keybind.</p>
-
 <div class="emscripten" id="status" style="text-align:center">Downloading...</div>
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
@@ -504,7 +502,8 @@ function rescale_line_spacing(element) {
 	element.style.lineHeight = (new_line_height_ratio).toString();
 
 	changecss("#" + element.id + " p", "margin-top", new_line_height_ratio * paragraph_margin_multiple + "em");
-	changecss("#" + element.id + " li", "margin-top", new_line_height_ratio * section_margin_multiple + "em");
+	if (element === document.getElementById("H"))
+		changecss("#" + element.id + " > li", "margin-top", new_line_height_ratio * section_margin_multiple + "em");
 }
 
 function remargin_main(event){

@@ -1,7 +1,6 @@
 #include "htmloutput.h"
 
 void main_menu();
-void tech_demo();
 
 void engine_choice();
 void emscripten_notes()
@@ -24,7 +23,7 @@ RAGS, QSP, and Quest are dumpster fires.
 Adobe Flash is dying. You can still build with it, but its future is limited.
 Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary. Setting up a basic product takes a lot of work.
 HTML is best for a text game. It has colors, fonts, bold text, sectioned displays, buttons, and pictures. Its huge developer base ensures its supremacy in performance and flexibility. It is multiplatform. You won't have to learn engine-specific features that will never be useful anywhere else. Most importantly, people play browser games, but most people won't play downloaded games.
-For minor engines, be aware that if the developer vanishes into smoke, you could be left holding a useless file. Even if the engine is open-source, it's unlikely anyone else will step in. Interactive Text faces this same issue, and tries to lessen the impact by being very small, so that it's easy to modify the code. However, you should still be mindful.
+For minor engines, be aware that if the developer vanishes into smoke, you could be left holding a useless file. Even if the engine is open-source, it's unlikely anyone else will step in. Interactive Text faces this same issue, and tries to be small so that it's easy to modify. However, you should still be mindful.
 )");
 	o("Return", engine_choice, n)(r);
 }
@@ -54,53 +53,54 @@ emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z 
 	o("Return to the main menu", main_menu, n)(r);
 }
 
+void main_menu_later();
 int incrementor = 0;
 void guestbook_incrementor() {
-	o("Gripping a brush, you pour your soul onto the unsuspecting board.\n");
+	o("You doodle on the board.");
 	++incrementor;
-	tech_demo();
+	main_menu_later();
 }
 void erase_incrementor() {
-	o("You wipe the board free of the offending marks.\n");
+	o("You wipe the board clean.");
 	incrementor = 0;
-	tech_demo();
+	main_menu_later();
+}
+void main_menu() {
+	if (incrementor == 0) o("In front of you is a board.");
+	main_menu_later();
 }
 
-void tech_demo() {
-	o("In front of you is a board");
-	if (incrementor == 0) o(".");
+void main_menu_later() {
+	if (incrementor == 0) o("Draw on it?", guestbook_incrementor);
 	else
 	{
-		if (incrementor == 1) o("which has been defaced.");
-		else o("which currently has")(incrementor)("scribbles.");
+		o("Draw on it again?", guestbook_incrementor)("Or")("erase the board?", erase_incrementor);
+		o(R"(<div style="text-align:center;">)");
+		for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="doodle" style="width:333px; height:465px">)");
+		o("</div>\n");
 	}
-	o("Draw on it?", guestbook_incrementor);
-	if (incrementor) o("\n")("Or erase the board?", erase_incrementor);
-	o("\nNote the options (at the top or bottom). You can turn on history, turn on keyboard shortcuts, and flip the history from top to bottom.\nIn typography, line spacing depends on line length, so the space between lines will adjust as you rescale your window.");
-	o(suppress_history)("\n")("Return to main menu", main_menu, n);
-	o(R"(<div style="text-align:center;">)");
-	for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="image demo" style="width:333px; height:465px">)");
-	o("</div>")(r);
-}
-
-void main_menu() {
-	o(R"(Features:
-only one function to learn: o() to output
-scrollback history
-keyboard shortcuts for links
-code in C++
-Public Domain license: no restrictions on use
-
+	o(R"(
+Features:
+<ul>
+<li>only one function to learn: o() to output</li>
+<li>scrollback history</li>
+<li>keyboard shortcuts for links</li>
+<li>code in C++</li>
+<li>Public Domain license: no restrictions on use</li>
+</ul>
 Technical details:
-sophisticated line spacing and margin management
-snag-free link format avoids empty history entries and empty new tabs on middle click
-roles, semantic tags, and help section for screenreader users
-tested in IE, Firefox, and Chrome
-on desktop browsers, asm.js means unmatched performance
-mobile browsers supported with much less performance, but should still be fine
-entire display is in HTML, so customization is easy
+<ul>
+<li>line spacing and margin adjusts to window size</li>
+<li>snag-free link format avoids empty history entries and empty new tabs on middle click</li>
+<li>roles, semantic tags, and help section for screenreader users</li>
+<li>tested in IE, Firefox, and Chrome</li>
+<li>on desktop browsers, asm.js means unmatched performance</li>
+<li>mobile browsers supported with much less performance, but should still be fine</li>
+<li>entire display is in HTML, so customization is easy</li>
+</ul>
+)");
 
-)")("Demo", tech_demo)("\n")("Build your own game", getting_started)("\n")("Receive advice on engine choice", engine_choice)(r);
+	o("Build your own game", getting_started)("\n")("Receive advice on engine choice", engine_choice)(r);
 }
 
 int main() {

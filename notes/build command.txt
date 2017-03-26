@@ -5,8 +5,6 @@ for Chrome/IE:
 python -m SimpleHTTPServer 8080
 http://localhost:8080/a.html
 
-use sdk-master-64bit for the latest emscripten.
-1.37's non-closured, O3 output is 168KB, an improvement of 80KB over 1.35.
-1.37's closured, O3 output is 127KB, an improvement of 30KB over 1.35.
+use sdk-incoming-64bit for the latest emscripten.
 https://kripken.github.io/emscripten-site/docs/building_from_source/building_emscripten_from_source_using_the_sdk.html#building-emscripten-from-source-using-the-sdk
-if compiling, raise linux vm RAM. 3072 MB not enough. 4.5GB enough.
+if compiling, raise linux vm RAM. 4072 MB not enough. 4.5GB enough.
