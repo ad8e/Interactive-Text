@@ -40,19 +40,6 @@ Interactive Text is an alternative that doesn't have lag problems, but if your g
 	o("Return to the main menu", main_menu, n)(r);
 }
 
-
-void getting_started()
-{
-	o(R"(1. install <a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">emscripten</a>, the compiler that does most of the work
-2. download <a href="https://github.com/ad8e/Interactive-Text">this project</a>
-3. open a console in the project folder (on Windows, shift right-click when nothing is selected), and compile by pasting this command:
-emcc htmloutput.cpp sample.cpp --shell-file shell.html -o index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -O3 --closure 1
-4. run index.html to test the compiled files. Don't use Internet Explorer for this step.
-5. to start writing, modify sample.cpp, and compile again to see your changes.
-)");
-	o("Return to the main menu", main_menu, n)(r);
-}
-
 void main_menu_later();
 int incrementor = 0;
 void guestbook_incrementor() {
@@ -98,9 +85,10 @@ Technical details:
 <li>mobile browsers supported with much less performance, but should still be fine</li>
 <li>entire display is in HTML, so customization is easy</li>
 </ul>
+<a href="https://github.com/ad8e/Interactive-Text">Get started here.</a>
 )");
 
-	o("Build your own game", getting_started)("\n")("Receive advice on engine choice", engine_choice)(r);
+	o("Or receive advice on engine choice here.", engine_choice)(r);
 }
 
 int main() {
