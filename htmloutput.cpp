@@ -8,7 +8,7 @@ extern "C" {
 	{
 		int link_in_order;
 		if (chosen_link >= 0) link_in_order = chosen_link; //mouse clicked
-		else if (chosen_link < 0) //keyboard pressed
+		else //chosen_link < 0, which means keyboard pressed
 		{
 			link_in_order = o.link_position.at(-chosen_link - 1); //either a non-negative number or -1
 			if (link_in_order == -1) return;

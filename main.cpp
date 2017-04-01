@@ -3,9 +3,8 @@
 void main_menu();
 
 void engine_choice();
-void emscripten_notes()
-{
-	o(R"(Interactive Text is just an output function. Emscripten does the heavy lifting, converting the C++ to HTML. There are some catches.
+void emscripten_notes() {
+	o(R"(Interactive Text is just a wrapper around an output function. Emscripten does the real work converting C++ to HTML. Emscripten has some catches.
 For filesystem read/write, you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage for saves.
 Keyboard input handling is through Javascript, using onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing.
 When testing in Chrome and IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
@@ -14,8 +13,7 @@ If your std::cout messages aren't showing in the console log, add a '\n' to the 
 	o("Return", engine_choice, n)(r);
 }
 
-void other_engines()
-{
+void other_engines() {
 	o(R"(Java has severe UI and performance problems in every text game I've seen.
 Ren'Py is powerful, mature, and well-supported; it is good for Visual Novels. If you want to build a Visual Novel, Ren'Py is king.
 Old-style IF parser engines, like Inform, place restrictions on your format and require you to learn a language you will never use anywhere else. If you like the format, they're not a bad choice, but most people don't. The IF audience is small.
@@ -28,8 +26,7 @@ For minor engines, be aware that if the developer vanishes into smoke, you could
 	o("Return", engine_choice, n)(r);
 }
 
-void engine_choice()
-{
+void engine_choice() {
 	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and Interactive Text.
 Twine is a strong choice. It has built-in saves. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in Javascript. However, games longer than 10 hours become unplayable from lag. Each choice freezes the browser for several seconds, and restarting the browser doesn't help. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
 Interactive Text is an alternative that doesn't have lag problems, but if your game runs over 10 hours, your users will need a save function, which you will need to build. Twine has saves, but Interactive Text doesn't. Interactive Text requires knowledge of C++ instead of Javascript. Your finished product will be an HTML file that can be run in a browser. Installing the C++-to-HTML compiler takes a while; 30 minutes of reading and an hour of waiting.
@@ -59,21 +56,19 @@ void main_menu() {
 
 void main_menu_later() {
 	if (incrementor == 0) o("Draw on it?", guestbook_incrementor);
-	else
-	{
+	else {
 		o("Draw on it again?", guestbook_incrementor)("Or")("erase the board?", erase_incrementor);
 		o(R"(<div style="text-align:center;">)");
 		for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="doodle" style="width:333px; height:465px">)");
 		o("</div>\n");
 	}
 	o(R"(
-Features:
+Interactive Text lets you write HTML text games in C++. Features:
 <ul>
 <li>only one function to learn: o() to output</li>
 <li>scrollback history</li>
 <li>keyboard shortcuts for links</li>
-<li>code in C++</li>
-<li>Public Domain license: no restrictions on use</li>
+<li>Public Domain: free use, no conditions</li>
 </ul>
 Technical details:
 <ul>
