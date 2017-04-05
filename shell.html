@@ -8,6 +8,7 @@ body {font-family: "Open Sans", sans-serif;}
 /* bold-only, non-blue links are hard to distinguish and unconventional */
 a:not([href]) {color: blue;}
 a[onclick]:not([href]) {cursor: pointer;}
+a[href] {text-decoration: none;}
 a[href]:hover, a[onclick]:hover {text-decoration: underline;}
 
 .disabled_link {text-decoration: line-through;}
@@ -126,20 +127,6 @@ document.onkeypress = function(e) {
 };
 </script>
 
-<!-- underline links -->
-<script type='text/javascript'>
-var underline_links = (localStorage.getItem("underline links") === "true");
-function style_links() {
-	changecss("a", "text-decoration", underline_links ? "underline" : "none");
-}
-style_links();
-function flip_links() {
-	underline_links = !underline_links;
-	style_links();
-	localStorage.setItem("underline links", underline_links);
-}
-</script>
-
 <div class="emscripten" id="status" style="text-align:center">Downloading...</div>
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
@@ -156,7 +143,6 @@ function flip_links() {
 	<!-- low opacity and 90% font size let the user distinguish history from the main message. but low opacity is hard to read, and high opacity is indistinguishable from black. -->
 	<ul id='H' style="font-size: 0.9em; white-space:pre-wrap; display: flex; display: -webkit-flex; list-style: circle; padding-left: 1em; margin: 0;"></ul>
 	<div id="options_section" style="text-align:center">Options:
-		<a id="cu" class="ca" tabindex="0" onclick="flip_links();">Underline links</a>
 		<a id="ch" class="ca" tabindex="0" onclick="prompt_history_retention();">History retention</a>
 		<a id="cp" class="ca" tabindex="0" onclick="flip_history_position();">History on bottom</a>
 		<a id="ck" class="ca" tabindex="0" onclick="flip_keyboard_enabled();">Keyboard shortcuts</a>

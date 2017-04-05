@@ -1,0 +1,17 @@
+Inside the options list: <a id="cu" class="ca" tabindex="0" onclick="flip_links();">Underline links</a>
+
+Add this somewhere:
+
+<!-- underline links -->
+<script type='text/javascript'>
+var underline_links = (localStorage.getItem("underline links") === "true");
+function style_links() {
+	changecss("a", "text-decoration", underline_links ? "underline" : "none");
+}
+style_links();
+function flip_links() {
+	underline_links = !underline_links;
+	style_links();
+	localStorage.setItem("underline links", underline_links);
+}
+</script>
