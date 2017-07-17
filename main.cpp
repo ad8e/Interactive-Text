@@ -1,7 +1,6 @@
 #include "htmloutput.h"
 
-void main_menu();
-
+void main_menu_later();
 void engine_choice();
 void emscripten_notes() {
 	o(R"(Interactive Text is just a wrapper around an output function. Emscripten does the real work converting C++ to HTML. Emscripten has some catches.
@@ -15,29 +14,28 @@ If your std::cout messages aren't showing in the console log, add a '\n' to the 
 
 void other_engines() {
 	o(R"(Java has severe UI and performance problems in every text game I've seen.
-Ren'Py is powerful, mature, and well-supported; it is good for Visual Novels. If you want to build a Visual Novel, Ren'Py is king.
-Old-style IF parser engines, like Inform, place restrictions on your format and require you to learn a language you will never use anywhere else. If you like the format, they're not a bad choice, but most people don't. The IF audience is small.
+Ren'Py is powerful, mature, and well-supported; it is good if you want to build a Visual Novel.
+IF parser engines, like Inform, place restrictions on your format and require a language you will never use anywhere else. They're decent within their format, but most players will refuse to play them.
 RAGS, QSP, and Quest are dumpster fires.
-Adobe Flash is dying. You can still build with it, but its future is limited.
-Unity has some formatting, and it can output to HTML, but for a text game, it's too heavy and proprietary. Setting up a basic product takes a lot of work.
-HTML is best for a text game. It has colors, fonts, bold text, sectioned displays, buttons, and pictures. Its huge developer base ensures its supremacy in performance and flexibility. It is multiplatform. You won't have to learn engine-specific features that will never be useful anywhere else. Most importantly, people play browser games, but most people won't play downloaded games.
-For minor engines, be aware that if the developer vanishes into smoke, you could be left holding a useless file. Even if the engine is open-source, it's unlikely anyone else will step in. Interactive Text faces this same issue, and tries to be small so that it's easy to modify. However, you should still be mindful.
+Adobe Flash is dead.
+Unity has some formatting, and it can produce HTML files, but for a text game, it's too heavy and proprietary. Starting up takes significant work, with no benefit.
+HTML is best for a text game. It has colors, fonts, sectioned displays, buttons, and pictures. Its wide developer support makes it supreme in performance and flexibility. It is multiplatform. Most importantly, people play browser games, but most people won't play downloaded games.
+For any minor engine, be aware that if its developer vanishes, your work could become useless. Even if the engine is open-source, it's unlikely anyone else will step in. Interactive Text faces this same issue, and tries to be small so that it's easy to modify. However, you should still be mindful.
 )");
 	o("Return", engine_choice, n)(r);
 }
 
 void engine_choice() {
-	o(R"(<h4>How do I build a text game?</h4>Your main options are Twine and Interactive Text.
-Twine is a strong choice. It has built-in saves. It has undo-action capabilities. It publishes to HTML. You can start writing immediately. Its editor is annoying and laggy, but tolerable. Programming is in Javascript. However, games longer than 10 hours become unplayable from lag. Each choice freezes the browser for several seconds, and restarting the browser doesn't help. If your game is less than three hours long, Twine's built-in features are amazing. For longer projects, Twine is unusable.
-Interactive Text is an alternative that doesn't have lag problems, but if your game runs over 10 hours, your users will need a save function, which you will need to build. Twine has saves, but Interactive Text doesn't. Interactive Text requires knowledge of C++ instead of Javascript. Your finished product will be an HTML file that can be run in a browser. Installing the C++-to-HTML compiler takes a while; 30 minutes of reading and an hour of waiting.
-
+	o(R"(<h4>How do I build a text game?</h4>
+<a href="https://twinery.org/">Twine</a> is a strong choice. You can write without programming knowledge. It has built-in saves. It allows undo in-game. Its editor is annoying and laggy, but tolerable. However, Twine games lasting 10 hours freeze for several seconds after every click, and restarting the browser doesn't help. This makes long Twine games unplayable.
+Interactive Text is an alternative for those who know C++. You should use it if you require complex mechanics and don't want to write Javascript. It doesn't have built-in saves.
+Both options create HTML files that can be run in a browser.
 )");
-	o("Notes on emscripten", emscripten_notes)('\n');
 	o("Other engines", other_engines)('\n');
-	o("Return to the main menu", main_menu, n)(r);
+	o("Notes on emscripten", emscripten_notes)('\n');
+	o("Return to the main menu", main_menu_later, n)(r);
 }
 
-void main_menu_later();
 int incrementor = 0;
 void guestbook_incrementor() {
 	o("You doodle on the board.");
@@ -45,25 +43,20 @@ void guestbook_incrementor() {
 	main_menu_later();
 }
 void erase_incrementor() {
-	o("You wipe the board clean.");
+	o("You wipe the board clean.\n");
 	incrementor = 0;
-	main_menu_later();
-}
-void main_menu() {
-	if (incrementor == 0) o("In front of you is a board.");
 	main_menu_later();
 }
 
 void main_menu_later() {
-	if (incrementor == 0) o("Draw on it?", guestbook_incrementor);
-	else {
+	if (incrementor != 0) {
 		o("Draw on it again?", guestbook_incrementor)("Or")("erase the board?", erase_incrementor);
 		o(R"(<div style="text-align:center;">)");
 		for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="doodle" style="width:333px; height:465px">)");
-		o("</div>\n");
+		o("</div>");
 	}
 	o(R"(
-Interactive Text lets you write HTML text games in C++. Features:
+<a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
 <ul>
 <li>only one function to learn: o() to output</li>
 <li>scrollback history</li>
@@ -72,20 +65,22 @@ Interactive Text lets you write HTML text games in C++. Features:
 </ul>
 Technical details:
 <ul>
-<li>line spacing and margin adjusts to window size</li>
+<li>lightweight and performant: this entire webpage is 65KB to download</li>
+<li>automatically handles typography, adjusting line spacing and margin to window size</li>
 <li>snag-free link format avoids empty history entries and empty new tabs on middle click</li>
-<li>roles, semantic tags, and help section for screenreader users</li>
+<li>transparent support for screenreaders</li>
 <li>tested in IE, Firefox, and Chrome</li>
-<li>on desktop browsers, asm.js means unmatched performance</li>
-<li>mobile browsers supported with much less performance, but should still be fine</li>
-<li>entire display is in HTML, so customization is easy</li>
+<li>HTML customization is easy</li>
 </ul>
-<a href="https://github.com/ad8e/Interactive-Text">Get started here.</a>
+<a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>
 )");
 
-	o("Or receive advice on engine choice here.", engine_choice)(r);
+	o("Or receive advice on engine choice.", engine_choice)('\n');
+
+	if (incrementor == 0) o("In front of you is a board.")("Draw on it?", guestbook_incrementor);
+	o(r);
 }
 
 int main() {
-	main_menu();
+	main_menu_later();
 }

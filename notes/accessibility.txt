@@ -2,6 +2,7 @@ I wrote a screenreader help section. Testing NVDA, this section does get read in
 However, NVDA overrides the keyboard buttons. That's unfortunate.
 focus() forces NVDA to read the title, then tab title, then the focus()d element.
 from testing, role="status" works far better than focus() + tabindex="-1". focus() re-reads the title constantly, and it is very unreliable. plus, focus() requires outline:none; to suppress the dotted box that appears constantly after the first time you press tab
+screenreader support: roles, semantic tags, and help section
 
 "Since I have astigmatism...The high contrast black background hurts my eyes but I could read one or two chapters max without read mode.
 I just wish that your site could have a milder dark background that's readable even at low brightness."
@@ -14,8 +15,11 @@ Use case: half-blind person.
 	that means that we can't rely on colors to distinguish things. in particular, links must be underlineable.
 	"30% of respondents state they used High Contrast Modes...there are far more people with low-vision than those who are totally blind"
 Use case: blind person. Can he hear where the links are and learn how to trigger them? Can he rebind the keys?
-	the CSS places the link description as [q], which isn't selectable. Screen readers do read it, which is repetitive, but very helpful. I guess I don't care very much.
+	the CSS places the link description as [q], which isn't selectable. Screen readers do read it, which is repetitive, and screen reader users don't use the application hotkeys to select links; they have their own keys. So the hotkeys can be disabled.
 	note that the "title" element is not read by screenreaders: https://silktide.com/things-i-learned-by-pretending-to-be-blind-for-a-week/
 Use case: keyboard-only. He should still be able to rebind keys, especially if his layout is nonstandard.
 	that means that the option keys are tabbable for accessibility. so they're tabbable at the beginning, but disappear from tab order after that.
 Use case: mouse-only. You don't need the distracting keyboard shortcuts, so they go away.
+
+Links should be complete. Screenreader users can see the text of a link because their system lets them skip through each link in turn, but they can't see the context around the link. So if the link is "click [here] to move to the next passage", the screenreader user will only see the word "here".
+In addition, more complete links have larger areas, and hence are easier to click.
