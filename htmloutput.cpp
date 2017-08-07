@@ -33,7 +33,7 @@ extern "C" {
 
 			if (increm >= o.links.size()) break;
 			if (o.links.at(increm).second == nullptr) history_string.append("<a class='disabled_link'>" + o.links.at(increm).first + "</a>");
-			else history_string.append(((increm == link_in_order) ? "<a class='chosen_link_in_history'>" : "<a>") + o.links.at(increm).first + "</a>");
+			else history_string.append(((increm == link_in_order) ? "<a class='history chosen_link_in_history'>" : "<a class = 'history'>") + o.links.at(increm).first + "</a>");
 		}
 		history_string = convert_newlines_to_paragraph_tags(history_string);
 

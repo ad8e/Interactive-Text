@@ -7,7 +7,7 @@ void emscripten_notes() {
 For filesystem read/write, you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage for saves.
 Keyboard input handling is through Javascript, using onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing.
 When testing in Chrome and IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. Firefox doesn't need this step.
-If your std::cout messages aren't showing in the console log, add a '\n' to the end. Use cout instead of cerr, cerr doesn't seem to show up. But try to use printf instead of cout, because cout adds a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, about 250KB to the .js for this engine.
+If your console output messages aren't showing, add '\n' to the end of each line. Use printf instead of iostreams, because cout has a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, 250KB.
 )");
 	o("Return", engine_choice, n)(r);
 }
@@ -58,16 +58,16 @@ void main_menu_later() {
 	o(R"(
 <a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
 <ul>
-<li>only one function to learn: o() to output</li>
+<li>simple: o() to output</li>
 <li>scrollback history</li>
 <li>keyboard shortcuts for links</li>
-<li>Public Domain: free use, no conditions</li>
+<li>Public Domain: free, no conditions</li>
 </ul>
 Technical details:
 <ul>
 <li>lightweight and performant: this entire webpage is 65KB to download</li>
-<li>automatically handles typography, adjusting line spacing and margin to window size</li>
-<li>snag-free link format avoids empty history entries and empty new tabs on middle click</li>
+<li>typography scales across large and small screens, adjusting line spacing and margin</li>
+<li>link format avoids empty history entries and empty new tabs on middle click</li>
 <li>transparent support for screenreaders</li>
 <li>tested in IE, Firefox, and Chrome</li>
 <li>HTML customization is easy</li>

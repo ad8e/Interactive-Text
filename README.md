@@ -1,6 +1,6 @@
-To get started:
 
-0. take a test drive at https://interactivetext.github.io/
+See it in action at https://interactivetext.github.io/. To get started:
+
 1. install <a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">emscripten</a>, the compiler that does most of the work
 2. <a href="https://github.com/ad8e/Interactive-Text/archive/master.zip">download this repository</a>
 3. open a console in the repository folder (on Windows, shift right-click when nothing is selected), and compile with this command:

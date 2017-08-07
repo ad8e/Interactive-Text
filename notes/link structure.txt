@@ -10,3 +10,10 @@ href-less <a>, onclick(), enter-handling, css styling, and tabindex="0"
 links have ids so that you can toggle their tabindex when keyboard shortcuts are turned off.
 
 the shortcut letter, [r], comes after the link, instead of before. because the user's concentration wants to read the link text in entirety before being interrupted by the command.
+[link text]_r.
+[link text]^r.
+	having [] around the link text also helps to differentiate them from normal links, which take you away from the page.
+link text_r.
+	it's hard to distinguish the shortcut from the text. this means the shortcut must be small (to be distinguishable), which makes it annoying
+link text [r]
+color alone isn't very good at distinguishing a link from its surroundings, it doesn't show the beginning and end. You see the [link 1], [link 2], and [link 3]. just a tiny black comma separator is hard to understand. even at the end, [link 1] \n [link 2] \n [link 3] requires knowledge that each link is on a single line.

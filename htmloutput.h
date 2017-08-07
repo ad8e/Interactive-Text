@@ -137,20 +137,21 @@ public:
 		{
 			if (increm >= texts.size()) break;
 			output_string.append(texts.at(increm));
-			
+
 			if (increm >= links.size()) break;
 
 			int id_number = -1; //default: no keyboard shortcut
 			if (link_position.at(link_count) == increm) id_number = link_count; //neutral link shortcut
 			else if (link_position.at(main_link_incrementor) == increm) id_number = main_link_incrementor++; //keyboard shortcut
 
+			//we need to insert [] here. because if we inserted it using the ::before and ::after pseudo-elements, we wouldn't be able to have subscripts. that's because <sub> is not allowed in pseudo-elements, so you have to style the whole pseudo-element together, and ] and the shortcut need different styles.
 			if (links.at(increm).second == nullptr)
-				output_string.append("<a class='disabled_link'>" + links.at(increm).first + "</a>");
+				output_string.append("<a class='disabled_link'>[" + links.at(increm).first + "]</a>");
 			else
 			{
 				std::string link_preamble("<a onclick='Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
 				if (id_number != -1) link_preamble.append(" id='l" + std::to_string(id_number) + "' class='l" + std::to_string(id_number) + "'");
-				output_string.append(link_preamble + ">" + links.at(increm).first + "</a>");
+				output_string.append(link_preamble + ">[" + links.at(increm).first + "]</a>");
 			}
 		}
 
@@ -159,7 +160,7 @@ public:
 		output_string = convert_newlines_to_paragraph_tags(output_string);
 
 		extern std::string history_string;
-		
+
 		if (history_string.empty()) EM_ASM_({change_message($0)}, output_string.c_str());
 		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
 
