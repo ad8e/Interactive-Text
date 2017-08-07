@@ -297,157 +297,27 @@ function change_message(text) {
 </script>
 {{{ SCRIPT }}}
 
-<!-- library to get x-height of font of <body>. for determining line spacing. should be replaced by TextMetrics, https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics, once it is available. -->
-<script type="text/javascript">
-//by Sebastian Lasse at http://stackoverflow.com/a/35260300/
-//modified to fix xheight bug in that code
-function getMetrics(fontName, fontSize) {
-	// store the old text metrics function on the Canvas2D prototype
-	CanvasRenderingContext2D.prototype.measureTextWidth = CanvasRenderingContext2D.prototype.measureText;
-	var getCSSValue = function(element, property) {return document.defaultView.getComputedStyle(element, null).getPropertyValue(property);};
-
-	CanvasRenderingContext2D.prototype.measureText = function(textstring) {
-		var metrics = this.measureTextWidth(textstring),
-			fontFamily = getCSSValue(this.canvas, "font-family"),
-			fontSize = getCSSValue(this.canvas, "font-size").replace("px", ""),
-			isSpace = !(/\S/.test(textstring));
-		metrics.fontsize = fontSize;
-		// for text lead values, we meaure a multiline text container.
-		var leadDiv = document.createElement("div");
-		leadDiv.style.position = "absolute";
-		leadDiv.style.opacity = 0;
-		leadDiv.style.font = fontSize + "px " + fontFamily;
-		leadDiv.innerHTML = textstring + "<br/>" + textstring;
-		document.body.appendChild(leadDiv);
-		// make some initial guess at the text leading (using the standard TeX ratio)
-		metrics.leading = 1.2 * fontSize;
-		// then we try to get the real value from the browser
-		var leadDivHeight = getCSSValue(leadDiv, "height");
-		leadDivHeight = leadDivHeight.replace("px", "");
-		if (leadDivHeight >= fontSize * 2) {
-			metrics.leading = (leadDivHeight / 2) | 0;
-		}
-		document.body.removeChild(leadDiv);
-		// if we're not dealing with white space, we can compute metrics
-		if (!isSpace) {
-			// Have characters, so measure the text
-			var canvas = document.createElement("canvas");
-			var padding = 100;
-			canvas.width = metrics.width + padding;
-			canvas.height = 3 * fontSize;
-			canvas.style.opacity = 1;
-			canvas.style.fontFamily = fontFamily;
-			canvas.style.fontSize = fontSize;
-			var ctx = canvas.getContext("2d");
-			ctx.font = fontSize + "px " + fontFamily;
-			var w = canvas.width,
-				h = canvas.height,
-				baseline = h / 2;
-			// Set all canvas pixeldata values to 255, with all the content
-			// data being 0. This lets us scan for data[i] != 255.
-			ctx.fillStyle = "white";
-			ctx.fillRect(-1, -1, w + 2, h + 2);
-			ctx.fillStyle = "black";
-			ctx.fillText(textstring, padding / 2, baseline);
-			var pixelData = ctx.getImageData(0, 0, w, h).data;
-			// canvas pixel data is w*4 by h*4, because R, G, B and A are separate,
-			// consecutive values in the array, rather than stored as 32 bit ints.
-			var i = 0,
-				w4 = w * 4,
-				len = pixelData.length;
-			// Finding the ascent uses a normal, forward scanline
-			while (++i < len && pixelData[i] === 255) {}
-			var ascent = (i / w4) | 0;
-			// Finding the descent uses a reverse scanline
-			i = len - 1;
-			while (--i > 0 && pixelData[i] === 255) {}
-			var descent = (i / w4) | 0;
-			// find the min-x coordinate
-			for (i = 0; i < len && pixelData[i] === 255;) {
-				i += w4;
-				if (i >= len) {
-					i = (i - len) + 4;
-				}
-			}
-			var minx = ((i % w4) / 4) | 0;
-			// find the max-x coordinate
-			var step = 1;
-			for (i = len - 3; i >= 0 && pixelData[i] === 255;) {
-				i -= w4;
-				if (i < 0) {
-					i = (len - 3) - (step++) * 4;
-				}
-			}
-			var maxx = ((i % w4) / 4) + 1 | 0;
-			// set font metrics
-			metrics.ascent = (baseline - ascent);
-			metrics.descent = (descent - baseline);
-			metrics.bounds = {
-				minx: minx - (padding / 2),
-				maxx: maxx - (padding / 2),
-				miny: 0,
-				maxy: descent - ascent
-			};
-			metrics.height = 1 + (descent - ascent);
-		}
-		// if we ARE dealing with whitespace, most values will just be zero.
-		else {
-			// Only whitespace, so we can't measure the text
-			metrics.ascent = 0;
-			metrics.descent = 0;
-			metrics.bounds = {
-				minx: 0,
-				maxx: metrics.width, // Best guess
-				miny: 0,
-				maxy: 0
-			};
-			metrics.height = 0;
-		}
-		return metrics;
-	};
-	var s = document.getElementsByTagName('script')[0];
-	var canvas = document.createElement("canvas");
-	canvas.width = 220;
-	canvas.height = 220;
-	document.body.appendChild(canvas); //seems that Chrome complains about getImageData if I don't append this canvas
-	var context = canvas.getContext("2d");
-	canvas.style.font = [fontSize, fontName].join(' ');
-	context.font = [fontSize, fontName].join(' ');
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	// draw bounding box and text
-	var xHeight = context.measureText("x").height;
-	var capHeight = context.measureText("H").height;
-	var metrics = context.measureText("Default i"); //for finding average char width. "i" is for catching serifs
-	var xStart = (canvas.width - metrics.width) / 2;
-	metrics.fontsize = parseInt(metrics.fontsize);
-	metrics.offset = Math.ceil((metrics.leading - metrics.height) / 2);
-	metrics.width = JSON.parse(JSON.stringify(metrics.width));
-	metrics.capHeight = capHeight;
-	metrics.xHeight = xHeight;
-	metrics.ascender = metrics.capHeight - metrics.xHeight;
-	metrics.descender = metrics.descent;
-	Array.prototype.slice.call(
-		document.getElementsByTagName('canvas'), 0
-	).forEach(function(c, i) {
-		if (i > 0) document.body.removeChild(c);
-	});
-	canvas.parentNode.removeChild(canvas);
-	return metrics;
-}
-</script>
-
 <!-- set margins according to window width, and set line spacing in response to line length -->
 <script type='text/javascript'>
-//the dimensions for a 1000px font aren't accurate for lower-size fonts. because Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size. so there's significant distortion depending on font size.
-//however, font measurements in our library don't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom.
-//thus, since we can't get true font ratios, we get large ones at 1000px.
-var x_height_ratio = 0.52; //default value, for when the canvas font measuring fails. 0.52 is high, but it's better to have the default be a little too open than a little too cramped
-var average_width_ratio = 0.4; //for the letters in the string "Default i"
+//ratios change as font size changes. Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size.
+//font measurements in our library don't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom, though they should be different.
+//desktop browsers stay at 1x zoom. but mobile browsers all have virtual zooms. we could get all our data for 1000px fonts, but for now, we'll just stay at 1em.
+var x_height_ratio = 0.52; //ratio of x-height to font size. 0.52 is an estimate. if the estimate is used as a default, it's better to have the default be a little too open than a little too cramped
+var average_width_ratio = 0.4; //ratio of letter width to font size, for the letters in the string "Default i". 0.4 is an estimate
 function set_ratios(element) {
-	var font_metrics = getMetrics(window.getComputedStyle(element).fontFamily, "1000px");
-	//getComputedStyle returns pixels. parseFloat strips the px unit and turns it into a float
-	x_height_ratio = font_metrics.xHeight / 1000;
-	average_width_ratio = font_metrics.width / 1000 / 9; //divide by 9 because the word we used, "Default i", has 9 characters. sadly, we can't do that in the font script because /9 seems to not work with the JSON stuff.
+	var temporary_div = document.createElement("div");
+	document.body.appendChild(temporary_div);
+    temporary_div.style.height = '100ex';
+    var ex_pixels = temporary_div.offsetHeight;
+    temporary_div.style.height = '100em';
+    var em_pixels = temporary_div.offsetHeight;
+	x_height_ratio = ex_pixels / em_pixels;
+	document.body.removeChild(temporary_div);
+
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext("2d");
+    context.font = '1000px ' + window.getComputedStyle(element).fontFamily;
+    average_width_ratio = context.measureText("Default i").width / 9000; //divide by 9 because the word we used, "Default i", has 9 characters. use px here, em causes trouble.
 }
 set_ratios(document.body);
 //we can only get the font size once, at document load, because there's no cheap way to detect font size changes. but since the font library doesn't respect true pixel size anyway, this doesn't matter
