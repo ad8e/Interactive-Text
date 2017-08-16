@@ -218,8 +218,8 @@ function keyboard_enable_implement() {
 	document.getElementById("ck").textContent = "Keyboard shortcuts " + (keyboard_shortcuts_enabled ? "enabled" : "disabled");
 	for (var n in keycoderaw) {
 		changecss("#l" + n + "::after", "content", keyboard_shortcuts_enabled ? "\"" + String.fromCharCode(keycoderaw[n]) + "\"" : "\"\"");
-		changecss("#l" + n + "::after", "vertical-align", "sub");
-		changecss("#l" + n + "::after", "font-size", "smaller");
+		changecss("#l" + n + "::after", "vertical-align", keyboard_shortcuts_enabled ? "sub" : "initial"); //subscripts cause line space distortion even when there's no text, so we have to reset it to initial when keybinds are disabled
+		changecss("#l" + n + "::after", "font-size", keyboard_shortcuts_enabled ? "smaller" : "initial");
 		changecss("#c" + n + "::after", "content", keyboard_shortcuts_enabled ? "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"" : "\"\""); //change-keybind link in options
 	}
 	document.getElementById("keyboard_rebinding_options").style.display = keyboard_shortcuts_enabled ? "" : "none"; //visibility=hidden doesn't keep it in place. the rest of the options still shift around
@@ -319,7 +319,7 @@ function set_ratios(element) {
     var canvas = document.createElement("canvas");
     var context = canvas.getContext("2d");
     context.font = '1000px ' + window.getComputedStyle(element).fontFamily;
-    average_width_ratio = context.measureText("Default i").width / 9000; //divide by 9 because the word we used, "Default i", has 9 characters. use px here, em causes trouble.
+    average_width_ratio = context.measureText("Default i").width / 9000; //divide by 9 because "Default i" has 9 characters. use px here, em causes trouble.
 }
 set_ratios(document.body);
 //we can only get the font size once, at document load, because there's no cheap way to detect font size changes. but since the font library doesn't respect true pixel size anyway, this doesn't matter

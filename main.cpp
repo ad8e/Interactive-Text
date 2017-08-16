@@ -75,7 +75,7 @@ Technical details:
 <a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>
 )");
 
-	o("Or receive advice on engine choice.", engine_choice)('\n');
+	o("Advice on engine choice", engine_choice)('\n');
 
 	if (incrementor == 0) o("In front of you is a board.")("Draw on it?", guestbook_incrementor);
 	o(r);

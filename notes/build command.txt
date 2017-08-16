@@ -1,9 +1,7 @@
 emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --closure 1
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --closure 1 --memory-init-file 0
+	--memory-init-file 0 makes it usable without a local server.
 
-for Chrome/IE:
-python -m SimpleHTTPServer 8080
-http://localhost:8080/a.html
 
 use sdk-incoming-64bit for the latest emscripten.
 https://kripken.github.io/emscripten-site/docs/building_from_source/building_emscripten_from_source_using_the_sdk.html#building-emscripten-from-source-using-the-sdk
