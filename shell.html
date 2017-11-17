@@ -164,23 +164,23 @@ document.onkeypress = function(e) {
 		</span>
 	</div>
 </div>
-<!-- history on top -->
+<!-- history above -->
 <script type='text/javascript'>
 //true only if localstorage says it's true
-var history_on_top = (localStorage.getItem("history on top") === "true");
+var history_above = (localStorage.getItem("history above") === "true");
 function set_history_position() {
-	changecss("#H", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
-	changecss("#m", "min-height", history_on_top ? "75vh" : "50vh"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use "auto".
+	changecss("#H", "flex-direction", "column" + (history_above ? "-reverse" : ""));
+	changecss("#m", "min-height", history_above ? "75vh" : "50vh"); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use "auto".
 	//note: if you use auto, then the options shouldn't flip when the history flips, and should instead stay on top permanently.
-	changecss("#flexboxflip", "flex-direction", "column" + (history_on_top ? "-reverse" : ""));
-	changecss("#scrolltarget", "display", (history_on_top ? "inline" : "none"));
-	document.getElementById("cp").textContent = "History on " + (history_on_top ? "top" : "bottom");
+	changecss("#flexboxflip", "flex-direction", "column" + (history_above ? "-reverse" : ""));
+	changecss("#scrolltarget", "display", (history_above ? "inline" : "none"));
+	document.getElementById("cp").textContent = "History position " + (history_above ? "above" : "below");
 }
 set_history_position();
 function flip_history_position() {
-	history_on_top = !history_on_top;
+	history_above = !history_above;
 	set_history_position();
-	localStorage.setItem("history on top", history_on_top);
+	localStorage.setItem("history above", history_above);
 }
 </script>
 
@@ -294,7 +294,7 @@ var scrolltarget = document.getElementById('scrolltarget');
 function change_message(text) {
 	main_body.innerHTML = Module.Pointer_stringify(text);
 	enable_disable_tabbing_for_keybound_links();
-	if (history_on_top) scrolltarget.scrollIntoView(true);
+	if (history_above) scrolltarget.scrollIntoView(true);
 	else window.scrollTo(0, 0);
 }
 </script>

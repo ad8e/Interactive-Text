@@ -3,7 +3,7 @@
 o("text", ns) to disable the automatic spacing before the text.
 o("text", function, n) to add the optional neutral link. its meaning: back, or continue. it is "neutral" because it represents that no action is taken
 o("text", function, a) to add an aside link, which doesn't have a keyboard shortcut.
-if function==nullptr, the link is nonclickable. it still has a keyboard shortcut by default, which can be removed by making it an aside link.
+o("text", nullptr) to add a nonclickable link. it still has a keyboard shortcut by default, which can be removed by making it an aside link. (the purpose of this nonclickable keyboard shortcut is to preserve ordering for links afterward)
 o(suppress_history) to prevent the text afterward from appearing in the scrollback history.
 */
 #include <string>
@@ -127,7 +127,7 @@ public:
 		return *this;
 	}
 
-	//return nothing, because clearing the screen and then adding more text is likely a bug.
+	//return void to prevent further chaining, because clearing the screen and then adding more text is likely a bug.
 	void operator()(render_the_page r)
 	{
 		int main_link_incrementor = 0;

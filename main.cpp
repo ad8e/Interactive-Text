@@ -26,9 +26,17 @@ For any minor engine, be aware that if its developer vanishes, your work could b
 }
 
 void engine_choice() {
-	o(R"(<h4>How do I build a text game?</h4>
-<a href="https://twinery.org/">Twine</a> is a strong choice. You can write without programming knowledge. It has built-in saves. It allows undo in-game. Its editor is annoying and laggy, but tolerable. However, Twine games lasting 10 hours freeze for several seconds after every click, and restarting the browser doesn't help. This makes long Twine games unplayable.
-Interactive Text is an alternative for those who know C++. You should use it if you require complex mechanics and don't want to write Javascript. It doesn't have built-in saves.
+	o(R"(Technical details:
+<ul>
+<li>lightweight and performant: this entire webpage is 65KB to download</li>
+<li>typography scales across large and small screens, adjusting line spacing and margin</li>
+<li>link format avoids empty history entries and empty new tabs on middle click</li>
+<li>transparent support for screenreaders</li>
+<li>tested in IE, Firefox, and Chrome</li>
+<li>HTML customization is easy</li>
+</ul><h4>How do I build a text game?</h4>
+<a href="https://twinery.org/">Twine</a> is a strong choice. You can start writing immediately, without programming knowledge. It has built-in saves. It allows undo in-game. Its editor is annoying and laggy, but it exists. Gameplay past 10 hours freezes for several seconds on each scene transition, which makes scenes past 10 hours largely unreachable.
+Interactive Text is an alternative for those who know C++; it consists of an std::cout analogue and link callbacks. You should use it if you require complex mechanics and don't want to write Javascript. It doesn't have built-in saves.
 Both options create HTML files that can be run in a browser.
 )");
 	o("Other engines", other_engines)('\n');
@@ -63,19 +71,10 @@ void main_menu_later() {
 <li>keyboard shortcuts for links</li>
 <li>Public Domain: free, no conditions</li>
 </ul>
-Technical details:
-<ul>
-<li>lightweight and performant: this entire webpage is 65KB to download</li>
-<li>typography scales across large and small screens, adjusting line spacing and margin</li>
-<li>link format avoids empty history entries and empty new tabs on middle click</li>
-<li>transparent support for screenreaders</li>
-<li>tested in IE, Firefox, and Chrome</li>
-<li>HTML customization is easy</li>
-</ul>
 <a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>
 )");
 
-	o("Advice on engine choice", engine_choice)('\n');
+	o("Further details", engine_choice)('\n');
 
 	if (incrementor == 0) o("In front of you is a board.")("Draw on it?", guestbook_incrementor);
 	o(r);
