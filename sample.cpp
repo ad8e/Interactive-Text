@@ -1,8 +1,9 @@
 #include "htmloutput.h"
 /*
-o("text") to add text.
-o("link text", function_to_call_when_pressed) to add links
-o(r) to flush your text to the screen.
+Guide:
+o("this text will be output")
+o("this will be a link", function_to_call_when_pressed)
+o(r) to display the page after it's fully constructed
 chainable: o("Click")("this")("link", function)(r).
 */
 

@@ -38,6 +38,6 @@ we square line length, since at both low lengths and near-zero lengths, the domi
 
 what font should we choose?
 Open Sans has l = I, it's a joke.
-actually, almost all Serif fonts are jokes. I've settled on Droid Sans for now. O 0, I l 1 | !.
+actually, almost all Serif fonts are jokes. Droid Sans avoids this problem. O 0, I l 1 | !.
 Droid Sans is pretty narrow though; good for small screens, but not for normal desktops. Let's go back to Open Sans.
 I guess good designers don't create fonts, because that's mostly busywork with no chance of learning anything. Success of fonts is basically marketing, since nobody on the receiving end really knows anything. Any other standard font in place of Open Sans, with Google's marketing power, would be just as popular.
