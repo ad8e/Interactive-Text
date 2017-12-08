@@ -1,6 +1,6 @@
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1
 emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --closure 1 --memory-init-file 0
-	--memory-init-file 0 makes it usable without a local server.
+	"--memory-init-file 0" lets Chrome run it locally, at slight cost to file size
+	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 
 
 use sdk-incoming-64bit for the latest emscripten.
