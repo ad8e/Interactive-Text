@@ -7,6 +7,12 @@ screenreader support: roles, semantic tags, and help section
 "Since I have astigmatism...The high contrast black background hurts my eyes but I could read one or two chapters max without read mode.
 I just wish that your site could have a milder dark background that's readable even at low brightness."
 
+https://ux.stackexchange.com/a/53268
+People with astigmatism (approximately 50% of the population) find it harder to read white text on black than black text on white. Part of this has to do with light levels: with a bright display (white background) the iris closes a bit more, decreasing the effect of the "deformed" lens; with a dark display (black background) the iris opens to receive more light and the deformation of the lens creates a much fuzzier focus at the eye.
+Jason Harrison – Post Doctoral Fellow, Imager Lab Manager – Sensory Perception and Interaction Research Group, University of British Columbia
+
+
+
 Accessibility:
 "Some people cannot use a mouse, including many older users with limited fine motor control. An accessible website does not rely on the mouse; it provides all functionality via a keyboard. Then people with disabilities can use assistive technologies that mimic the keyboard, such as speech input."
 Use case: half-blind person.
