@@ -4,10 +4,10 @@ void main_menu_later();
 void engine_choice();
 void emscripten_notes() {
 	o(R"(Interactive Text is just a wrapper around an output function. Emscripten does the real work converting C++ to HTML. Emscripten has some catches.
-For filesystem read/write, you have to add some emscripten sync functions if you want saves, and you need --preload-file if you want to load pre-existing files. Alternatively, you can use html's localStorage for saves.
-Keyboard input handling is through Javascript, using onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing.
-When testing in IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>.
-If your console output messages aren't showing, add '\n' to the end of each line. Use printf instead of iostreams, because cout has a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, 250KB.
+Saving is easiest through localStorage. If you want to save binary data, use base64. If you really need filesystem read/write, you have to add some emscripten sync functions, and you need --preload-file if you want to load pre-existing files.
+Keyboard input handling uses Javascript's onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing, which is annoying.
+When testing in IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. This is because IE disallows localStorage for local files.
+Add '\n' to your console output messages, or they won't show up. Use printf instead of iostreams, because cout has a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, 250KB.
 )");
 	o("Return", engine_choice, n)(r);
 }
