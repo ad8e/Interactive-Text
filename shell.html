@@ -269,7 +269,7 @@ function insert_history(text) {
 	if (history_retention != 0) {
 		var new_history = document.createElement('li');
 		new_history.id = "history " + (id++);
-		new_history.innerHTML = Module.Pointer_stringify(text);
+		new_history.innerHTML = Module.UTF8ToString(text);
 		history_container.insertBefore(new_history, history_container.firstChild);
 	}
 	clear_old_history();
@@ -292,7 +292,7 @@ function prompt_history_retention() {
 var main_body = document.getElementById('m');
 var scrolltarget = document.getElementById('scrolltarget');
 function change_message(text) {
-	main_body.innerHTML = Module.Pointer_stringify(text);
+	main_body.innerHTML = Module.UTF8ToString(text);
 	enable_disable_tabbing_for_keybound_links();
 	if (history_above) scrolltarget.scrollIntoView(true);
 	else window.scrollTo(0, 0);
