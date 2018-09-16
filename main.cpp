@@ -69,7 +69,7 @@ void main_menu_later() {
 <li>simple: o() to output</li>
 <li>scrollback history</li>
 <li>keyboard shortcuts for links</li>
-<li>Public Domain: free, no conditions</li>
+<li>Public Domain: open source, no conditions</li>
 </ul>
 <a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>
 )");
@@ -81,5 +81,6 @@ void main_menu_later() {
 }
 
 int main() {
+	o(R"(<link rel="prefetch" href="Fractal_fern_explained.png">)");
 	main_menu_later();
 }

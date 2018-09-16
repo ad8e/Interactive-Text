@@ -1,7 +1,8 @@
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["UTF8ToString"]'
-	"--memory-init-file 0" lets Chrome run it locally, at slight cost to file size
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["UTF8ToString"]' -s WASM=0
+	"--memory-init-file 0" plus "-s WASM=0" lets Chrome run it locally, at slight cost to file size
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -O3 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["UTF8ToString"]'
 
 --closure 1 reduces filesize by maybe 20kb but is annoying to use. I tried adding the following to a file closure.js, to declare externs:
 function change_message(text){};

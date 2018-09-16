@@ -17,20 +17,23 @@ constexpr int link_count = 8;
 
 //turn \n into HTML p tags to improve accessibility and formatting
 //this creates unnecessary p tags when the input ends in \n</p> or starts in <p>\n, but that doesn't matter very much
-inline std::string convert_newlines_to_paragraph_tags(const std::string& input)
+//this creates a tremendous number of unnecessary p tags for <ul> lists, since the browser closes off the tags. that also doesn't matter.
+inline std::string convert_newlines_to_paragraph_tags(std::string_view input)
 {
 	if (input.empty()) return ""; //special case: don't add p tags
 	std::string result_string("<p>");
-	std::size_t old_pos = 0;
-	std::size_t pos;
-	while ((pos = input.find('\n', old_pos)) != std::string::npos)
+	std::size_t start_of_paragraph = 0;
+	std::size_t end_of_paragraph;
+	while ((end_of_paragraph = input.find('\n', start_of_paragraph)) != std::string::npos)
 	{
-		std::size_t last_pos = input.find_first_not_of('\n', pos);
-		if (last_pos == std::string::npos) last_pos = input.size();
-		result_string.append(input.substr(old_pos, pos - old_pos) + "</p>" + std::string(last_pos - pos - 1, '\n') + "<p>");
-		old_pos = last_pos;
+		std::size_t start_of_next_paragraph = input.find_first_not_of('\n', end_of_paragraph);
+		if (start_of_next_paragraph == std::string::npos) start_of_next_paragraph = input.size();
+		result_string.append(input.substr(start_of_paragraph, end_of_paragraph - start_of_paragraph));
+		result_string.append("</p>" + std::string(start_of_next_paragraph - end_of_paragraph - 1, '\n') + "<p>");
+		start_of_paragraph = start_of_next_paragraph;
 	}
-	result_string.append(input.substr(old_pos, std::string::npos) + "</p>");
+	result_string.append(input.substr(start_of_paragraph, std::string::npos));
+	result_string.append("</p>");
 	return result_string;
 }
 
@@ -44,7 +47,7 @@ static struct no_automatic_space_before_this_text {} ns;
 class html_output
 {
 	bool needs_whitespace = false;
-	bool whitespace(std::string const& newstring)
+	bool whitespace(std::string_view newstring)
 	{
 		if (newstring.empty()) return false;
 		bool old_needs_whitespace = needs_whitespace;
@@ -72,9 +75,10 @@ public:
 	html_output() { link_position.fill(-1); }
 
 	//" << " takes 5 keystrokes including shift, and () takes 3 keystrokes when chaining as )(. operator() has the unique advantage of arbitrary argument count
-	html_output& operator()(std::string const& text)
+	html_output& operator()(std::string_view text)
 	{
-		texts.back().append((whitespace(text) ? " " : "") + text);
+		texts.back().append(whitespace(text) ? " " : "");
+		texts.back().append(text);
 		return *this;
 	}
 
@@ -95,7 +99,7 @@ public:
 	}
 
 	//aside links don't add any special properties.
-	html_output& operator()(std::string const& text, std::function<void(void)> function, aside_link_with_no_keyboard_shortcut a)
+	html_output& operator()(std::string_view text, std::function<void(void)> function, aside_link_with_no_keyboard_shortcut a)
 	{
 		if (whitespace(text)) texts.back().append(" ");
 		links.emplace_back(std::make_pair(text, function));
@@ -104,13 +108,13 @@ public:
 		return *this;
 	}
 
-	html_output& operator()(std::string const& text, std::function<void(void)> function)
+	html_output& operator()(std::string_view text, std::function<void(void)> function)
 	{
 		if (main_links_emitted < link_count)
 			link_position.at(main_links_emitted++) = links.size();
 		return (*this)(text, function, a); //use the aside link codepath
 	}
-	html_output& operator()(std::string const& text, std::function<void(void)> function, neutral_link n)
+	html_output& operator()(std::string_view text, std::function<void(void)> function, neutral_link n)
 	{
 		if (link_position.at(link_count) != -1)
 			(*this)("[Warning: neutral command already set]");
@@ -149,7 +153,7 @@ public:
 				output_string.append("<a class='disabled_link'>[" + links.at(increm).first + "]</a>");
 			else
 			{
-				std::string link_preamble("<a onclick='Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
+				std::string link_preamble("<a onmousedown='Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
 				if (id_number != -1) link_preamble.append(" id='l" + std::to_string(id_number) + "' class='l" + std::to_string(id_number) + "'");
 				output_string.append(link_preamble + ">[" + links.at(increm).first + "]</a>");
 			}

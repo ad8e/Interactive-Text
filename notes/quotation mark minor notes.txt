@@ -1,0 +1,7 @@
+I decided to use single quotes in the html file. Before, there was a mix which depended on where I copy-pasted code from.
+I like not having to hold down shift.
+Maybe there is some inconsequential compression benefit (there are single quotes in contractions).
+
+Most websites use double quotes, and consistency with them is good.
+Double quotes are quotations in English too, and in C++.
+Double quotes means that contractions inside text don't cause problems. In retrospect, this was the biggest factor and so single quotes were a mistake. But I'm too lazy to change it back now.
