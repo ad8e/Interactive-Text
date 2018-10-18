@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang='en-us'>
 <meta charset='utf-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- solves mobile issues. see http://www.javierusobiaga.com/blog/stop-using-the-viewport-tag-until-you-know-ho/ for what initial-scale does -->
 <meta http-equiv='X-UA-Compatible' content='IE=edge' /> <!-- solves IE compatibility problem: https://stackoverflow.com/a/35825985/ -->
 <title>Interactive Text</title>
 <style>
@@ -308,6 +309,7 @@ function change_message(text) {
 </script>
 {{{ SCRIPT }}}
 
+
 <!-- set margins according to window width, and set line spacing in response to line length -->
 <script type='text/javascript'>
 //ratios change as font size changes. Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size.
@@ -337,16 +339,18 @@ set_ratios(document.body);
 //the visual size of a font is very different from its font size. most of its size is determined by its x-height. thus, here we blend the x-height and the font size to produce a more accurate font measure.
 var x_height_proportion = 0.7; //how much the x-height should matter in determining the effective font size. the remaining proportion is determined by the font size. try testing with Open Sans (x-height 0.535), Verdana (0.545), Garamond (0.384), and TNR (0.448) since they have the highest and lowest x-heights.
 var effective_font_height_multiplier = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find the "effective font height" as a ratio of the stated font size.
-var effective_font_height_of_reference_05_x_height_font =  0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
+var effective_font_height_of_reference_05_x_height_font = 0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
 var expansion_ratio_relative_to_reference_font = effective_font_height_multiplier / effective_font_height_of_reference_05_x_height_font;
 //font size is used here instead of the more accurate (ascent + descent), in order to respect the font designer's intentions.
 
-//standard font 1em in the current font size, converted to px.
-//the ratio used in conversion is (height + width / 2). we divide width by 2, because it doesn't seem to matter as much when determining the font size.
-//we get the font size from the main message, because that's the section designed for best reading.
-function fixed_arc_relative_to_standard_font() {
-	var px_of_fixed_arc = parseFloat(window.getComputedStyle(main_body).fontSize) * (effective_font_height_multiplier + average_width_ratio / 2);
-	return px_of_fixed_arc / (effective_font_height_of_reference_05_x_height_font + 0.4 / 2);
+//returns the true effective size of the font. scale: the reference font returns the nominal font size. fonts which are larger than their point size claims will return larger values.
+//this captures variations in the specific font being used, where the nominal point size doesn't represent its true point size.
+function effective_font_size() {
+	var reported_font_size = parseFloat(window.getComputedStyle(main_body).fontSize); //font size from the main message, because that's the section designed for best reading.
+
+	//the ratio used in conversion is (height + width / 2). we divide width by 2, because it doesn't seem to matter as much when determining the font size.
+	var current_font_to_standard_font_ratio = (effective_font_height_multiplier + average_width_ratio / 2) / (effective_font_height_of_reference_05_x_height_font + 0.4 / 2);
+	return reported_font_size * current_font_to_standard_font_ratio;
 }
 
 //all these default values are chosen by eyeballing, and without any peer-reviewed research.
@@ -361,7 +365,7 @@ var paragraph_margin_multiple = 0.35; //paragraph margin as a multiple of the li
 var section_margin_multiple = 1.0;
 
 function rescale_line_spacing(element) {
-	var line_length = element.clientWidth / fixed_arc_relative_to_standard_font();
+	var line_length = element.clientWidth / effective_font_size();
 	//clientWidth is better than scrollWidth, because a horizontal scrollbar can be created by a single word whose length is larger than the containing box.
 	//if your box has a horizontal scrollbar by default, then scrollWidth might be more reasonable, but that is a horrible situation to design for. you don't want horizontal scrollbars.
 	var scaled_line_length = Math.pow(line_length / line_length_for_line_spacing_scaling, 2);
@@ -374,20 +378,30 @@ function rescale_line_spacing(element) {
 }
 
 function remargin_main(event){
-	var relative_effective_font_size = fixed_arc_relative_to_standard_font();
+	var relative_effective_font_size = effective_font_size();
+	flexboxflip.style.marginLeft = relative_effective_font_size.toString() + 'px';
+	flexboxflip.style.marginRight = relative_effective_font_size.toString() + 'px'; //do this before getting body's clientWidth, because this changes the body
 
-	var available_width = main_body.parentElement.clientWidth;
+	var available_width = document.body.clientWidth + 2 * relative_effective_font_size; //don't use window.innerWidth, pinch zooming will change that.
+	var main_body_width = main_body.parentElement.clientWidth;
 	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / relative_effective_font_size, 2);
 	var margin_scaling = scaled_width / (scaled_width + 1);
-	if (margin_scaling * available_width * max_margin < relative_effective_font_size)
-		margin_scaling = 0; //clamp to edge if it's too small to effectively distinguish main text from history text.
-	main_body.style.marginLeft = (100 * max_margin * margin_scaling).toString() + '%';
-	main_body.style.marginRight = (100 * max_margin * margin_scaling).toString() + '%';
+	var desired_margin = max_margin * margin_scaling * available_width - relative_effective_font_size;
+	//note that flexboxflip's left margin is not being merged. that's why we calculate absolute units and subtract from there.
+
+	if (desired_margin < relative_effective_font_size)
+		desired_margin = 0; //clamp to edge if it's too small to effectively distinguish main text from history text.
+	var desired_margin_ratio = desired_margin / main_body_width;
+	main_body.style.marginLeft = (100 * desired_margin_ratio).toString() + '%';
+	main_body.style.marginRight = (100 * desired_margin_ratio).toString() + '%';
 
 	rescale_line_spacing(history_container);
 	rescale_line_spacing(main_body);
+
+	//could use overall viewport width or screen width, not clientWidth. this also helps with side-by-side windows, or websites embedded in other websites. but multi-monitors have large sections that the user doesn't bother to look at. so viewport width/client width is fine, rather than screen width. note that viewport width includes the scrollbar, we don't want that. % doesn't include the scrollbar.
 }
 window.addEventListener('DOMContentLoaded', remargin_main);
 window.addEventListener('resize', remargin_main);
+//TODO: why is it different after a resize than the initial values?
 </script>
 </html>

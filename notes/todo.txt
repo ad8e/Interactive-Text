@@ -7,6 +7,7 @@ research survey on typography line spacing
 links cycle between normal, bold, and underlined. although then the history's chosen link format will have to change from being bold
 
 
+options transparent until hover? but also tabbing should make them opaque as well.
 
 
 let's think about our link structure. usually, most of the links should go at the bottom. the text presents information, and then you are given a choice. this has the advantage that all the choices are located together, which is a conceptual benefit.

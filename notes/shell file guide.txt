@@ -1,4 +1,4 @@
 "var history_retention": how many history entries to keep by default.
 for puzzle games where history matters, you may want to set this to -1, for infinite history retention.
 for descriptive games, 2-5 is probably ok.
-for action games which are mostly immediate and lack state, 0 for no history, or 1 for single history, is ok.
+for action games which are mostly immediate and lack state, 0 for no history, or 1 for single history, is ok. 0 is also good when state persists across frames.
