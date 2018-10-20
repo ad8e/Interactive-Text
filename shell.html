@@ -156,7 +156,7 @@ document.onkeypress = function(e) {
 	<!-- options jumping around are really distracting, so they're kept fixed at the bottom or top. they can't be below the page bottom; that would cause a scrollbar. and hiding the scrollbar is bad. -->
 	<div id='options_section' style='text-align:center; margin: 0.3em auto;'>Options:
 		<a id='history_number_option' class='ca' tabindex='0' onmousedown='prompt_history_retention();'>History retention</a>
-		<a id='vertical_layout_option' class='ca' tabindex='0' onmousedown='flip_history_position();'>Flip page vertically</a>
+		<a id='vertical_layout_option' class='ca' tabindex='0' onmousedown='flip_history_position();'>Flip order</a>
 		<a id='keyboard_shortcuts_option' class='ca' tabindex='0' onmousedown='flip_keyboard_enabled();'>Keyboard shortcuts</a><span class='screenreader'>Screenreader users should disable this setting.</span></a>
 		<span id='keyboard_rebinding_options'>
 		rebind keys:
@@ -177,7 +177,7 @@ document.onkeypress = function(e) {
 //true only if localstorage says it's true
 var history_above = (localStorage.getItem('history above') === 'true');
 function set_history_position() {
-	changecss('#history_separator', 'flex-direction', 'column' + (history_above ? '-reverse' : ''));
+	changecss('#history_container', 'flex-direction', 'column' + (history_above ? '-reverse' : ''));
 	changecss('#main_body', 'min-height', history_above ? '75vh' : '50vh'); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use 'auto'.
 	changecss('#main_body', 'flex', history_above ? '1' : '0');
 	changecss('#history_container', 'flex', history_above ? '0' : '1');
@@ -226,7 +226,7 @@ window.onerror = function() {
 <!-- enable/disable keyboard shortcuts -->
 <script type='text/javascript'>
 function keyboard_enable_implement() {
-	keyboard_shortcuts_option.textContent = 'Keyboard shortcuts ' + (keyboard_shortcuts_enabled ? 'enabled' : 'disabled');
+	keyboard_shortcuts_option.textContent = 'Keyboard shortcuts: ' + (keyboard_shortcuts_enabled ? 'on' : 'off');
 	for (var n in keycoderaw) {
 		changecss('#l' + n + '::after', 'content', keyboard_shortcuts_enabled ? '\'' + String.fromCharCode(keycoderaw[n]) + '\'' : '\'\'');
 		changecss('#l' + n + '::after', 'vertical-align', keyboard_shortcuts_enabled ? 'sub' : 'initial'); //subscripts cause line space distortion even when there's no text, so we have to reset it to initial when keybinds are disabled
@@ -382,15 +382,15 @@ function remargin_main(event){
 	flexboxflip.style.marginLeft = relative_effective_font_size.toString() + 'px';
 	flexboxflip.style.marginRight = relative_effective_font_size.toString() + 'px'; //do this before getting body's clientWidth, because this changes the body
 
-	var available_width = document.body.clientWidth + 2 * relative_effective_font_size; //don't use window.innerWidth, pinch zooming will change that.
-	var main_body_width = main_body.parentElement.clientWidth;
+	var available_width = document.body.clientWidth + 2 * relative_effective_font_size; //total width, including built-in margin. don't use window.innerWidth, pinch zooming will change that.
+	var main_body_width = main_body.parentElement.clientWidth; //available space to stretch in. we use parentElement's width so that changing main_body's width doesn't change this number.
 	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / relative_effective_font_size, 2);
 	var margin_scaling = scaled_width / (scaled_width + 1);
 	var desired_margin = max_margin * margin_scaling * available_width - relative_effective_font_size;
 	//note that flexboxflip's left margin is not being merged. that's why we calculate absolute units and subtract from there.
 
 	if (desired_margin < relative_effective_font_size)
-		desired_margin = 0; //clamp to edge if it's too small to effectively distinguish main text from history text.
+		desired_margin = 0; //clamp to edge if it's too small to effectively distinguish main text from history text, or if it's below zero (when the built-in margin is sufficient).
 	var desired_margin_ratio = desired_margin / main_body_width;
 	main_body.style.marginLeft = (100 * desired_margin_ratio).toString() + '%';
 	main_body.style.marginRight = (100 * desired_margin_ratio).toString() + '%';
@@ -402,6 +402,5 @@ function remargin_main(event){
 }
 window.addEventListener('DOMContentLoaded', remargin_main);
 window.addEventListener('resize', remargin_main);
-//TODO: why is it different after a resize than the initial values?
 </script>
 </html>
