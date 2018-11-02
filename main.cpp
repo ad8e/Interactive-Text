@@ -3,11 +3,11 @@
 void main_menu_later();
 void engine_choice();
 void emscripten_notes() {
-	o(R"(Interactive Text is just a wrapper around an output function. Emscripten does the real work converting C++ to HTML. Emscripten has some catches.
+	o(R"(Interactive Text is just output and formatting. Emscripten does the real work converting C++ to Javascript. Emscripten has some catches.
 Saving is easiest through localStorage. If you want to save binary data, use base64. If you really need filesystem read/write, you have to add some emscripten sync functions, and you need --preload-file if you want to load pre-existing files.
 Keyboard input handling uses Javascript's onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing, which is annoying.
 When testing in IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. This is because IE disallows localStorage for local files.
-Add '\n' to your console output messages, or they won't show up. Use printf instead of iostreams, because cout has a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, 250KB.
+Add '\n' to your console output messages, or they won't show up. Use EM_ASM(console.log("text");) instead of iostreams, because cout has a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, 250KB.
 )");
 	o("Return", engine_choice, n)(r);
 }
@@ -28,19 +28,20 @@ For any minor engine, be aware that if its developer vanishes, your work could b
 void engine_choice() {
 	o(R"(Technical details:
 <ul>
-<li>lightweight and performant: this entire webpage is 65KB to download</li>
-<li>typography scales across large and small screens, adjusting line spacing and margin</li>
+<li>lightweight and performant: this webpage is 52KB to download</li>
+<li>line spacing and margin adjust to screen size</li>
 <li>link format avoids empty history entries and empty new tabs on middle click</li>
-<li>transparent support for screenreaders</li>
+<li>supports screenreaders for visually impaired users</li>
 <li>tested in IE, Firefox, and Chrome</li>
-<li>HTML customization is easy</li>
+<li>HTML makes customization easy</li>
+<li>scrollback history and keyboard shortcuts: click the bottom options to try them.</li>
 </ul><h4>How do I build a text game?</h4>
-<a href="https://twinery.org/">Twine</a> is a strong choice. You can start writing immediately, without programming knowledge. It has built-in saves. It allows undo in-game. Its editor is annoying and laggy, but it exists. Gameplay past 10 hours freezes for several seconds on each scene transition, which makes scenes past 10 hours largely unreachable.
-Interactive Text is an alternative for those who know C++; it consists of an std::cout analogue and link callbacks. You should use it if you require complex mechanics and don't want to write Javascript. It doesn't have built-in saves.
-Both options create HTML files that can be run in a browser.
+<a href="https://twinery.org/">Twine</a> is the best choice for most. It lets you write without programming. It has built-in saves. It allows undo in-game. Its editor is annoying and laggy, but it exists. Gameplay past 10 hours suffers from poor performance; each click freezes for several seconds.
+Interactive Text is a niche alternative for games which prefer C++ to Javascript. It has an std::cout-a-like, and links call functions. It doesn't have built-in saves.
+Both options create webpages as output.
 )");
 	o("Other engines", other_engines)('\n');
-	o("Notes on emscripten", emscripten_notes)('\n');
+	o("Notes on the compiler", emscripten_notes)('\n');
 	o("Return to the main menu", main_menu_later, n)(r);
 }
 
@@ -67,16 +68,15 @@ void main_menu_later() {
 <a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
 <ul>
 <li>simple: o() to output</li>
-<li>scrollback history</li>
-<li>keyboard shortcuts for links</li>
 <li>Public Domain: open source, no conditions</li>
+<li>this webpage was built with it</li>
 </ul>
-<a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>
 )");
 
 	o("Further details", engine_choice)('\n');
 
-	if (incrementor == 0) o("In front of you is a board.")("Draw on it?", guestbook_incrementor);
+	if (incrementor == 0) o("In front of you is a board.")("Draw on it?", guestbook_incrementor)('\n');
+	o(R"(<a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>)");
 	o(r);
 }
 

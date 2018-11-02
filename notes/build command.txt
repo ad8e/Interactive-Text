@@ -1,19 +1,18 @@
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["UTF8ToString"]' -s WASM=0
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web'
 	"--memory-init-file 0" plus "-s WASM=0" lets Chrome run it locally, at slight cost to file size
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -O3 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["UTF8ToString"]'
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js
 
---closure 1 reduces filesize by maybe 20kb but is annoying to use. I tried adding the following to a file closure.js, to declare externs:
-function change_message(text){};
-function insert_history(text) {};
-/** @type {boolean} */
-var emscripten_loaded;
-and then built with
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s NO_EXIT_RUNTIME=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 -s 'EXTRA_EXPORTED_RUNTIME_METHODS=["UTF8ToString"]' --post-js closureextern.js --closure 1
-but this doesn't work. the variables still get renamed.
+--closure 1 reduces filesize by maybe 20kb but is annoying to use.
 
+before, the precompiled builds were not updated. but now they are.
+git pull
+./emsdk update-tags
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
 
-use sdk-incoming-64bit for the latest emscripten.
+if you want to build from source, which is no longer necessary, use sdk-incoming-64bit
 https://kripken.github.io/emscripten-site/docs/building_from_source/building_emscripten_from_source_using_the_sdk.html#building-emscripten-from-source-using-the-sdk
 if compiling, raise linux vm RAM. 4072 MB not enough. 4.5GB enough.

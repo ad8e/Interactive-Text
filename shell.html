@@ -42,101 +42,8 @@ a:not([href]).history {color: DarkBlue;}
 p {margin-bottom: 0px}
 li {margin-bottom: 0px}
 </style>
-<!-- lets the javascript know when the C++ module is safely loaded and ready to use -->
-<script type='text/javascript'>
-var emscripten_loaded = false;
-</script>
 
-<!-- helper script for css manipulation -->
-<script type='text/javascript'>
-var new_stylesheet = document.createElement('style');
-new_stylesheet.type = 'text/css';
-document.head.appendChild(new_stylesheet);
-var stylesheet = new_stylesheet.sheet;
-function changecss(selector, property, value) {
-	/* from stackoverflow. selectorText: e.g. '#myId', '.myClass', 'thead td'
-	 * style: e.g. 'fontSize'
-	 * value: the new value. if a string, such as when style = 'content', you might need nested quotes, like '\' text \''
-	 */
-	for (var i = 0; i < document.styleSheets.length; ++i) {
-		rules = document.styleSheets[i].cssRules;
-		for (var n in rules) {
-			if (rules[n].selectorText == selector) {
-				rules[n].style[property] = value;
-				return;
-			}
-		}
-	}
-	//wasn't found, so insert a new rule
-	try {stylesheet.insertRule(selector + ' {' + property + ':' + value + '}', stylesheet.cssRules.length);}
-	catch (err) {alert("Stylesheet failed, couldn't add or find style!");}
-}
-</script>
-
-<!-- keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick() -->
-<script type='text/javascript'>
-var keyboard_shortcuts_enabled = (localStorage.getItem('keyboard shortcuts enabled') === 'true');
-var rebindingkey = false;
-var rebindingkeynumber = 0;
-
-function changekeybind(number) {
-	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal'; //if you click on different rebinds in succession, stop rebinding the first
-	if ((rebindingkeynumber == number) && (rebindingkey == true))
-	{
-		rebindingkey = false; //if you click the same rebind twice, stop rebinding entirely
-		return;
-	}
-	rebindingkey = true;
-	rebindingkeynumber = number;
-	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'bold';
-}
-var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 103]; //qwerasdf g
-for (var n in keycoderaw) {
-	if (!(localStorage.getItem('keycode ' + n) === null))
-		keycoderaw[n] = localStorage.getItem('keycode ' + n).charCodeAt();
-}
-document.onkeypress = function(e) {
-	if (e.repeat) return;
-	if (rebindingkey)
-	{
-		//note: e.which is required, instead of e.charCode, because charCode doesn't support Enter
-		switch (e.which) {
-		case 0:
-			alert('Only glyphs are supported, like letters, numbers, and punctuation. That excludes keys like arrows and Ctrl. This is because of javascript problems.');
-			return;
-		case 13:
-			alert("Enter is a disallowed keybind, because you need Enter to select links when tabbing. Plus, Enter causes trouble with javascript's fromCharCode().");
-			return;
-		case 32:
-			alert('Space is not recommended because it is invisible and will scroll your page down.');
-			return;
-		}
-		rebindingkey = false;
-		//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
-		keycoderaw[rebindingkeynumber] = e.which;
-		localStorage.setItem('keycode ' + rebindingkeynumber, String.fromCharCode(e.which));
-		changecss('#l' + rebindingkeynumber + '::after', 'content', keyboard_shortcuts_enabled ? '\'' + String.fromCharCode(e.which) + '\'' : '\'\''); //we still need to check keyboard_shortcuts_enabled because user might try to rebind a key and then disable shortcuts
-		changecss('#c' + rebindingkeynumber + '::after', 'content', keyboard_shortcuts_enabled ? '\'[' + String.fromCharCode(e.which) + ']\'' : '\'\'');
-		document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal';
-		return;
-	}
-	for (var n in keycoderaw)
-	{
-		if ((e.which == keycoderaw[n]) && emscripten_loaded && keyboard_shortcuts_enabled)
-		{
-			Module._i(-n - 1);
-			return;
-		}
-	}
-	if (e.which == 13) //trigger onclick() with enter key. 13 = enter key.
-	{
-		if (typeof document.activeElement.onmousedown == 'function') document.activeElement.onmousedown();
-		return;
-	}
-};
-</script>
-
-<div class='emscripten' id='statusElement' style='text-align:center'>Downloading...</div>
+<div class='emscripten' id='statusElement' style='text-align:center'></div>
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
 <body id='flexboxflip' style='display: flex; display: -webkit-flex; color:#222222; min-height: 100%; margin: 0;'>
@@ -172,60 +79,91 @@ document.onkeypress = function(e) {
 		</span>
 	</div>
 </body>
-<!-- history above -->
+
+{{{ SCRIPT }}}
+
+<!-- helper script for css manipulation -->
 <script type='text/javascript'>
-//true only if localstorage says it's true
-var history_above = (localStorage.getItem('history above') === 'true');
-function set_history_position() {
-	changecss('#history_container', 'flex-direction', 'column' + (history_above ? '-reverse' : ''));
-	changecss('#main_body', 'min-height', history_above ? '75vh' : '50vh'); //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use 'auto'.
-	changecss('#main_body', 'flex', history_above ? '1' : '0');
-	changecss('#history_container', 'flex', history_above ? '0' : '1');
-// flex: 1;
-	//note: if you use auto, then the options shouldn't flip when the history flips, and should instead stay on top permanently.
-	changecss('#flexboxflip', 'flex-direction', 'column' + (history_above ? '-reverse' : ''));
-	changecss('#scrolltarget', 'display', (history_above ? 'inline' : 'none'));
-	//vertical_layout_option.textContent = 'History position ' + (history_above ? 'above' : 'below');
+var new_stylesheet = document.createElement('style');
+new_stylesheet.type = 'text/css';
+document.head.appendChild(new_stylesheet);
+var stylesheet = new_stylesheet.sheet;
+function changecss(selector, property, value) {
+	/* from stackoverflow. selectorText: e.g. '#myId', '.myClass', 'thead td'
+	 * style: e.g. 'fontSize'
+	 * value: the new value. if a string, such as when style = 'content', you might need nested quotes, like '\' text \''
+	 */
+	for (var i = 0; i < document.styleSheets.length; ++i) {
+		rules = document.styleSheets[i].cssRules;
+		for (var n in rules) {
+			if (rules[n].selectorText == selector) {
+				rules[n].style[property] = value;
+				return;
+			}
+		}
+	}
+	//wasn't found, so insert a new rule
+	try {stylesheet.insertRule(selector + ' {' + property + ':' + value + '}', stylesheet.cssRules.length);}
+	catch (err) {alert("Stylesheet failed, couldn't add or find style!");}
 }
-set_history_position();
+
+
+//inverts the page order
+var history_above = (localStorage.getItem('history above') === 'true');
+(window.set_page_order = function() {
+	history_container.style['flex-direction'] = 'column' + (history_above ? '-reverse' : '');
+	main_body.style['min-height'] = history_above ? '75vh' : '50vh'; //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use 'auto'.
+	main_body.style.flex = history_above ? '1' : '0';
+	history_container.style.flex = history_above ? '0' : '1';
+	//note: if you use auto, then the options shouldn't flip when the history flips, and should instead stay on top permanently.
+	flexboxflip.style['flex-direction'] = 'column' + (history_above ? '-reverse' : '');
+	scrolltarget.style.display = history_above ? 'inline' : 'none';
+	//vertical_layout_option.textContent = 'History position ' + (history_above ? 'above' : 'below');
+})();
+
+//alert user on thrown exceptions
+window.onerror = function() {main_body.innerHTML += 'Error, press F12 to see JavaScript console';};
+
 function flip_history_position() {
 	history_above = !history_above;
-	set_history_position();
+	set_page_order();
 	localStorage.setItem('history above', history_above);
 }
-</script>
 
-<!-- emscripten's javascript -->
-<script type='text/javascript'>
-var Module = {
-	print: function(text) {
-		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-		console.log(text);
-	},
-	printErr: function(text) {
-		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-		console.error(text);
-	},
-	setStatus: function(text) {
-		statusElement.textContent = text;
-	},
-	totalDependencies: 0,
-	monitorRunDependencies: function(left) {
-		this.totalDependencies = Math.max(this.totalDependencies, left);
-		Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+
+//keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick()
+var keyboard_shortcuts_enabled = (localStorage.getItem('keyboard shortcuts enabled') === 'true');
+var rebindingkey = false;
+var rebindingkeynumber = 0;
+
+function changekeybind(number) {
+	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal'; //if you click on different rebinds in succession, stop rebinding the first
+	if ((rebindingkeynumber == number) && (rebindingkey == true))
+	{
+		rebindingkey = false; //if you click the same rebind twice, stop rebinding entirely
+		return;
 	}
-};
-window.onerror = function() {
-	Module.setStatus('Exception thrown, see JavaScript console');
-	Module.setStatus = function(text) {
-		if (text) Module.printErr('[post-exception status] ' + text);
-	};
-};
-</script>
+	rebindingkey = true;
+	rebindingkeynumber = number;
+	document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'bold';
+}
+var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 103]; //qwerasdf g
+for (var n in keycoderaw) {
+	if (!(localStorage.getItem('keycode ' + n) === null))
+		keycoderaw[n] = localStorage.getItem('keycode ' + n).charCodeAt();
+}
 
-<!-- enable/disable keyboard shortcuts -->
-<script type='text/javascript'>
-function keyboard_enable_implement() {
+
+//links are tabbable only if they aren't keybound
+function keybound_links_nontabbable() {
+	for (var n in keycoderaw) {
+		var possible_link = document.getElementById('l' + n);
+		if (possible_link !== null)
+			possible_link.setAttribute('tabindex', keyboard_shortcuts_enabled ? '-1' : '0');
+	}
+}
+//enable/disable keyboard shortcuts
+(window.keyboard_enable_implement = function() {
 	keyboard_shortcuts_option.textContent = 'Keyboard shortcuts: ' + (keyboard_shortcuts_enabled ? 'on' : 'off');
 	for (var n in keycoderaw) {
 		changecss('#l' + n + '::after', 'content', keyboard_shortcuts_enabled ? '\'' + String.fromCharCode(keycoderaw[n]) + '\'' : '\'\'');
@@ -235,56 +173,36 @@ function keyboard_enable_implement() {
 	}
 	keyboard_rebinding_options.style.display = keyboard_shortcuts_enabled ? '' : 'none'; //visibility=hidden doesn't keep it in place. the rest of the options still shift around
 	localStorage.setItem('keyboard shortcuts enabled', keyboard_shortcuts_enabled);
-}
-keyboard_enable_implement();
+})();
 
 function flip_keyboard_enabled() {
 	keyboard_shortcuts_enabled = !keyboard_shortcuts_enabled;
 	keyboard_enable_implement();
-	enable_disable_tabbing_for_keybound_links(); //links are tabbable only if they aren't keybound
+	keybound_links_nontabbable();
 }
 
-function enable_disable_tabbing_for_keybound_links() {
-	for (var n in keycoderaw) {
-		var possible_link = document.getElementById('l' + n);
-		if (possible_link !== null) {
-			possible_link.setAttribute('tabindex', keyboard_shortcuts_enabled ? '-1' : '0');
-		}
-	}
-}
-</script>
 
-<!-- history handler -->
-<script type='text/javascript'>
+//history handler
 var history_retention = 0; //better to be 0 by default. for example, in our intro document, images persist between screens, and duplicated images are confusing.
 if (!(localStorage.getItem('history retention') === null))
 	history_retention = parseInt(localStorage.getItem('history retention'));
-function set_history_retention(number) {
+(window.set_history_retention = function(number) {
 	history_retention = number;
 	history_number_option.textContent = 'History kept: ' + ((history_retention < 0) ? 'all' : history_retention);
 	if (history_retention === 0) history_separator.style = 'display:none;';
 	else history_separator.style = 'margin:0.5em';
-}
-set_history_retention(history_retention); //write the options text
-var id = 0;
+})(history_retention); //call immediately, to write the options text
+var history_id = 0;
 var trailing_id = 0; //the history section contains each id in [trailing id, id).
 function clear_old_history() {
 	if (history_retention != -1) {
-		for (; trailing_id < id - history_retention; ++trailing_id) {
+		for (; trailing_id < history_id - history_retention; ++trailing_id) {
 			var obsolete_history = document.getElementById('history ' + trailing_id);
 			obsolete_history.parentNode.removeChild(obsolete_history);
 		}
 	}
 }
-function insert_history(text) {
-	if (history_retention != 0) {
-		var new_history = document.createElement('li');
-		new_history.id = 'history ' + (id++);
-		new_history.innerHTML = Module.UTF8ToString(text);
-		history_container.insertBefore(new_history, history_container.firstChild);
-	}
-	clear_old_history();
-}
+
 function prompt_history_retention() {
 	var value = prompt('Enter number of history entries to keep. Blank for no limit.', (history_retention == -1) ? '' : history_retention);
 
@@ -296,22 +214,9 @@ function prompt_history_retention() {
 		clear_old_history();
 	}
 }
-</script>
-
-<!-- new message handler -->
-<script type='text/javascript'>
-function change_message(text) {
-	main_body.innerHTML = Module.UTF8ToString(text);
-	enable_disable_tabbing_for_keybound_links();
-	if (history_above) scrolltarget.scrollIntoView(true);
-	else window.scrollTo(0, 0);
-}
-</script>
-{{{ SCRIPT }}}
 
 
-<!-- set margins according to window width, and set line spacing in response to line length -->
-<script type='text/javascript'>
+//set margins according to window width, and set line spacing in response to line length
 //ratios change as font size changes. Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size.
 //font measurements in our library don't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom, though they should be different.
 //desktop browsers stay at 1x zoom. but mobile browsers all have virtual zooms. we could get all our data for 1000px fonts, but for now, we'll just stay at 1em.

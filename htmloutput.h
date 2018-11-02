@@ -9,7 +9,6 @@ o(suppress_history) to prevent the text afterward from appearing in the scrollba
 #include <string>
 #include <vector>
 #include <functional>
-#include <cstdlib>
 #include <array>
 #include <emscripten/emscripten.h>
 
@@ -165,8 +164,8 @@ public:
 
 		extern std::string history_string;
 
-		if (history_string.empty()) EM_ASM_({change_message($0)}, output_string.c_str());
-		else EM_ASM_({insert_history($0); change_message($1)}, history_string.c_str(), output_string.c_str());
+		if (history_string.empty()) EM_ASM_({new_message($0)}, output_string.c_str());
+		else EM_ASM_({insert_history($0); new_message($1)}, history_string.c_str(), output_string.c_str());
 
 		history_string.clear();
 	}

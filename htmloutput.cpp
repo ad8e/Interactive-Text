@@ -42,7 +42,3 @@ extern "C" {
 		to_be_called();
 	}
 }
-
-//we initialize emscripten in a static initializer, instead of in main, to keep the user-modified file small.
-//this should be ok, because JS is single-threaded, and I don't think there is anything run between static initialization and main()
-const int initialize_emscripten = []{EM_ASM(emscripten_loaded = true;); return 0;}();
