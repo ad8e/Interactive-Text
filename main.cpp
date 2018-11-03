@@ -32,12 +32,12 @@ void engine_choice() {
 <li>line spacing and margin adjust to screen size</li>
 <li>link format avoids empty history entries and empty new tabs on middle click</li>
 <li>supports screenreaders for visually impaired users</li>
-<li>tested in IE, Firefox, and Chrome</li>
+<li>tested in Firefox, Chrome, and IE</li>
 <li>HTML makes customization easy</li>
 <li>scrollback history and keyboard shortcuts: click the bottom options to try them.</li>
 </ul><h4>How do I build a text game?</h4>
 <a href="https://twinery.org/">Twine</a> is the best choice for most. It lets you write without programming. It has built-in saves. It allows undo in-game. Its editor is annoying and laggy, but it exists. Gameplay past 10 hours suffers from poor performance; each click freezes for several seconds.
-Interactive Text is a niche alternative for games which prefer C++ to Javascript. It has an std::cout-a-like, and links call functions. It doesn't have built-in saves.
+Interactive Text is a niche alternative for games which prefer C++ to Javascript. It has an std::cout-a-like and link callbacks. It doesn't have built-in saves.
 Both options create webpages as output.
 )");
 	o("Other engines", other_engines)('\n');

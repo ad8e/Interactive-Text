@@ -2,13 +2,9 @@
 <html lang='en-us'>
 <meta charset='utf-8'>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- solves mobile issues. see http://www.javierusobiaga.com/blog/stop-using-the-viewport-tag-until-you-know-ho/ for what initial-scale does -->
-<meta http-equiv='X-UA-Compatible' content='IE=edge' /> <!-- solves IE compatibility problem: https://stackoverflow.com/a/35825985/ -->
 <title>Interactive Text</title>
 <style>
-
-html {
-	height: 100%;
-}
+html {height: 100%;}
 
 body {font-family: 'Open Sans', sans-serif;}
 
@@ -42,8 +38,7 @@ a:not([href]).history {color: DarkBlue;}
 p {margin-bottom: 0px}
 li {margin-bottom: 0px}
 </style>
-
-<div class='emscripten' id='statusElement' style='text-align:center'></div>
+{{{ SCRIPT }}}
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
 <body id='flexboxflip' style='display: flex; display: -webkit-flex; color:#222222; min-height: 100%; margin: 0;'>
@@ -64,7 +59,7 @@ li {margin-bottom: 0px}
 	<div id='options_section' style='text-align:center; margin: 0.3em auto;'>Options:
 		<a id='history_number_option' class='ca' tabindex='0' onmousedown='prompt_history_retention();'>History retention</a>
 		<a id='vertical_layout_option' class='ca' tabindex='0' onmousedown='flip_history_position();'>Flip order</a>
-		<a id='keyboard_shortcuts_option' class='ca' tabindex='0' onmousedown='flip_keyboard_enabled();'>Keyboard shortcuts</a><span class='screenreader'>Screenreader users should disable this setting.</span></a>
+		<a id='keyboard_shortcuts_option' class='ca' tabindex='0' onmousedown='flip_keyboard_enabled();'>Keyboard shortcuts</a><span class='screenreader'>Screenreader users should disable this setting.</span>
 		<span id='keyboard_rebinding_options'>
 		rebind keys:
 		<a id='c0' class='l0' tabindex='0' onmousedown='changekeybind(0);'><span class='screenreader'>keybind 1 is</span></a>
@@ -80,10 +75,8 @@ li {margin-bottom: 0px}
 	</div>
 </body>
 
-{{{ SCRIPT }}}
-
-<!-- helper script for css manipulation -->
 <script type='text/javascript'>
+//helper script for css manipulation
 var new_stylesheet = document.createElement('style');
 new_stylesheet.type = 'text/css';
 document.head.appendChild(new_stylesheet);

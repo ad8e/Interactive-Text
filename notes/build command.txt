@@ -1,10 +1,14 @@
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web'
+emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1
 	"--memory-init-file 0" plus "-s WASM=0" lets Chrome run it locally, at slight cost to file size
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
+	-s ELIMINATE_DUPLICATE_FUNCTIONS=1 is nearly insignificant
+	-s POLYFILL_OLD_MATH_FUNCTIONS is for IE
 
 emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js
 
 --closure 1 reduces filesize by maybe 20kb but is annoying to use.
+
+strongly recommend to copy paste the first-view text of main_body and place it in the html file. it will be duplicated, but this shaves off 0.2s on the first-view. calling Module._i() before it's loaded causes a brief error but it's completely recovered from.
 
 before, the precompiled builds were not updated. but now they are.
 git pull
