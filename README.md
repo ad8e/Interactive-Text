@@ -1,4 +1,3 @@
-
 See it in action at https://interactivetext.github.io/. To get started:
 
 1. install <a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">emscripten</a>, the compiler that does most of the work

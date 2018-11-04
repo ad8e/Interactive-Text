@@ -1,0 +1,5 @@
+uses path instead of a cutaway - svg renderers don't antialias the boundaries of cutaways properly. not just linear gamma but more
+fixes many inaccuracies in asymmetry
+correct color, wikipedia uses 36b for external links, not 36c
+much smaller size
+large scaling still looks good, no gaps in the arrow

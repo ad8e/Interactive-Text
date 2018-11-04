@@ -4,10 +4,10 @@ void main_menu_later();
 void engine_choice();
 void emscripten_notes() {
 	o(R"(Interactive Text is just output and formatting. Emscripten does the real work converting C++ to Javascript. Emscripten has some catches.
-Saving is easiest through localStorage. If you want to save binary data, use base64. If you really need filesystem read/write, you have to add some emscripten sync functions, and you need --preload-file if you want to load pre-existing files.
-Keyboard input handling uses Javascript's onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing, which is annoying.
-When testing in IE, if you're running the html file on your computer instead of a server, you'll need to follow emscripten's <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">guide on setting up a localhost web server for development</a>. This is because IE disallows localStorage for local files.
-Add '\n' to your console output messages, or they won't show up. Use EM_ASM(console.log("text");) instead of iostreams, because cout has a <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">large fixed cost</a>, 250KB.
+Use localStorage for saves. To save binary data, use base64.
+Keyboard input uses Javascript's onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing, which is annoying.
+When testing in IE, <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">set up a localhost web server</a>. This is because IE disallows localStorage for local files.
+Add '\n' to your console output messages, or they won't show up. Don't use iostreams; they are <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">expensive</a>, 250KB.
 )");
 	o("Return", engine_choice, n)(r);
 }
@@ -18,7 +18,7 @@ Ren'Py is powerful, mature, and well-supported; it is good if you want to build 
 IF parser engines, like Inform, place restrictions on your format and require a language you will never use anywhere else. They're decent within their format, but most players will refuse to play them.
 RAGS, QSP, and Quest are dumpster fires.
 Adobe Flash is dead.
-Unity has some formatting, and it can produce HTML files, but for a text game, it's too heavy and proprietary. Starting up takes significant work, with no benefit. You'll be re-implementing another browser inside your browser.
+Unity has some formatting and can produce webpages. But for a text game, you'll be re-implementing another browser inside a browser. Performance and quality of your implementation will suck.
 HTML is best for a text game. It has colors, fonts, sectioned displays, buttons, and pictures. Its wide developer support makes it supreme in performance and flexibility. It is multiplatform. Most importantly, people play browser games, but most people won't play downloaded games.
 For any minor engine, be aware that if its developer vanishes, your work could become useless. Even if the engine is open-source, it's unlikely anyone else will step in. Interactive Text faces this same issue, and tries to be small so that it's easy to modify. However, you should still be mindful.
 )");
@@ -30,7 +30,6 @@ void engine_choice() {
 <ul>
 <li>lightweight and performant: this webpage is 52KB to download</li>
 <li>line spacing and margin adjust to screen size</li>
-<li>link format avoids empty history entries and empty new tabs on middle click</li>
 <li>supports screenreaders for visually impaired users</li>
 <li>tested in Firefox, Chrome, and IE</li>
 <li>HTML makes customization easy</li>
@@ -81,6 +80,6 @@ void main_menu_later() {
 }
 
 int main() {
-	o(R"(<link rel="prefetch" href="Fractal_fern_explained.png">)");
+	o(R"(<link rel="preload" href="Fractal_fern_explained.png">)");
 	main_menu_later();
 }

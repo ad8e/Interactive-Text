@@ -1,8 +1,7 @@
 //keyboard shortcuts are enabled when the main module is loaded.
 document.onkeypress = function(e) {
 	if (e.repeat) return;
-	if (rebindingkey)
-	{
+	if (rebindingkey) {
 		//note: e.which is required, instead of e.charCode, because charCode doesn't support Enter
 		switch (e.which) {
 		case 0:
@@ -24,16 +23,13 @@ document.onkeypress = function(e) {
 		document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal';
 		return;
 	}
-	for (var n in keycoderaw)
-	{
-		if ((e.which == keycoderaw[n]) && keyboard_shortcuts_enabled)
-		{
+	for (var n in keycoderaw) {
+		if ((e.which == keycoderaw[n]) && keyboard_shortcuts_enabled) {
 			Module._i(-n - 1);
 			return;
 		}
 	}
-	if (e.which == 13) //trigger onclick() with enter key. 13 = enter key.
-	{
+	if (e.which == 13) { //trigger onclick() with enter key. 13 = enter key.
 		if (typeof document.activeElement.onmousedown == 'function') document.activeElement.onmousedown();
 		return;
 	}
@@ -49,7 +45,6 @@ function insert_history(text) {
 	clear_old_history();
 }
 
-//new message handler
 function new_message(text) {
 	main_body.innerHTML = UTF8ToString(text);
 	keybound_links_nontabbable();

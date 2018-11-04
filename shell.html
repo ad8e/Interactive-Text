@@ -11,7 +11,13 @@ body {font-family: 'Open Sans', sans-serif;}
 /* bold-only, non-blue links are hard to distinguish and unconventional */
 a:not([href]) {color: blue;}
 a[onmousedown]:not([href]) {cursor: pointer;}
-a[href] {text-decoration: none;}
+a[href] {
+	text-decoration: none;
+	background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path fill="white" stroke="%2336b" d="M1.5 4.5h6v6h-6z"/><path d="M5.5 8.5l-2-2 2.7-2.7-1.5-1.5.8-.8h5v5l-.8.79L8.2 5.8z" fill="white" stroke="%2336b"/></svg>') right center no-repeat;
+	padding-right: 13px;
+}
+
+a[href]:link {color: #36b;}
 a[href]:hover, a[onmousedown]:hover {text-decoration: underline;}
 
 .disabled_link {text-decoration: line-through;}
@@ -41,24 +47,24 @@ li {margin-bottom: 0px}
 {{{ SCRIPT }}}
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
-<body id='flexboxflip' style='display: flex; display: -webkit-flex; color:#222222; min-height: 100%; margin: 0;'>
+<body id='flexboxflip' style='display: flex; color:#222222; min-height: 100%; margin: 0;'>
 	<!-- role='status' is for ARIA accessibility. role='main' by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
 	<div id='main_body' role='status' style='margin:0.3em; white-space:pre-wrap;' aria-live='polite'></div>
 
-	<hr id='history_separator'>
+	<hr id='history_separator' style='margin:1em'>
 	<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
 	<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
 	<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
 	<div id='scrolltarget' style='padding-bottom:0.3em;'></div>
 
-	<!-- low opacity and 90% font size let the user distinguish history from the main message. but low opacity is hard to read, and high opacity is indistinguishable from black.
+	<!-- low opacity and "font-size: 0.9em;" let the user distinguish history from the main message. but low opacity is hard to read, and high opacity is indistinguishable from black.
 	the history needs to be clearly distinguishable so the user's eyes instantly see where the end is. a color change is better. blue and purple overlap with links, red sucks, yellow is too bright. orange/brown, green. -->
-	<ul id='history_container' style='font-size: 0.9em; white-space:pre-wrap; display: flex; display: -webkit-flex; list-style: circle; padding-left: 1em; margin: 0; color: DarkGreen;'></ul>
+	<ul id='history_container' style='white-space:pre-wrap; display: flex; list-style: circle; padding-left: 1em; margin: 0; color: DarkGreen;'></ul>
 
 	<!-- options jumping around are really distracting, so they're kept fixed at the bottom or top. they can't be below the page bottom; that would cause a scrollbar. and hiding the scrollbar is bad. -->
 	<div id='options_section' style='text-align:center; margin: 0.3em auto;'>Options:
 		<a id='history_number_option' class='ca' tabindex='0' onmousedown='prompt_history_retention();'>History retention</a>
-		<a id='vertical_layout_option' class='ca' tabindex='0' onmousedown='flip_history_position();'>Flip order</a>
+		<a id='vertical_layout_option' class='ca' tabindex='0' onmousedown='flip_history_position();'>Flip order</a><span class='screenreader'>Reorder the main body, history, and options back-to-front.</span>
 		<a id='keyboard_shortcuts_option' class='ca' tabindex='0' onmousedown='flip_keyboard_enabled();'>Keyboard shortcuts</a><span class='screenreader'>Screenreader users should disable this setting.</span>
 		<span id='keyboard_rebinding_options'>
 		rebind keys:
@@ -104,6 +110,10 @@ function changecss(selector, property, value) {
 //inverts the page order
 var history_above = (localStorage.getItem('history above') === 'true');
 (window.set_page_order = function() {
+	if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1)
+		history_above = 'true'; //IE11 workaround for poor flexbox support
+	//otherwise, would require annoying workarounds seen in the css linked here: https://philipwalton.github.io/solved-by-flexbox/demos/sticky-footer/
+
 	history_container.style['flex-direction'] = 'column' + (history_above ? '-reverse' : '');
 	main_body.style['min-height'] = history_above ? '75vh' : '50vh'; //75vh preserves some of the previous scrollback to maintain context while keeping the new message at a constant position. when the history is below, it's not as useful. to have no height, use 'auto'.
 	main_body.style.flex = history_above ? '1' : '0';
@@ -182,8 +192,7 @@ if (!(localStorage.getItem('history retention') === null))
 (window.set_history_retention = function(number) {
 	history_retention = number;
 	history_number_option.textContent = 'History kept: ' + ((history_retention < 0) ? 'all' : history_retention);
-	if (history_retention === 0) history_separator.style = 'display:none;';
-	else history_separator.style = 'margin:0.5em';
+	history_separator.style.display = history_retention ? '' : 'none';
 })(history_retention); //call immediately, to write the options text
 var history_id = 0;
 var trailing_id = 0; //the history section contains each id in [trailing id, id).
@@ -272,7 +281,7 @@ function rescale_line_spacing(element) {
 
 	changecss('#' + element.id + ' p', 'margin-top', new_line_height_ratio * paragraph_margin_multiple + 'em');
 	if (element === history_container)
-		changecss('#' + element.id + ' > li', 'margin-top', new_line_height_ratio * section_margin_multiple + 'em');
+		changecss('#' + element.id + ' > li', 'margin-bottom', new_line_height_ratio * section_margin_multiple + 'em');
 }
 
 function remargin_main(event){

@@ -1,3 +1,9 @@
+goals:
+no empty new tab on middle click (achieved)
+no history clutter (achieved)
+left click only
+mousedown event (achieved)
+
 we start with <a>, instead of <button>. this is semantically wrong, but restyling buttons to be text requires a lot of code, see http://stackoverflow.com/a/12642009/ And since it looks like a link, the user expects enter, not spacebar.
 we don't use href="#" because that inserts an extra history entry. clicking another "#" link after the first doesn't insert another history entry because you're already on the "#" page, but this single history pollution creates trouble for the browser's back/forward button. and it really doesn't make sense to middle-click this button, which would open a new tab.
 since we don't have an href, we insert an onclick handler, and an enter handler in the onkeypress handler.
