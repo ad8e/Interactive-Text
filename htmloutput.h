@@ -41,7 +41,7 @@ static struct suppress_history_t {} suppress_history;
 static struct render_the_page {} r;
 static struct aside_link_with_no_keyboard_shortcut {} a;
 static struct neutral_link {} n; //neutral link gets a special shortcut
-static struct no_automatic_space_before_this_text {} ns;
+static struct no_automatic_spaces {} ns;
 
 class html_output
 {
@@ -91,10 +91,12 @@ public:
 	{ return (*this)(std::to_string(f)); }
 
 	template<typename string_type>
-	html_output& operator()(string_type const& text, no_automatic_space_before_this_text ns)
+	html_output& operator()(string_type const& text, no_automatic_spaces ns)
 	{
 		needs_whitespace = false;
-		return (*this)(text);
+		(*this)(text);
+		needs_whitespace = false;
+		return *this;
 	}
 
 	//aside links don't add any special properties.

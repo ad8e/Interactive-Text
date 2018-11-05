@@ -61,10 +61,9 @@ void main_menu_later() {
 		o("Draw on it again?", guestbook_incrementor)("Or")("erase the board?", erase_incrementor);
 		o(R"(<div style="text-align:center;">)");
 		for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="doodle" style="width:333px; height:465px">)");
-		o("</div>");
+		o("</div>\n");
 	}
-	o(R"(
-<a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
+	o(R"(<a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
 <ul>
 <li>simple: o() to output</li>
 <li>Public Domain: open source, no conditions</li>
@@ -80,6 +79,6 @@ void main_menu_later() {
 }
 
 int main() {
-	o(R"(<link rel="preload" href="Fractal_fern_explained.png">)");
+	o(R"(<link rel="preload" href="Fractal_fern_explained.png">)", ns);
 	main_menu_later();
 }
