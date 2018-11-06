@@ -79,6 +79,6 @@ void main_menu_later() {
 }
 
 int main() {
-	o(R"(<link rel="preload" href="Fractal_fern_explained.png">)", ns);
+	//o(R"(<link rel="preload" href="Fractal_fern_explained.png">)", ns);
 	main_menu_later();
 }

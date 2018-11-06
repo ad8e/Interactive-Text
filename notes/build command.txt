@@ -3,11 +3,30 @@ emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 	-s ELIMINATE_DUPLICATE_FUNCTIONS=1 is nearly insignificant
 	-s POLYFILL_OLD_MATH_FUNCTIONS is for IE
+sed -i "s/Waiting for game to load/$(sed -e 's/[\&/]/\\&/g' -e 's/$/\\n/' intro/initialscreen.txt | tr -d '\n')/" textgame/index.html
 html-minifier --collapse-whitespace --remove-attribute-quotes --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --sortAttributes --sortClassName --use-short-doctype --minify-css true --minify-js true textgame/index.html -o textgame/index.html
 	I added --remove-attribute-quotes to the default they gave
 
 --closure 1 reduces filesize by maybe 20kb but is annoying to use.
 in "emcc abc.cpp xyz.cpp", a short abc.cpp name actually makes the resulting js 0.1KB smaller
+
+modern version, using wasm:
+emcc htmloutput.cpp main.cpp --shell-file shell-shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js -fno-rtti -fno-exceptions -s ENVIRONMENT='web'
+
+closure version, non-working:
+emcc htmloutput.cpp main.cpp --shell-file shell-shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js -fno-rtti -fno-exceptions -s WASM=0 --memory-init-file 0 -s ENVIRONMENT='web'
+	after the next step, there will be a Buffer error, just delete that section, it's node.js only. and there will be a tempI64, tempDouble error, just add "var tempI64, tempDouble;"
+java -jar $HOME/Downloads/closure-compiler.jar --module fout:1: --js format.js --module iout:1:fout: --js textgame/index.js --compilation_level ADVANCED_OPTIMIZATIONS
+	this is the command we want. however, EMCC_CLOSURE_ARGS doesn't let us use modules this way. in shared.py, it concatenates EMCC_CLOSURE_ARGS to the end of the command.
+	so we do it manually. also, we can't output in a subdirectory because the module name doesn't seem to accept either "textgame/iout" or textgame/iout.
+mv iout.js textgame/index.js
+manually add in the code of fout.js to index.html here
+rm fout.js
+rm '$weak$.js'
+	junk file created by closure
+then do the sed and html-minifier from the first steps.
+This doesn't work. with WebAssembly, we get a WebAssembly error. with non-WebAssembly, closure mangles things and then the js no longer runs anyway.
+
 
 strongly recommend to copy paste the first-view text of main_body and place it in the html file. it will be duplicated, but this shaves off 0.2s on the first-view. calling Module._i() before it's loaded causes a brief error but it's completely recovered from.
 

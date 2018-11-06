@@ -49,7 +49,7 @@ li {margin-bottom: 0px}
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
 <body id='flexboxflip' style='display: flex; color:#222222; min-height: 100%; margin: 0;'>
 	<!-- role='status' is for ARIA accessibility. role='main' by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
-	<div id=main_body role=status style='margin:0.3em; white-space:pre-wrap;' aria-live=polite></div>
+	<div id=main_body role=status style='margin:0.3em; white-space:pre-wrap;' aria-live=polite>Waiting for game to load</div>
 
 	<hr id=history_separator style='margin:1em'>
 	<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
