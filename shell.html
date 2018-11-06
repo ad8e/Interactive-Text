@@ -61,7 +61,7 @@ li {margin-bottom: 0px}
 
 	<!-- options jumping around are really distracting, so they're kept fixed at the bottom or top. they can't be below the page bottom; that would cause a scrollbar. and hiding the scrollbar is bad. -->
 	<div style='text-align:center; margin: 0.3em auto;'>Options:
-		<a id=history_number_option class=ca tabindex=0 onmousedown=prompt_history_retention()>History retention</a>
+		<a id=history_number_option class=ca tabindex=0 onmousedown=change_history_retention()>History retention</a>
 		<a class=ca tabindex=0 onmousedown=flip_history_position()>Flip order</a><span class=screenreader>Reorder the main body, history, and options back-to-front.</span>
 		<a id=keyboard_shortcuts_option class=ca tabindex=0 onmousedown=flip_keyboard_enabled()>Keyboard shortcuts</a><span class=screenreader>Screenreader users should disable this setting.</span>
 		<span id=keyboard_rebinding_options>
@@ -186,32 +186,33 @@ function flip_keyboard_enabled() {
 var history_retention = 0; //better to be 0 by default. for example, in our intro document, images persist between screens, and duplicated images are confusing.
 if (!(localStorage.getItem('history retention') === null))
 	history_retention = parseInt(localStorage.getItem('history retention'));
-(window.set_history_retention = function(number) {
-	history_retention = number;
-	history_number_option.textContent = 'History kept: ' + ((history_retention < 0) ? 'all' : history_retention);
+(window.write_history_options_text = function() {
+	history_number_option.textContent = 'History kept: ' + history_retention;
 	history_separator.style.display = history_retention ? '' : 'none';
-})(history_retention); //call immediately, to write the options text
+})(); //call immediately, to write the options text
 var history_id = 0;
 var trailing_id = 0; //the history section contains each id in [trailing id, id).
 function clear_old_history() {
-	if (history_retention != -1) {
-		for (; trailing_id < history_id - history_retention; ++trailing_id) {
-			var obsolete_history = document.getElementById('history ' + trailing_id);
-			obsolete_history.parentNode.removeChild(obsolete_history);
-		}
+	for (; trailing_id < history_id - history_retention; ++trailing_id) {
+		var obsolete_history = document.getElementById('history ' + trailing_id);
+		obsolete_history.parentNode.removeChild(obsolete_history);
 	}
 }
 
-function prompt_history_retention() {
-	var value = prompt('Enter number of history entries to keep. Blank for no limit.', (history_retention == -1) ? '' : history_retention);
-
-	if (value != null) {
-		var history_retention_new = parseInt(value);
-		if (isNaN(history_retention_new) || (history_retention_new < 0)) history_retention_new = -1; //collapse to -1, instead of NaN, because of serialization
-		set_history_retention(history_retention_new);
-		localStorage.setItem('history retention', history_retention);
-		clear_old_history();
-	}
+function change_history_retention() {
+	switch(history_retention) {
+		case 0:
+			history_retention = 1; break;
+		case 1:
+			history_retention = 10; break;
+		case 10:
+			history_retention = 100; break;
+		case 100:
+			history_retention = 0; break;
+	} 
+	write_history_options_text();
+	localStorage.setItem('history retention', history_retention);
+	clear_old_history();
 }
 
 
