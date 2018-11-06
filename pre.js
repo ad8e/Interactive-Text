@@ -49,5 +49,5 @@ function new_message(text) {
 	main_body.innerHTML = UTF8ToString(text);
 	keybound_links_nontabbable();
 	if (history_above) scrolltarget.scrollIntoView(true);
-	else window.scrollTo(0, 0);
+	else scrollTo(0, 0);
 }

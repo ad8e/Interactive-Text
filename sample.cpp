@@ -1,4 +1,4 @@
-#include "htmloutput.h"
+#include "o.h"
 /*
 Guide:
 o("this text will be output")

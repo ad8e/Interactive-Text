@@ -1,4 +1,4 @@
-#include "htmloutput.h"
+#include "o.h"
 
 std::string history_string;
 html_output o;

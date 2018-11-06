@@ -1,4 +1,4 @@
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1
+emcc o.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1
 	"--memory-init-file 0" plus "-s WASM=0" lets Chrome run it locally, at slight cost to file size
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 	-s ELIMINATE_DUPLICATE_FUNCTIONS=1 is nearly insignificant
@@ -7,14 +7,20 @@ sed -i "s/Waiting for game to load/$(sed -e 's/[\&/]/\\&/g' -e 's/$/\\n/' intro/
 html-minifier --collapse-whitespace --remove-attribute-quotes --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --sortAttributes --sortClassName --use-short-doctype --minify-css true --minify-js true textgame/index.html -o textgame/index.html
 	I added --remove-attribute-quotes to the default they gave
 
---closure 1 reduces filesize by maybe 20kb but is annoying to use.
+export EMCC_CLOSURE_ARGS="--externs externs.js"
+emcc o.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1 --closure 1
+--closure 1 reduces filesize by 13kb but is annoying to use.
+	the module disappears here. a bug.
+	if I use -s MODULARIZE=1, seems main() isn't run.
+	if I add var Module; to externs.js, closure complains.
 in "emcc abc.cpp xyz.cpp", a short abc.cpp name actually makes the resulting js 0.1KB smaller
 
 modern version, using wasm:
-emcc htmloutput.cpp main.cpp --shell-file shell-shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js -fno-rtti -fno-exceptions -s ENVIRONMENT='web'
+export EMCC_CLOSURE_ARGS="--externs externs.js"
+emcc o.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js -fno-rtti -fno-exceptions -s ENVIRONMENT='web' --closure 1
 
-closure version, non-working:
-emcc htmloutput.cpp main.cpp --shell-file shell-shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js -fno-rtti -fno-exceptions -s WASM=0 --memory-init-file 0 -s ENVIRONMENT='web'
+it's not possible to get closure working across the html and js. here was my attempt:
+emcc o.cpp main.cpp --shell-file shell-shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js -fno-rtti -fno-exceptions -s WASM=0 --memory-init-file 0 -s ENVIRONMENT='web'
 	after the next step, there will be a Buffer error, just delete that section, it's node.js only. and there will be a tempI64, tempDouble error, just add "var tempI64, tempDouble;"
 java -jar $HOME/Downloads/closure-compiler.jar --module fout:1: --js format.js --module iout:1:fout: --js textgame/index.js --compilation_level ADVANCED_OPTIMIZATIONS
 	this is the command we want. however, EMCC_CLOSURE_ARGS doesn't let us use modules this way. in shared.py, it concatenates EMCC_CLOSURE_ARGS to the end of the command.
