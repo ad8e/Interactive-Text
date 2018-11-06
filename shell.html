@@ -49,34 +49,34 @@ li {margin-bottom: 0px}
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
 <body id='flexboxflip' style='display: flex; color:#222222; min-height: 100%; margin: 0;'>
 	<!-- role='status' is for ARIA accessibility. role='main' by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
-	<div id='main_body' role='status' style='margin:0.3em; white-space:pre-wrap;' aria-live='polite'></div>
+	<div id=main_body role=status style='margin:0.3em; white-space:pre-wrap;' aria-live=polite></div>
 
-	<hr id='history_separator' style='margin:1em'>
+	<hr id=history_separator style='margin:1em'>
 	<!-- visual testing shows that this horizontal bar is critical to helping the user find the beginning of the passage. if it's not visible, the user worries and scrolls up to make sure he didn't miss anything. -->
 	<!-- we add a scrolltarget which is slightly higher than the bar, because scrollIntoView(bar) makes the bar indistinguishable from the top of the page. -->
 	<!-- if the main message is too long, its top will stick to the top of the page, and the bottom of the message will take priority over the scrollback. -->
-	<div id='scrolltarget' style='padding-bottom:0.3em;'></div>
+	<div id=scrolltarget style='padding-bottom:0.3em;'></div>
 
 	<!-- low opacity and "font-size: 0.9em;" let the user distinguish history from the main message. but low opacity is hard to read, and high opacity is indistinguishable from black.
 	the history needs to be clearly distinguishable so the user's eyes instantly see where the end is. a color change is better. blue and purple overlap with links, red sucks, yellow is too bright. orange/brown, green. -->
-	<ul id='history_container' style='white-space:pre-wrap; display: flex; list-style: circle; padding-left: 1em; margin: 0; color: DarkGreen;'></ul>
+	<ul id=history_container style='white-space:pre-wrap; display: flex; list-style: circle; padding-left: 1em; margin: 0; color: DarkGreen;'></ul>
 
 	<!-- options jumping around are really distracting, so they're kept fixed at the bottom or top. they can't be below the page bottom; that would cause a scrollbar. and hiding the scrollbar is bad. -->
-	<div id='options_section' style='text-align:center; margin: 0.3em auto;'>Options:
-		<a id='history_number_option' class='ca' tabindex='0' onmousedown='prompt_history_retention();'>History retention</a>
-		<a id='vertical_layout_option' class='ca' tabindex='0' onmousedown='flip_history_position();'>Flip order</a><span class='screenreader'>Reorder the main body, history, and options back-to-front.</span>
-		<a id='keyboard_shortcuts_option' class='ca' tabindex='0' onmousedown='flip_keyboard_enabled();'>Keyboard shortcuts</a><span class='screenreader'>Screenreader users should disable this setting.</span>
-		<span id='keyboard_rebinding_options'>
+	<div style='text-align:center; margin: 0.3em auto;'>Options:
+		<a id=history_number_option class=ca tabindex=0 onmousedown=prompt_history_retention()>History retention</a>
+		<a class=ca tabindex=0 onmousedown=flip_history_position()>Flip order</a><span class=screenreader>Reorder the main body, history, and options back-to-front.</span>
+		<a id=keyboard_shortcuts_option class=ca tabindex=0 onmousedown=flip_keyboard_enabled()>Keyboard shortcuts</a><span class=screenreader>Screenreader users should disable this setting.</span>
+		<span id=keyboard_rebinding_options>
 		rebind keys:
-		<a id='c0' class='l0' tabindex='0' onmousedown='changekeybind(0);'><span class='screenreader'>keybind 1 is</span></a>
-		<a id='c1' class='l1' tabindex='0' onmousedown='changekeybind(1);'><span class='screenreader'>keybind 2 is</span></a>
-		<a id='c2' class='l2' tabindex='0' onmousedown='changekeybind(2);'><span class='screenreader'>keybind 3 is</span></a>
-		<a id='c3' class='l3' tabindex='0' onmousedown='changekeybind(3);'><span class='screenreader'>keybind 4 is</span></a>
-		<a id='c4' class='l4' tabindex='0' onmousedown='changekeybind(4);'><span class='screenreader'>keybind 5 is</span></a>
-		<a id='c5' class='l5' tabindex='0' onmousedown='changekeybind(5);'><span class='screenreader'>keybind 6 is</span></a>
-		<a id='c6' class='l6' tabindex='0' onmousedown='changekeybind(6);'><span class='screenreader'>keybind 7 is</span></a>
-		<a id='c7' class='l7' tabindex='0' onmousedown='changekeybind(7);'><span class='screenreader'>keybind 8 is</span></a>
-		<a id='c8' class='l8' tabindex='0' onmousedown='changekeybind(8);'><span class='screenreader'>keybind neutral is</span></a>
+		<a id=c0 class=l0 tabindex=0 onmousedown=changekeybind(0)><span class=screenreader>keybind 1 is</span></a>
+		<a id=c1 class=l1 tabindex=0 onmousedown=changekeybind(1)><span class=screenreader>keybind 2 is</span></a>
+		<a id=c2 class=l2 tabindex=0 onmousedown=changekeybind(2)><span class=screenreader>keybind 3 is</span></a>
+		<a id=c3 class=l3 tabindex=0 onmousedown=changekeybind(3)><span class=screenreader>keybind 4 is</span></a>
+		<a id=c4 class=l4 tabindex=0 onmousedown=changekeybind(4)><span class=screenreader>keybind 5 is</span></a>
+		<a id=c5 class=l5 tabindex=0 onmousedown=changekeybind(5)><span class=screenreader>keybind 6 is</span></a>
+		<a id=c6 class=l6 tabindex=0 onmousedown=changekeybind(6)><span class=screenreader>keybind 7 is</span></a>
+		<a id=c7 class=l7 tabindex=0 onmousedown=changekeybind(7)><span class=screenreader>keybind 8 is</span></a>
+		<a id=c8 class=l8 tabindex=0 onmousedown=changekeybind(8)><span class=screenreader>keybind neutral is</span></a>
 		</span>
 	</div>
 </body>
@@ -125,7 +125,7 @@ var history_above = (localStorage.getItem('history above') === 'true');
 })();
 
 //alert user on thrown exceptions
-window.onerror = function() {main_body.innerHTML += 'Error, press F12 to see JavaScript console';};
+window.onerror = function() {main_body.innerHTML += '<br>Error, press F12 to see JavaScript console';};
 
 function flip_history_position() {
 	history_above = !history_above;

@@ -3,10 +3,11 @@ emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 	-s ELIMINATE_DUPLICATE_FUNCTIONS=1 is nearly insignificant
 	-s POLYFILL_OLD_MATH_FUNCTIONS is for IE
-
-emcc htmloutput.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -O3 --pre-js pre.js
+html-minifier --collapse-whitespace --remove-attribute-quotes --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --sortAttributes --sortClassName --use-short-doctype --minify-css true --minify-js true textgame/index.html -o textgame/index.html
+	I added --remove-attribute-quotes to the default they gave
 
 --closure 1 reduces filesize by maybe 20kb but is annoying to use.
+in "emcc abc.cpp xyz.cpp", a short abc.cpp name actually makes the resulting js 0.1KB smaller
 
 strongly recommend to copy paste the first-view text of main_body and place it in the html file. it will be duplicated, but this shaves off 0.2s on the first-view. calling Module._i() before it's loaded causes a brief error but it's completely recovered from.
 
