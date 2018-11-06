@@ -44,24 +44,32 @@ Both options create webpages as output.
 	o("Return to the main menu", main_menu_later, n)(r);
 }
 
-int incrementor = 0;
+int incrementor = 299; //odd = erased, even = draw
 void guestbook_incrementor() {
 	o("You doodle on the board.");
-	++incrementor;
+	incrementor = (incrementor) / 2 * 2 + 2;
 	main_menu_later();
 }
 void erase_incrementor() {
 	o("You wipe the board clean.\n");
-	incrementor = 0;
+	++incrementor;
 	main_menu_later();
 }
 
 void main_menu_later() {
-	if (incrementor != 0) {
+	static int lookahead = 2;
+	preload_next_picture:
+	std::string next_pic = "https://picsum.photos/" + std::to_string(incrementor / 2 * 2 + lookahead) + "/200/?random";
+	EM_ASM_({(new Image()).src=UTF8ToString($0)}, next_pic.c_str());
+	if (incrementor == 304 && lookahead == 2) { //user clicked on three pictures. so preload the next two pictures
+		lookahead = 4;
+		goto preload_next_picture;
+	}
+
+	if (!(incrementor & 1)) {
 		o("Draw on it again?", guestbook_incrementor)("Or")("erase the board?", erase_incrementor);
-		o(R"(<div style="text-align:center;">)");
-		for (int start = incrementor; start; --start) o(R"(<img src="Fractal_fern_explained.png" alt="doodle" style="width:333px; height:465px">)");
-		o("</div>\n");
+		o(R"(<div style="text-align:center;"><img src="https://picsum.photos/)")(incrementor, ns)(R"(/200/?random" alt=doodle style="width:)")(incrementor, ns)(R"(px; height:200px"></div>
+)");
 	}
 	o(R"(<a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
 <ul>
@@ -73,12 +81,12 @@ void main_menu_later() {
 
 	o("Further details", engine_choice)('\n');
 
-	if (incrementor == 0) o("In front of you is a board.")("Draw on it?", guestbook_incrementor)('\n');
+	if (incrementor & 1) o("In front of you is a board.")("Draw on it?", guestbook_incrementor)('\n');
 	o(R"(<a href="https://github.com/ad8e/Interactive-Text">Download the engine.</a>)");
 	o(r);
 }
 
 int main() {
-	//o(R"(<link rel="preload" href="Fractal_fern_explained.png">)", ns);
+	//o(R"(<link rel="preload" href="Fractal_fern_explained.png">)", ns); //seems to do nothing
 	main_menu_later();
 }

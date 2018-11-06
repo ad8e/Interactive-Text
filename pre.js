@@ -48,6 +48,6 @@ function insert_history(text) {
 function new_message(text) {
 	main_body.innerHTML = UTF8ToString(text);
 	keybound_links_nontabbable();
-	if (history_above) scrolltarget.scrollIntoView(true);
+	if (history_above) main_body.scrollIntoView(true);
 	else scrollTo(0, 0);
 }

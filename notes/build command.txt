@@ -8,11 +8,11 @@ html-minifier --collapse-whitespace --remove-attribute-quotes --remove-comments 
 	I added --remove-attribute-quotes to the default they gave
 
 export EMCC_CLOSURE_ARGS="--externs externs.js"
-emcc o.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1 --closure 1
---closure 1 reduces filesize by 13kb but is annoying to use.
-	the module disappears here. a bug.
-	if I use -s MODULARIZE=1, seems main() isn't run.
-	if I add var Module; to externs.js, closure complains.
+emcc o.cpp main.cpp --shell-file shell.html -o textgame/index.html -std=c++1z -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -O3 --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1 --closure 1  -s MODULARIZE=1
+echo 'var Module = Module();' >> textgame/index.js
+	--closure 1 reduces filesize by 12kb but is annoying to use.
+
+
 in "emcc abc.cpp xyz.cpp", a short abc.cpp name actually makes the resulting js 0.1KB smaller
 
 modern version, using wasm:

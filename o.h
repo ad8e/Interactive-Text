@@ -14,7 +14,7 @@ o(suppress_history) to prevent the text afterward from appearing in the scrollba
 
 constexpr int link_count = 8;
 
-//turn \n into HTML p tags to improve accessibility and formatting
+//turn \n into <p> tags to improve accessibility and formatting
 //this creates unnecessary p tags when the input ends in \n</p> or starts in <p>\n, but that doesn't matter very much
 //this creates a tremendous number of unnecessary p tags for <ul> lists, since the browser closes off the tags. that also doesn't matter.
 inline std::string convert_newlines_to_paragraph_tags(std::string_view input)
@@ -151,12 +151,12 @@ public:
 
 			//we need to insert [] here. because if we inserted it using the ::before and ::after pseudo-elements, we wouldn't be able to have subscripts. that's because <sub> is not allowed in pseudo-elements, so you have to style the whole pseudo-element together, and ] and the shortcut need different styles.
 			if (links.at(increm).second == nullptr)
-				output_string.append("<a class='disabled_link'>[" + links.at(increm).first + "]</a>");
+				output_string.append("<a class=disabled_link>[" + links.at(increm).first + "]</a>");
 			else
 			{
 				//note: hard to use onmousedown='!event.button && Module._i(3)' to capture left clicks only, because keyboard enter doesn't set an event.
-				std::string link_preamble("<a onmousedown='Module._i(" + std::to_string(increm) + ");' tabindex='0'"); //set tabindex here so it can be modified
-				if (id_number != -1) link_preamble.append(" id='l" + std::to_string(id_number) + "' class='l" + std::to_string(id_number) + "'");
+				std::string link_preamble("<a onmousedown='Module._i(" + std::to_string(increm) + ")' tabindex=0"); //set tabindex here so it can be modified
+				if (id_number != -1) link_preamble.append(" id=l" + std::to_string(id_number) + " class=l" + std::to_string(id_number));
 				output_string.append(link_preamble + ">[" + links.at(increm).first + "]</a>");
 			}
 		}
