@@ -1,7 +1,10 @@
+//async the css setting, otherwise it applies to first load
+css('body', 'transition', 'background-color 0.5s, color 0.5s');
+
 //keyboard shortcuts are enabled when the main module is loaded.
 document.onkeypress = function(e) {
-	if (e.repeat) return;
-	if (rebindingkey) {
+	if (e.repeat) return; //chrome seems to always give e.repeat=false. use this to diagnose: "document.onkeypress = function(e) {console.log(e);}"
+	if (rebindingkeynumber !== -1) {
 		//note: e.which is required, instead of e.charCode, because charCode doesn't support Enter
 		switch (e.which) {
 		case 0:
@@ -14,18 +17,19 @@ document.onkeypress = function(e) {
 			alert('Space is not recommended because it is invisible and will scroll your page down.');
 			return;
 		}
-		rebindingkey = false;
 		//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
 		keycoderaw[rebindingkeynumber] = e.which;
-		localStorage.setItem('keycode ' + rebindingkeynumber, String.fromCharCode(e.which));
-		changecss('#l' + rebindingkeynumber + '::after', 'content', keyboard_shortcuts_enabled ? '\'' + String.fromCharCode(e.which) + '\'' : '\'\''); //we still need to check keyboard_shortcuts_enabled because user might try to rebind a key and then disable shortcuts
-		changecss('#c' + rebindingkeynumber + '::after', 'content', keyboard_shortcuts_enabled ? '\'[' + String.fromCharCode(e.which) + ']\'' : '\'\'');
-		document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal';
+		var key_text = String.fromCharCode(e.which);
+		localStorage.setItem('keycode ' + rebindingkeynumber, key_text);
+		css('#l' + rebindingkeynumber + '::after', 'content', '\'' + key_text + '\'');
+		css('#c' + rebindingkeynumber + '::after', 'content', '\'[' + key_text + ']\'');
+		css('#c' + rebindingkeynumber, 'font-weight', 'normal');
+		rebindingkeynumber = -1;
 		return;
 	}
 	for (var n in keycoderaw) {
 		if ((e.which == keycoderaw[n]) && keyboard_shortcuts_enabled) {
-			Module._i(-n - 1);
+			C(-n - 1);
 			return;
 		}
 	}
@@ -38,7 +42,7 @@ document.onkeypress = function(e) {
 function insert_history(text) {
 	if (history_retention != 0) {
 		var new_history = document.createElement('li');
-		new_history.id = 'history ' + (history_id++);
+		new_history.id = 'h' + (history_id++);
 		new_history.innerHTML = UTF8ToString(text);
 		history_container.insertBefore(new_history, history_container.firstChild);
 	}

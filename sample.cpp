@@ -8,7 +8,7 @@ chainable: o("Click")("this")("link", function)(r).
 */
 
 void third_scene() {
-	o("There's nothing here, because this is just a sample project.")(r);
+	o("This is the end. You can also try replacing sample.cpp with intro.cpp in the compilation command if you want to see a bigger project being built.")(r);
 }
 
 void next_scene() {
