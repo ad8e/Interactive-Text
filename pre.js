@@ -29,7 +29,7 @@ document.onkeypress = function(e) {
 	}
 	for (var n in keycoderaw) {
 		if ((e.which == keycoderaw[n]) && keyboard_shortcuts_enabled) {
-			C(-n - 1);
+			_i(-n - 1);
 			return;
 		}
 	}

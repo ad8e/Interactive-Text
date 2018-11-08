@@ -12,6 +12,9 @@ html-minifier --collapse-whitespace --remove-attribute-quotes --remove-comments 
 	I added --remove-attribute-quotes to the default they gave
 	--closure 1 reduces filesize by 12kb but is annoying to use.
 
+(cd textgame && git add -A && git commit --amend --no-edit && git push github master -f)
+
+git remote set-url github https://name:password@github.com/repo.git
 
 in "emcc abc.cpp xyz.cpp", a short abc.cpp name actually makes the resulting js 0.1KB smaller
 

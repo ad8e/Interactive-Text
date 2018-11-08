@@ -155,7 +155,7 @@ public:
 			else
 			{
 				//note: hard to use onmousedown='!event.button && Module._i(3)' to capture left clicks only, because keyboard enter doesn't set an event.
-				std::string link_preamble("<a onmousedown=C(" + std::to_string(increm) + ") tabindex=0"); //set tabindex here so it can be modified
+				std::string link_preamble("<a onmousedown='Module._i(" + std::to_string(increm) + ")' tabindex=0"); //set tabindex here so it can be modified
 				if (id_number != -1) link_preamble.append(" id=l" + std::to_string(id_number));
 				output_string.append(link_preamble + ">[" + links.at(increm).first + "]</a>");
 			}
