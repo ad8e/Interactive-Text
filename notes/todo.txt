@@ -4,10 +4,8 @@ research survey on typography line spacing
 0 history: move history bar to options, move options to bottom permanently
 	options on bottom, so it tells the user when he's done scrolling
 
-links cycle between normal, bold, and underlined. although then the history's chosen link format will have to change from being bold
-
-
-options transparent until hover? but also tabbing should make them opaque as well.
+options transparent until hover/focus?
+	only when on bottom. if they're on top, they're not visible until scrolled to anyway.
 
 
 let's think about our link structure. usually, most of the links should go at the bottom. the text presents information, and then you are given a choice. this has the advantage that all the choices are located together, which is a conceptual benefit.

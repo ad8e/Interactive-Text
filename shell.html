@@ -11,6 +11,7 @@ body {
 	--color-background: #fff;
 	--color-text: #222; /* off-black color to converge text and link luminance. */
 	--color-link: blue;
+	--color-history: #032;
 	--color-history-link: #009; /* links in history aren't clickable. the user has Pavlovian training to click on blue links, and is constantly surprised by nonclickable blue text. darkening fixes this problem */
 	background-color: var(--color-background);
 	color: var(--color-text);
@@ -20,23 +21,26 @@ body {
 .nightmode {
 	--color-background: #000;
 	--color-text: #ddd;
-	--color-link: #66f;
+	--color-link: #77f;
+	--color-history: #8e8;
 	--color-history-link: #00f;
 }
 
 
 /* bold-only, non-blue links are hard to distinguish and unconventional */
 /* a:not([href]) system actions (non-links) only */
+/* we prefix the icon rather than postfix, because postfix implies a non-essential adjective, whereas prefix implies that the icon is crucial to meaning. since external links are completely different from in-game buttons, prefixes make more sense */
 a {color: var(--color-link);}
 a[onmousedown]:not([href]) {cursor: pointer;}
 a[href] {
 	text-decoration: none;
-	background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path fill="white" stroke="%2336c" d="M1.5 4.5h6v6h-6z"/><path d="M5.5 8.5l-2-2 2.7-2.7-1.5-1.5.8-.8h5v5l-.8.79L8.2 5.8z" fill="white" stroke="%2336c"/></svg>') right center no-repeat;
-	padding-right: 13px;
+	background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path fill="white" stroke="%2336c" d="M1.5 4.5h6v6h-6z"/><path d="M5.5 8.5l-2-2 2.7-2.7-1.5-1.5.8-.8h5v5l-.8.79L8.2 5.8z" fill="white" stroke="%2336c"/></svg>') left center no-repeat;
+	padding-left: 13px;
 }
 
 /* off-color external links are functional, but they look strange to a user who doesn't expect them, as if unintentionally inconsistent. because there's not enough space in the blue color region to separate them very much */
-/* a[href]:link {color: #36c;} */
+/* but now that [] only wraps links when keyboard shortcuts are enabled, it's necessary for clarity. */
+a[href]:link {color: #36c;}
 a[href]:hover, a[onmousedown]:hover {text-decoration: underline;}
 
 .disabled_link {text-decoration: line-through;}
@@ -59,6 +63,9 @@ a:not([href]).history {color: var(--color-history-link);}
 	top: -10px;
 }
 
+/* space at beginning to work around emscripten bug, preprocessor causes error during compilation for # at beginning of line */
+ #history_separator {display:none;}
+
 p {margin-bottom: 0px}
 li {margin-bottom: 0px}
 </style>
@@ -76,7 +83,7 @@ li {margin-bottom: 0px}
 
 	<!-- low opacity and "font-size: 0.9em;" let the user distinguish history from the main message. but low opacity is hard to read, and high opacity is indistinguishable from black.
 	the history needs to be clearly distinguishable so the user's eyes instantly see where the end is. a color change is better. blue and purple overlap with links, red sucks, yellow is too bright. orange/brown, green. -->
-	<ul id=history_container style='white-space:pre-wrap; display:flex; list-style:circle; padding-left:1em; margin:0; color:DarkGreen;'></ul>
+	<ul id=history_container style='white-space:pre-wrap; display:flex; list-style:circle; padding-left:1em; margin:0; color: var(--color-history);'></ul>
 
 	<!-- options jumping around are really distracting, so they're kept fixed at the bottom or top. they can't be below the page bottom; that would cause a scrollbar. and hiding the scrollbar is bad. -->
 	<div style='text-align:center; margin:0.3em auto;'>Options:
@@ -86,15 +93,15 @@ li {margin-bottom: 0px}
 		<a class=ca tabindex=0 onmousedown=flip_keyboard_enabled() id=keyboard_shortcuts_option>Keyboard shortcuts</a><span class=screenreader>Screenreader users should disable this setting.</span>
 		<span id=keyboard_rebinding_options>
 		rebind keys:
-		<a id=c0 tabindex=0 onmousedown=changekeybind(0)><span class=screenreader>keybind 1 is</span></a>
-		<a id=c1 tabindex=0 onmousedown=changekeybind(1)><span class=screenreader>keybind 2 is</span></a>
-		<a id=c2 tabindex=0 onmousedown=changekeybind(2)><span class=screenreader>keybind 3 is</span></a>
-		<a id=c3 tabindex=0 onmousedown=changekeybind(3)><span class=screenreader>keybind 4 is</span></a>
-		<a id=c4 tabindex=0 onmousedown=changekeybind(4)><span class=screenreader>keybind 5 is</span></a>
-		<a id=c5 tabindex=0 onmousedown=changekeybind(5)><span class=screenreader>keybind 6 is</span></a>
-		<a id=c6 tabindex=0 onmousedown=changekeybind(6)><span class=screenreader>keybind 7 is</span></a>
-		<a id=c7 tabindex=0 onmousedown=changekeybind(7)><span class=screenreader>keybind 8 is</span></a>
-		<a id=c8 tabindex=0 onmousedown=changekeybind(8)><span class=screenreader>keybind neutral is</span></a>
+		<a id=c0 tabindex=0 onmousedown=changekeybind(0)></a>
+		<a id=c1 tabindex=0 onmousedown=changekeybind(1)></a>
+		<a id=c2 tabindex=0 onmousedown=changekeybind(2)></a>
+		<a id=c3 tabindex=0 onmousedown=changekeybind(3)></a>
+		<a id=c4 tabindex=0 onmousedown=changekeybind(4)></a>
+		<a id=c5 tabindex=0 onmousedown=changekeybind(5)></a>
+		<a id=c6 tabindex=0 onmousedown=changekeybind(6)></a>
+		<a id=c7 tabindex=0 onmousedown=changekeybind(7)></a>
+		<a id=c8 tabindex=0 onmousedown=changekeybind(8)></a>
 		</span>
 	</div>
 </body>
@@ -114,7 +121,7 @@ function css(selector, property, value) {
 	for (var i = 0; i < document.styleSheets.length; ++i) {
 		rules = document.styleSheets[i].cssRules;
 		for (var n in rules) {
-			if (rules[n].selectorText == selector) {
+			if (rules[n].selectorText === selector) {
 				rules[n].style[property] = value;
 				return;
 			}
@@ -148,12 +155,10 @@ function flip_history_position() {
 	localStorage.setItem('history above', history_above);
 }
 
-var black_background = (localStorage.getItem('black background') === 'true');
-if (black_background) document.body.classList.toggle('nightmode');
-function invert_color() {
-	black_background = !black_background;
+if (localStorage.getItem('black background') === 'true')
 	document.body.classList.toggle('nightmode');
-	localStorage.setItem('black background', black_background);
+function invert_color() {
+	localStorage.setItem('black background', document.body.classList.toggle('nightmode'));
 }
 
 //keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick()
@@ -162,7 +167,7 @@ var rebindingkeynumber = -1;
 
 function changekeybind(number) {
 	css('#c' + rebindingkeynumber, 'font-weight', 'normal'); //if you click on different rebinds in succession, stop rebinding the first
-	if (rebindingkeynumber == number) {
+	if (rebindingkeynumber === number) {
 		rebindingkeynumber = -1; //if you click the same rebind twice, stop rebinding entirely
 		return;
 	}
@@ -192,8 +197,10 @@ function keybound_links_nontabbable() {
 		css('#l' + n + '::after', 'content', keyboard_shortcuts_enabled ? '\'' + key_text + '\'' : '\'\'');
 		css('#l' + n + '::after', 'vertical-align', keyboard_shortcuts_enabled ? 'sub' : 'initial'); //subscripts cause line space distortion even with zero text, so we reset it to initial when keybinds are disabled
 		css('#l' + n + '::after', 'font-size', keyboard_shortcuts_enabled ? 'smaller' : 'initial');
-		css('#c' + n + '::after', 'content', keyboard_shortcuts_enabled ? '\'[' + key_text + ']\'' : '\'\''); //change-keybind link in options
+		document.getElementById('c' + n).textContent = keyboard_shortcuts_enabled ? '[' + key_text + ']' : ''; //change-keybind link in options
 	}
+	css('.w::after', 'content', keyboard_shortcuts_enabled ? "']'" : "");
+	css('.w::before', 'content', keyboard_shortcuts_enabled ? "'['" : "");
 	css('#keyboard_rebinding_options', 'display', keyboard_shortcuts_enabled ? '' : 'none'); //visibility=hidden doesn't keep it in place. the rest of the options still shift around
 	localStorage.setItem('keyboard shortcuts enabled', keyboard_shortcuts_enabled);
 })();
@@ -213,19 +220,7 @@ function flip_keyboard_enabled() {
 var history_retention = 0; //better as 0 by default. for example, in our intro document, images persist between screens, and duplicated images are confusing.
 if (!(localStorage.getItem('history retention') === null))
 	history_retention = parseInt(localStorage.getItem('history retention'));
-(window.write_history_options_text = function() {
-	history_number_option.textContent = 'History kept: ' + history_retention;
-	css('#history_separator', 'display', history_retention ? '' : 'none');
-})(); //call immediately, to write the options text
-var history_id = 0;
-var trailing_id = 0; //the history section contains each id in [trailing id, id).
-function clear_old_history() {
-	for (; trailing_id < history_id - history_retention; ++trailing_id) {
-		var obsolete_history = document.getElementById('h' + trailing_id);
-		obsolete_history.parentNode.removeChild(obsolete_history);
-	}
-}
-
+history_number_option.textContent = 'History kept: ' + history_retention;
 function change_history_retention() {
 	switch (history_retention) {
 		case 0:
@@ -237,19 +232,21 @@ function change_history_retention() {
 		case 100:
 			history_retention = 0; break;
 	} 
-	write_history_options_text();
+	history_number_option.textContent = 'History kept: ' + history_retention;
 	localStorage.setItem('history retention', history_retention);
-	clear_old_history();
+	//clear_old_history(); //don't clear it until something happens. otherwise just changing the settings will wipe history.
 }
 
 
 //set margins according to window width, and set line spacing in response to line length
 //ratios change as font size changes. Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size.
-//font measurements in our library don't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom, though they should be different.
+
+//measure the font.
+//here, the browser doesn't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom, though they should be different.
 //desktop browsers stay at 1x zoom. but mobile browsers all have virtual zooms. we could get all our data for 1000px fonts, but for now, we'll just stay at 1em.
 var x_height_ratio = 0.52; //ratio of x-height to font size. 0.52 is an estimate. if the estimate is used as a default, it's better to have the default be a little too open than a little too cramped
 var average_width_ratio = 0.4; //ratio of letter width to font size, for the letters in the string 'Default i'. 0.4 is an estimate
-function set_ratios(element) {
+(function(element) {
 	var temporary_div = document.createElement('div');
 	document.body.appendChild(temporary_div);
     temporary_div.style.height = '100ex';
@@ -261,19 +258,17 @@ function set_ratios(element) {
 
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
-    context.font = '1000px ' + window.getComputedStyle(element).fontFamily;
-    average_width_ratio = context.measureText('Default i').width / 9000; //divide by 9 because 'Default i' has 9 characters. use px here, em causes trouble.
-}
-set_ratios(document.body);
-//we can only get the font size once, at document load, because there's no cheap way to detect font size changes. but since the font library doesn't respect true pixel size anyway, this doesn't matter
+    context.font = '500px ' + window.getComputedStyle(element).fontFamily; //get metrics for huge-size fonts instead of actual-size fonts, because the browser ignores zoom here.
+    average_width_ratio = context.measureText('Default i').width / 4500; //divide by 9 because 'Default i' has 9 characters. use px here, em causes trouble.
+})(document.body);
+//there's no cheap way to detect zoom events/font size changes.
 //window.addEventListener('resize', set_ratios(document.body), false); //this leads to infinite recursion, and probably doesn't work in every browser. http://stackoverflow.com/a/2658045/
 
 //the visual size of a font is very different from its font size. most of its size is determined by its x-height. thus, here we blend the x-height and the font size to produce a more accurate font measure.
-var x_height_proportion = 0.7; //how much the x-height should matter in determining the effective font size. the remaining proportion is determined by the font size. try testing with Open Sans (x-height 0.535), Verdana (0.545), Garamond (0.384), and TNR (0.448) since they have the highest and lowest x-heights.
-var effective_font_height_multiplier = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find the "effective font height" as a ratio of the stated font size.
-var effective_font_height_of_reference_05_x_height_font = 0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
-var expansion_ratio_relative_to_reference_font = effective_font_height_multiplier / effective_font_height_of_reference_05_x_height_font;
 //font size is used here instead of the more accurate (ascent + descent), in order to respect the font designer's intentions.
+var x_height_proportion = 0.7; //how much the x-height should matter in determining the effective font size. the remaining proportion is determined by the font size. try testing with Open Sans (x-height 0.535), Verdana (0.545), Garamond (0.384), and TNR (0.448) since they have the highest and lowest x-heights.
+var effective_font_height_ratio = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find the "effective font height" as a ratio of the stated font size.
+var effective_font_height_of_reference_05_x_height_font = 0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
 
 //returns the true effective size of the font. scale: the reference font returns the nominal font size. fonts which are larger than their point size claims will return larger values.
 //this captures variations in the specific font being used, where the nominal point size doesn't represent its true point size.
@@ -281,22 +276,20 @@ function effective_font_size() {
 	var reported_font_size = parseFloat(window.getComputedStyle(main_body).fontSize); //font size from the main message, because that's the section designed for best reading.
 
 	//the ratio used in conversion is (height + width / 2). we divide width by 2, because it doesn't seem to matter as much when determining the font size.
-	var current_font_to_standard_font_ratio = (effective_font_height_multiplier + average_width_ratio / 2) / (effective_font_height_of_reference_05_x_height_font + 0.4 / 2);
+	var current_font_to_standard_font_ratio = (effective_font_height_ratio + average_width_ratio / 2) / (effective_font_height_of_reference_05_x_height_font + 0.4 / 2);
 	return reported_font_size * current_font_to_standard_font_ratio;
 }
 
 //all these default values are chosen by eyeballing, and without any peer-reviewed research.
-var width_constant_margin_scaling = 70; //in em, for the standard font. when line length equals this value, the margin will be half of its maximum value.
-var max_margin = 0.30; //this constant determines the margin's maximum proportion of the window width
+function optimize_line_spacing(element) {
+	var minimum_line_spacing = 1.25; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
+	var maximum_line_spacing = 1.47; //line spacing for very wide passages
+	var line_length_for_line_spacing_scaling = 30; //in em, for the standard font. when line length equals this value, the line spacing will be the average of the minimum and maximum.
 
-var minimum_line_spacing = 1.25; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
-var maximum_line_spacing = 1.47; //line spacing for very wide passages
-var line_length_for_line_spacing_scaling = 30; //in em, for the standard font. when line length equals this value, the line spacing will be the average of the minimum and maximum.
+	var paragraph_margin_multiple = 0.35; //paragraph margin as a multiple of the line spacing
+	var section_margin_multiple = 1.0;
+	var expansion_ratio_relative_to_reference_font = effective_font_height_ratio / effective_font_height_of_reference_05_x_height_font;
 
-var paragraph_margin_multiple = 0.35; //paragraph margin as a multiple of the line spacing
-var section_margin_multiple = 1.0;
-
-function rescale_line_spacing(element) {
 	var line_length = element.clientWidth / effective_font_size();
 	//clientWidth is better than scrollWidth, because a horizontal scrollbar can be created by a single word whose length is larger than the containing box.
 	//if your box has a horizontal scrollbar by default, then scrollWidth might be more reasonable, but that is a horrible situation to design for. you don't want horizontal scrollbars.
@@ -310,6 +303,9 @@ function rescale_line_spacing(element) {
 }
 
 function remargin(event) {
+	var width_constant_margin_scaling = 70; //in em, for the standard font. when line length equals this value, the margin will be half of its maximum value.
+	var max_margin = 0.30; //this constant determines the margin's maximum proportion of the window width
+
 	var relative_effective_font_size = effective_font_size();
 	css('#flexboxflip', 'margin-left', relative_effective_font_size.toString() + 'px');
 	css('#flexboxflip', 'margin-right', relative_effective_font_size.toString() + 'px'); //do this before getting body's clientWidth, because this changes the body
@@ -327,8 +323,8 @@ function remargin(event) {
 	css('#main_body', 'margin-left', (100 * desired_margin_ratio).toString() + '%');
 	css('#main_body', 'margin-right', (100 * desired_margin_ratio).toString() + '%');
 
-	rescale_line_spacing(history_container);
-	rescale_line_spacing(main_body);
+	optimize_line_spacing(history_container);
+	optimize_line_spacing(main_body);
 
 	//could use overall viewport width or screen width, not clientWidth. this also helps with side-by-side windows, or websites embedded in other websites. but multi-monitors have large sections that the user doesn't bother to look at. so viewport width/client width is fine, rather than screen width. note that viewport width includes the scrollbar, we don't want that. % doesn't include the scrollbar.
 }

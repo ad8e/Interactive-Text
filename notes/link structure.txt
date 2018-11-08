@@ -15,6 +15,13 @@ href-less <a>, onclick(), enter-handling, css styling, and tabindex="0"
 
 links have ids so that you can toggle their tabindex when keyboard shortcuts are turned off.
 
+underlined links: the underline makes the text harder to read by interfering with descenders. some people have drawn underlines way below the text, but that is not typical and is thus to be avoided.
+	underlines interfere less than []
+[] interferes with link readability quite a bit. however, it allows for quick scanning of choosable links, and gives keyboard shortcut subscripts a place.
+undistinguished links (color only) are somewhat hard to spot. but as long as no keyboard shortcuts are needed, they could be useful.
+	colorblind users also find them harder to see.
+bold links?
+
 the shortcut letter, [r], comes after the link, instead of before. because the user's concentration wants to read the link text in entirety before being interrupted by the command.
 [link text]_r.
 [link text]^r.

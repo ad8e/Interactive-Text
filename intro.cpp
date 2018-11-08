@@ -6,8 +6,8 @@ void emscripten_notes() {
 	o(R"(Interactive Text is just output and formatting. Emscripten does the real work converting C++ to Javascript. Emscripten has some catches.
 Use localStorage for saves. To save binary data, use base64.
 Keyboard input uses Javascript's onkeypress, which only supports keys with concrete glyphs, like "a" and "=". To support keys like "Ctrl" and arrow keys, you'll need onkeydown, number-to-symbol tables for each browser, and browser sniffing, which is annoying.
-When testing in IE, <a href="https://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html#using-files">set up a localhost web server</a>. This is because IE disallows localStorage for local files.
-Add '\n' to your console output messages, or they won't show up. Don't use iostreams; they are <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">expensive</a>, 250KB.
+<a href="https://kripken.github.io/emscripten-site/docs/compiling/Running-html-files-with-emrun.html">When testing in Internet Explorer, set up a localhost web server</a>. This is because IE disallows localStorage for local files.
+Add '\n' to your console output messages, or they won't show up. <a href="https://floooh.github.io/2016/08/27/asmjs-diet.html">Don't use iostreams; they are expensive</a>, 250KB.
 )");
 	o("Return", engine_choice, n)(r);
 }
@@ -71,7 +71,7 @@ void main_menu_later() {
 		o(R"(<div style="text-align:center;"><img src="https://picsum.photos/)")(incrementor, ns)(R"(/200/?random" alt=doodle style="width:)")(incrementor, ns)(R"(px; height:200px"></div>
 )");
 	}
-	o(R"(<a href="https://github.com/ad8e/Interactive-Text">Interactive Text</a> turns C++ text games into HTML. Features:
+	o(R"(Interactive Text turns C++ text games into HTML. Features:
 <ul>
 <li>simple: o() to output</li>
 <li>Public Domain: open source, no conditions</li>

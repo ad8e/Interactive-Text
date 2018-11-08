@@ -1,4 +1,4 @@
-emcc o.cpp intro.cpp --shell-file shell.html -o textgame/index.html -std=c++1z --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web' -s POLYFILL_OLD_MATH_FUNCTIONS=1
+emcc o.cpp intro.cpp --shell-file shell.html -o textgame/index.html -std=c++1z --memory-init-file 0 --pre-js pre.js -s WASM=0 -fno-rtti -fno-exceptions -s ENVIRONMENT='web'
 	"--memory-init-file 0" plus "-s WASM=0" lets Chrome run it locally, at slight cost to file size
 	even with "--memory-init-file 0", local files still won't work on IE without the local webserver, because IE runs into another roadblock of not supporting localStorage for local html files.
 	-s ELIMINATE_DUPLICATE_FUNCTIONS=1 is nearly insignificant
@@ -15,6 +15,7 @@ html-minifier --collapse-whitespace --remove-attribute-quotes --remove-comments 
 (cd textgame && git add -A && git commit --amend --no-edit && git push github master -f)
 
 git remote set-url github https://name:password@github.com/repo.git
+or, follow the github guide for ssh keys, and use ssh for remote instead of https
 
 in "emcc abc.cpp xyz.cpp", a short abc.cpp name actually makes the resulting js 0.1KB smaller
 

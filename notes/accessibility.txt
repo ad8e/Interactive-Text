@@ -27,5 +27,5 @@ Use case: keyboard-only. He should still be able to rebind keys, especially if h
 	that means that the option keys are tabbable for accessibility. so they're tabbable at the beginning, but disappear from tab order after that.
 Use case: mouse-only. You don't need the distracting keyboard shortcuts, so they go away.
 
-Links should be complete. Screenreader users can see the text of a link because their system lets them skip through each link in turn, but they can't see the context around the link. So if the link is "click [here] to move to the next passage", the screenreader user will only see the word "here".
+Links should contain all the necessary context to understand them, when read in isolation. Screenreader users can see the text of a link because their system lets them skip through each link in turn, but they can't see the context around the link. So if the link is "click [here] to move to the next passage", the screenreader user will only see the word "here".
 In addition, more complete links have larger areas, and hence are easier to click.
