@@ -118,7 +118,7 @@ function css(selector, property, value) {
 	 * value: '16px'
 	 */
 	for (var i = 0; i < document.styleSheets.length; ++i) {
-		rules = document.styleSheets[i].cssRules;
+		var rules = document.styleSheets[i].cssRules;
 		for (var n in rules) {
 			if (rules[n].selectorText === selector) {
 				rules[n].style[property] = value;
@@ -225,43 +225,46 @@ var effective_font_height_ratio; //how tall the font is. 1.0 = equal to standard
 //window.addEventListener('resize', set_ratios(document.body), false); //this leads to infinite recursion, and probably doesn't work in every browser. http://stackoverflow.com/a/2658045/
 
 
-//all these default values are chosen by eyeballing, and without any peer-reviewed research.
 function optimize_line_spacing(element) {
-	var minimum_line_spacing = 1.25; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
+	//all these default values are chosen by eyeballing, and without any peer-reviewed research.
+	var minimum_line_spacing = 1.28; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
 	var maximum_line_spacing = 1.47; //line spacing for very wide passages
 	var line_length_for_line_spacing_scaling = 30; //in em, for the standard font. when line length equals this value, the line spacing will be the average of the minimum and maximum.
 
-	var paragraph_margin_multiple = 0.35; //paragraph margin as a multiple of the line spacing
-	var section_margin_multiple = 1.0;
+	var paragraph_extra_gap = 0.5; //additional paragraph gap as a multiple of (gap between lines + 0.4 of font tallness). we use part of font tallness because the paragraph gap should still be there even when the gap is zero.
+	var section_extra_gap = 1.0;
 
-	var line_length = element.clientWidth / effective_font_size;
+	var line_length = element.clientWidth / effective_font_size; //find the line's length in arcminutes in the user's vision
+
+
 	//clientWidth is better than scrollWidth, because a horizontal scrollbar can be created by a single word whose length is larger than the containing box.
 	//if your box has a horizontal scrollbar by default, then scrollWidth might be more reasonable, but that is a horrible situation to design for. you don't want horizontal scrollbars.
 	var scaled_line_length = Math.pow(line_length / line_length_for_line_spacing_scaling, 2);
-	var new_line_height_ratio = (maximum_line_spacing * scaled_line_length + minimum_line_spacing)/(scaled_line_length + 1) * effective_font_height_ratio;
-	element.style.lineHeight = (new_line_height_ratio).toString();
-
-	css('#' + element.id + ' p', 'margin-top', new_line_height_ratio * paragraph_margin_multiple + 'em');
+	var desired_ratio = (maximum_line_spacing * scaled_line_length + minimum_line_spacing)/(scaled_line_length + 1);
+	element.style.lineHeight = (desired_ratio * effective_font_height_ratio).toString();
+	console.log(desired_ratio);
+	console.log((desired_ratio - 1) * paragraph_extra_gap * effective_font_height_ratio);
+	css('#' + element.id + ' p', 'margin-top', (desired_ratio - 0.6) * paragraph_extra_gap * effective_font_height_ratio + 'em'); //margin is in addition to line-height.
 	if (element === history_container)
-		css('#' + element.id + ' > li', 'margin-bottom', new_line_height_ratio * section_margin_multiple + 'em');
+		css('#' + element.id + ' > li', 'margin-bottom', (desired_ratio - 0.6) * section_extra_gap * effective_font_height_ratio + 'em');
 }
 
-function remargin(event) {
+function remargin() {
 	var width_constant_margin_scaling = 70; //in em, for the standard font. when line length equals this value, the margin will be half of its maximum value.
 	var max_margin = 0.30; //this constant determines the margin's maximum proportion of the window width
 
-	css('#flexboxflip', 'margin-left', effective_font_size.toString() + 'px');
-	css('#flexboxflip', 'margin-right', effective_font_size.toString() + 'px'); //do this before getting body's clientWidth, because this changes the body
+	css('#flexboxflip', 'margin-left', (effective_font_size / 2).toString() + 'px');
+	css('#flexboxflip', 'margin-right', (effective_font_size / 2).toString() + 'px'); //do this before getting body's clientWidth, because this changes the body
 
-	var available_width = document.body.clientWidth + 2 * effective_font_size; //total width, including built-in margin. don't use window.innerWidth, pinch zooming will change that.
+	var available_width = document.body.clientWidth + effective_font_size; //total width, including built-in margin. don't use window.innerWidth, pinch zooming will change that.
 	var main_body_width = main_body.parentElement.clientWidth; //available space to stretch in. we use parentElement's width so that changing main_body's width doesn't change this number.
-	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / effective_font_size, 2);
+	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / effective_font_size, 2); //todo: should consider width a better way. high width should lead to smaller margins, not larger.
 	var margin_scaling = scaled_width / (scaled_width + 1);
 	var desired_margin = max_margin * margin_scaling * available_width - effective_font_size;
 	//note that flexboxflip's left margin is not being merged. that's why we calculate absolute units and subtract from there.
 
-	if (desired_margin < effective_font_size)
-		desired_margin = 0; //clamp to edge if it's too small to effectively distinguish main text from history text, or if it's below zero (when the built-in margin is sufficient).
+	if (desired_margin < 0)
+		desired_margin = 0; //clamp to edge if it's below zero (when the built-in margin is sufficient).
 	var desired_margin_ratio = desired_margin / main_body_width;
 	css('#main_body', 'margin-left', (100 * desired_margin_ratio).toString() + '%');
 	css('#main_body', 'margin-right', (100 * desired_margin_ratio).toString() + '%');

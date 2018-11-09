@@ -8,3 +8,7 @@ let's think about our link structure. usually, most of the links should go at th
 what about descriptions? such as if an item appears in the text, and you want to click on it to see what it is.
 interactive fiction has every link important, in-line or not. "the [tower] gleams in your eyes, reflecting the glare of the smaller sun. behind you is your [guide]."
 RPGs don't; a fixed set of reactions to every situation, and descriptions are usually unimportant. "the bandit lunges at you. [attack] [item] [flee]"
+
+we seriously need a better margin algorithm. I thought the old one was perfect but I was completely wrong.
+1. it isn't useful for distinguishing main body from history
+2. it should cut into the minimum margin.
