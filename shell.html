@@ -69,7 +69,6 @@ a:not([href]).history {color: var(--color-history-link);}
 p {margin-bottom: 0px}
 li {margin-bottom: 0px}
 </style>
-{{{ SCRIPT }}}
 
 <!-- inverse flexbox moves the options tab order to the end of the page, so that the first tab chooses a game link, instead of an options link -->
 <body id='flexboxflip' style='display:flex; min-height: 100%; margin-top:0px; margin-bottom:0px'>
@@ -88,7 +87,7 @@ li {margin-bottom: 0px}
 	<!-- options jumping around are really distracting, so they're kept fixed at the bottom or top. they can't be below the page bottom; that would cause a scrollbar. and hiding the scrollbar is bad. -->
 	<div style='text-align:center; margin:0.3em auto;'>Options:
 		<a class=ca tabindex=0 onmousedown=change_history_retention() id=history_number_option>History retention</a>
-		<a class=ca tabindex=0 onmousedown=flip_history_position()>Flip order</a><span class=screenreader>Reorder the main body, history, and options back-to-front.</span>
+		<a class=ca tabindex=0 onmousedown=flip_page_order()>Flip order</a><span class=screenreader>Reorder the main body, history, and options back-to-front.</span>
 		<a class=ca tabindex=0 onmousedown=invert_color()>Invert color</a><span class=screenreader>Change black/white to white/black.</span>
 		<a class=ca tabindex=0 onmousedown=flip_keyboard_enabled() id=keyboard_shortcuts_option>Keyboard shortcuts</a><span class=screenreader>Screenreader users should disable this setting.</span>
 		<span id=keyboard_rebinding_options>
@@ -131,12 +130,9 @@ function css(selector, property, value) {
 	stylesheet.insertRule(selector + '{' + property + ':' + value + '}', stylesheet.cssRules.length);
 }
 
-//alert user on thrown exceptions
-window.onerror = function() {main_body.innerHTML += '<br>Error, press F12 to see JavaScript console';};
-
 
 //inverts the page order
-var history_above = (localStorage.getItem('history above') === 'true');
+var history_above = (localStorage.getItem('history_above') === 'true');
 (window.set_page_order = function() {
 	if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > -1)
 		history_above = 'true'; //IE11 workaround for poor flexbox support
@@ -149,46 +145,19 @@ var history_above = (localStorage.getItem('history above') === 'true');
 	//note: if you use auto, then the options shouldn't flip when the history flips, and should instead stay on top permanently.
 	css('#flexboxflip', 'flex-direction', 'column' + (history_above ? '-reverse' : ''));
 })();
-function flip_history_position() {
-	history_above = !history_above;
-	set_page_order();
-	localStorage.setItem('history above', history_above);
-}
 
-if (localStorage.getItem('black background') === 'true')
+if (localStorage.getItem('invert_color') === 'true')
 	document.body.classList.toggle('nightmode');
-function invert_color() {
-	localStorage.setItem('black background', document.body.classList.toggle('nightmode'));
-}
 
 //keyboard shortcut handling and rebinding. also, makes Enter key trigger onclick()
-var keyboard_shortcuts_enabled = (localStorage.getItem('keyboard shortcuts enabled') === 'true');
-var rebindingkeynumber = -1;
+var keyboard_shortcuts_enabled = (localStorage.getItem('keyboard_shortcuts_enabled') === 'true');
 
-function changekeybind(number) {
-	css('#c' + rebindingkeynumber, 'font-weight', 'normal'); //if you click on different rebinds in succession, stop rebinding the first
-	if (rebindingkeynumber === number) {
-		rebindingkeynumber = -1; //if you click the same rebind twice, stop rebinding entirely
-		return;
-	}
-	rebindingkeynumber = number;
-	css('#c' + rebindingkeynumber, 'font-weight', 'bold');
-}
 var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 103]; //qwerasdf g
 for (var n in keycoderaw) {
 	if (!(localStorage.getItem('keycode ' + n) === null))
 		keycoderaw[n] = localStorage.getItem('keycode ' + n).charCodeAt();
 }
 
-
-//links are tabbable only if they aren't keybound
-function keybound_links_nontabbable() {
-	for (var n in keycoderaw) {
-		var possible_link = document.getElementById('l' + n);
-		if (possible_link !== null)
-			possible_link.setAttribute('tabindex', keyboard_shortcuts_enabled ? '-1' : '0');
-	}
-}
 //enable/disable keyboard shortcuts
 (window.write_keyboard_shortcut_text = function() {
 	keyboard_shortcuts_option.textContent = 'Keyboard shortcuts: ' + (keyboard_shortcuts_enabled ? 'on' : 'off');
@@ -202,51 +171,26 @@ function keybound_links_nontabbable() {
 	css('.w::after', 'content', keyboard_shortcuts_enabled ? "']'" : "");
 	css('.w::before', 'content', keyboard_shortcuts_enabled ? "'['" : "");
 	css('#keyboard_rebinding_options', 'display', keyboard_shortcuts_enabled ? '' : 'none'); //visibility=hidden doesn't keep it in place. the rest of the options still shift around
-	localStorage.setItem('keyboard shortcuts enabled', keyboard_shortcuts_enabled);
+	localStorage.setItem('keyboard_shortcuts_enabled', keyboard_shortcuts_enabled);
 })();
-
-function flip_keyboard_enabled() {
-	keyboard_shortcuts_enabled = !keyboard_shortcuts_enabled;
-	rebindingkeynumber = -1;
-	write_keyboard_shortcut_text();
-
-	for (var n in keycoderaw)
-		css('#c' + n, 'font-weight', 'normal');
-	keybound_links_nontabbable();
-}
 
 
 //history handler
 var history_retention = 0; //better as 0 by default. for example, in our intro document, images persist between screens, and duplicated images are confusing.
-if (!(localStorage.getItem('history retention') === null))
-	history_retention = parseInt(localStorage.getItem('history retention'));
+if (!(localStorage.getItem('history_retention') === null))
+	history_retention = parseInt(localStorage.getItem('history_retention'));
 history_number_option.textContent = 'History kept: ' + history_retention;
-function change_history_retention() {
-	switch (history_retention) {
-		case 0:
-			history_retention = 1; break;
-		case 1:
-			history_retention = 10; break;
-		case 10:
-			history_retention = 100; break;
-		case 100:
-			history_retention = 0; break;
-	} 
-	history_number_option.textContent = 'History kept: ' + history_retention;
-	localStorage.setItem('history retention', history_retention);
-	//clear_old_history(); //don't clear it until something happens. otherwise just changing the settings will wipe history.
-}
-
 
 //set margins according to window width, and set line spacing in response to line length
 //ratios change as font size changes. Open Sans looks ridiculously cramped at 16px and somewhat open at every other font size.
 
 //measure the font.
-//here, the browser doesn't take zoom into account. measuring at 2x zoom gives all the same values as measuring at 1x zoom, though they should be different.
-//desktop browsers stay at 1x zoom. but mobile browsers all have virtual zooms. we could get all our data for 1000px fonts, but for now, we'll just stay at 1em.
 var x_height_ratio = 0.52; //ratio of x-height to font size. 0.52 is an estimate. if the estimate is used as a default, it's better to have the default be a little too open than a little too cramped
 var average_width_ratio = 0.4; //ratio of letter width to font size, for the letters in the string 'Default i'. 0.4 is an estimate
-(function(element) {
+var effective_font_size; //how tall and wide the font really is. 16px standard font gives 16.
+var effective_font_height_ratio; //how tall the font is. 1.0 = equal to standard font.
+(function() {
+	//height measurement
 	var temporary_div = document.createElement('div');
 	document.body.appendChild(temporary_div);
     temporary_div.style.height = '100ex';
@@ -256,29 +200,30 @@ var average_width_ratio = 0.4; //ratio of letter width to font size, for the let
 	x_height_ratio = ex_pixels / em_pixels;
 	document.body.removeChild(temporary_div);
 
+	//width measurement
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
-    context.font = '500px ' + window.getComputedStyle(element).fontFamily; //get metrics for huge-size fonts instead of actual-size fonts, because the browser ignores zoom here.
-    average_width_ratio = context.measureText('Default i').width / 4500; //divide by 9 because 'Default i' has 9 characters. use px here, em causes trouble.
-})(document.body);
-//there's no cheap way to detect zoom events/font size changes.
-//window.addEventListener('resize', set_ratios(document.body), false); //this leads to infinite recursion, and probably doesn't work in every browser. http://stackoverflow.com/a/2658045/
+    context.font = '100px ' + window.getComputedStyle(document.body).fontFamily; //get metrics for huge-size fonts instead of actual-size fonts, because the browser ignores zoom here.
+    average_width_ratio = context.measureText('Default i').width / 900; //divide by 9 because 'Default i' has 9 characters. use px here, em causes trouble.
 
-//the visual size of a font is very different from its font size. most of its size is determined by its x-height. thus, here we blend the x-height and the font size to produce a more accurate font measure.
-//font size is used here instead of the more accurate (ascent + descent), in order to respect the font designer's intentions.
-var x_height_proportion = 0.7; //how much the x-height should matter in determining the effective font size. the remaining proportion is determined by the font size. try testing with Open Sans (x-height 0.535), Verdana (0.545), Garamond (0.384), and TNR (0.448) since they have the highest and lowest x-heights.
-var effective_font_height_ratio = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find the "effective font height" as a ratio of the stated font size.
-var effective_font_height_of_reference_05_x_height_font = 0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
+	//finds the true effective size of the font.
+	//the visual size of a font is very different from its font size. most of its size is determined by its x-height. thus, here we blend the x-height and the font size to produce a more accurate font measure.
+	//font size is used here instead of the more accurate (ascent + descent), in order to respect the font designer's intentions.
+	var x_height_proportion = 0.7; //how much the x-height should matter in determining the effective font size. the remaining proportion is determined by the font size. try testing with Open Sans (x-height 0.535), Verdana (0.545), Garamond (0.384), and TNR (0.448) since they have the highest and lowest x-heights.
+	var font_proportion = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find a "visual font height" as a ratio of the stated font size.
+	var font_proportion_reference = 0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
 
-//returns the true effective size of the font. scale: the reference font returns the nominal font size. fonts which are larger than their point size claims will return larger values.
-//this captures variations in the specific font being used, where the nominal point size doesn't represent its true point size.
-function effective_font_size() {
 	var reported_font_size = parseFloat(window.getComputedStyle(main_body).fontSize); //font size from the main message, because that's the section designed for best reading.
 
 	//the ratio used in conversion is (height + width / 2). we divide width by 2, because it doesn't seem to matter as much when determining the font size.
-	var current_font_to_standard_font_ratio = (effective_font_height_ratio + average_width_ratio / 2) / (effective_font_height_of_reference_05_x_height_font + 0.4 / 2);
-	return reported_font_size * current_font_to_standard_font_ratio;
-}
+	var current_font_to_standard_font_ratio = (font_proportion + average_width_ratio / 2) / (font_proportion_reference + 0.4 / 2);
+	effective_font_size = reported_font_size * current_font_to_standard_font_ratio;
+	effective_font_height_ratio = font_proportion / font_proportion_reference;
+})();
+//we only calculate metrics once, on page load, since zooming doesn't change any of the measurements or point sizes, and presumably the fonts should not change either. (even though zooming really should change things)
+//there's no cheap way to detect zoom events/font size changes.
+//window.addEventListener('resize', set_ratios(document.body), false); //this leads to infinite recursion, and probably doesn't work in every browser. http://stackoverflow.com/a/2658045/
+
 
 //all these default values are chosen by eyeballing, and without any peer-reviewed research.
 function optimize_line_spacing(element) {
@@ -288,13 +233,12 @@ function optimize_line_spacing(element) {
 
 	var paragraph_margin_multiple = 0.35; //paragraph margin as a multiple of the line spacing
 	var section_margin_multiple = 1.0;
-	var expansion_ratio_relative_to_reference_font = effective_font_height_ratio / effective_font_height_of_reference_05_x_height_font;
 
-	var line_length = element.clientWidth / effective_font_size();
+	var line_length = element.clientWidth / effective_font_size;
 	//clientWidth is better than scrollWidth, because a horizontal scrollbar can be created by a single word whose length is larger than the containing box.
 	//if your box has a horizontal scrollbar by default, then scrollWidth might be more reasonable, but that is a horrible situation to design for. you don't want horizontal scrollbars.
 	var scaled_line_length = Math.pow(line_length / line_length_for_line_spacing_scaling, 2);
-	var new_line_height_ratio = (maximum_line_spacing * scaled_line_length + minimum_line_spacing)/(scaled_line_length + 1) * expansion_ratio_relative_to_reference_font;
+	var new_line_height_ratio = (maximum_line_spacing * scaled_line_length + minimum_line_spacing)/(scaled_line_length + 1) * effective_font_height_ratio;
 	element.style.lineHeight = (new_line_height_ratio).toString();
 
 	css('#' + element.id + ' p', 'margin-top', new_line_height_ratio * paragraph_margin_multiple + 'em');
@@ -306,18 +250,17 @@ function remargin(event) {
 	var width_constant_margin_scaling = 70; //in em, for the standard font. when line length equals this value, the margin will be half of its maximum value.
 	var max_margin = 0.30; //this constant determines the margin's maximum proportion of the window width
 
-	var relative_effective_font_size = effective_font_size();
-	css('#flexboxflip', 'margin-left', relative_effective_font_size.toString() + 'px');
-	css('#flexboxflip', 'margin-right', relative_effective_font_size.toString() + 'px'); //do this before getting body's clientWidth, because this changes the body
+	css('#flexboxflip', 'margin-left', effective_font_size.toString() + 'px');
+	css('#flexboxflip', 'margin-right', effective_font_size.toString() + 'px'); //do this before getting body's clientWidth, because this changes the body
 
-	var available_width = document.body.clientWidth + 2 * relative_effective_font_size; //total width, including built-in margin. don't use window.innerWidth, pinch zooming will change that.
+	var available_width = document.body.clientWidth + 2 * effective_font_size; //total width, including built-in margin. don't use window.innerWidth, pinch zooming will change that.
 	var main_body_width = main_body.parentElement.clientWidth; //available space to stretch in. we use parentElement's width so that changing main_body's width doesn't change this number.
-	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / relative_effective_font_size, 2);
+	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / effective_font_size, 2);
 	var margin_scaling = scaled_width / (scaled_width + 1);
-	var desired_margin = max_margin * margin_scaling * available_width - relative_effective_font_size;
+	var desired_margin = max_margin * margin_scaling * available_width - effective_font_size;
 	//note that flexboxflip's left margin is not being merged. that's why we calculate absolute units and subtract from there.
 
-	if (desired_margin < relative_effective_font_size)
+	if (desired_margin < effective_font_size)
 		desired_margin = 0; //clamp to edge if it's too small to effectively distinguish main text from history text, or if it's below zero (when the built-in margin is sufficient).
 	var desired_margin_ratio = desired_margin / main_body_width;
 	css('#main_body', 'margin-left', (100 * desired_margin_ratio).toString() + '%');
@@ -328,7 +271,9 @@ function remargin(event) {
 
 	//could use overall viewport width or screen width, not clientWidth. this also helps with side-by-side windows, or websites embedded in other websites. but multi-monitors have large sections that the user doesn't bother to look at. so viewport width/client width is fine, rather than screen width. note that viewport width includes the scrollbar, we don't want that. % doesn't include the scrollbar.
 }
-window.addEventListener('DOMContentLoaded', remargin);
+remargin();
+//window.addEventListener('DOMContentLoaded', remargin); //since this javascript comes after the body, we don't need to wait for DOM to load; it's already loaded.
 window.addEventListener('resize', remargin);
 </script>
+{{{ SCRIPT }}}
 </html>

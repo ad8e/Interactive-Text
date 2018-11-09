@@ -1,5 +1,38 @@
+//alert user on thrown exceptions
+window.onerror = function() {main_body.innerHTML += '<br>Error, press F12 to see JavaScript console';};
+
 //async the css setting, otherwise it applies to first load
 css('body', 'transition', 'background-color 0.5s, color 0.5s');
+
+var rebindingkeynumber = -1;
+window['changekeybind'] = function(number) {
+	css('#c' + rebindingkeynumber, 'font-weight', 'normal'); //if you click on different rebinds in succession, stop rebinding the first
+	if (rebindingkeynumber === number) {
+		rebindingkeynumber = -1; //if you click the same rebind twice, stop rebinding entirely
+		return;
+	}
+	rebindingkeynumber = number;
+	css('#c' + rebindingkeynumber, 'font-weight', 'bold');
+}
+
+//links are tabbable only if they aren't keybound
+function keybound_links_nontabbable() {
+	for (var n in keycoderaw) {
+		var possible_link = document.getElementById('l' + n);
+		if (possible_link !== null)
+			possible_link.setAttribute('tabindex', keyboard_shortcuts_enabled ? '-1' : '0');
+	}
+}
+
+window['flip_keyboard_enabled'] = function() {
+	keyboard_shortcuts_enabled = !keyboard_shortcuts_enabled;
+	rebindingkeynumber = -1;
+	write_keyboard_shortcut_text();
+
+	for (var n in keycoderaw)
+		css('#c' + n, 'font-weight', 'normal');
+	keybound_links_nontabbable();
+}
 
 //keyboard shortcuts are enabled when the main module is loaded.
 document.onkeypress = function(e) {
@@ -38,6 +71,31 @@ document.onkeypress = function(e) {
 		return;
 	}
 };
+
+window['change_history_retention'] = function() {
+	switch (history_retention) {
+		case 0:
+			history_retention = 1; break;
+		case 1:
+			history_retention = 10; break;
+		case 10:
+			history_retention = 100; break;
+		case 100:
+			history_retention = 0; break;
+	} 
+	history_number_option.textContent = 'History kept: ' + history_retention;
+	localStorage.setItem('history_retention', history_retention);
+	//clear_old_history(); //don't clear it until something happens. otherwise just changing the settings will wipe history.
+}
+
+
+window['flip_page_order'] = function flip_page_order() {
+	history_above = !history_above;
+	set_page_order();
+	localStorage.setItem('history_above', history_above);
+};
+
+window['invert_color'] = function() {localStorage.setItem('invert_color', document.body.classList.toggle('nightmode'));};
 
 function insert_history(text) {
 	if (history_retention !== 0) {

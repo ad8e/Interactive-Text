@@ -1,12 +1,13 @@
-var keycoderaw;
-var rebindingkeynumber;
+function scrollTo(a, b){}
 var localStorage;
+
 function css(a, b, c){}
+var keycoderaw;
 var keyboard_shortcuts_enabled;
 var history_retention;
 var history_container;
-function clear_old_history(){}
 var main_body;
-function keybound_links_nontabbable(){}
+var history_number_option;
 var history_above;
-function scrollTo(a, b){}
+function write_keyboard_shortcut_text(){}
+function set_page_order(){}
