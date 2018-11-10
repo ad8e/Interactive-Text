@@ -27,7 +27,7 @@ For any minor engine, be aware that if its developer vanishes, your work could b
 
 void engine_choice() {
 	o(R"(Technical details:
-<ul>
+<ul style=margin:0>
 <li>lightweight and performant: this webpage is 52KB to download</li>
 <li>line spacing and margin adjust to screen size</li>
 <li>supports screenreaders for visually impaired users</li>
@@ -72,7 +72,7 @@ void main_menu_later() {
 )");
 	}
 	o(R"(Interactive Text turns C++ text games into HTML. Features:
-<ul>
+<ul style=margin:0>
 <li>simple: o() to output</li>
 <li>Public Domain: open source, no conditions</li>
 <li>this webpage was built with it</li>

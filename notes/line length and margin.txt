@@ -1,0 +1,67 @@
+
+margin isn't useful for distinguishing main body from history.
+and at low sizes, the margin should cut into the borders. there's just not enough space, it's too precious.
+let's build a new model.
+1. margin wants to be a minimum amount. once it reaches maybe 1em, it stops mattering. so arctan(margin in visual arc).
+2. text wants to have more per line. each linebreak has a cost. 1/length, proportional to the frequency of each linebreak.
+	if it's too long, it will even result in scrolling. but let's ignore that.
+3. moving from line to line. there's a base frequency that this happens, since paragraphs and linebreaks are there no matter what.
+	the cost of each linebreak is maybe proportional to the visual arc of each line.
+	maybe 160 lines per paragraph? some things like links get their own linebreaks. these things don't necessarily count, they don't reach the full length of the screen.
+	each move has a small constant base cost since it interrupts your scanning. if paragraphs are around 5 lines long, it's cheaper to scan.
+4. cost to margins that are too large. because they look wasteful. it goes by % of the total screen unused.
+5. slight cost to line length. you have to move your head to look at the next text. although this is basically irrelevant, you'd still have to do the same thing to look at any text, including for short lines.
+	we'll assume that the regime in which text starts to grow small is not reached. that's like cosine of angle, something like that, and a normal screen won't reach the point where it deviates from 1.
+
+jump backwards: how easy is it to find the next line? identify it by pattern. paragraph lengths are a random distribution. they seem to be within 200-400 characters. let's assume a Poisson distribution. but that's wrong, it'd have standard deviation 20, which is way off. it's more like stacked Poisson, one for the sentence count, one for the clause count, and one for the word count. so let's assume a uniform distribution [0, 400].
+paragraph jump: easy unless the paragraphs are all one line. then hard.
+jump backwards: same issue. lines that are close to a paragraph break are easy, as long as the paragraph break is clear. otherwise it's hard.
+	visual strategy: eyes orient around close-by paragraph breaks if the length is too long and the paragraph break is close. otherwise the eye tries to find the next line directly.
+visual strategy: the time it takes to move backwards is a constant speed; the user keeps track of a single gap between lines. larger gaps are easier to keep track of.
+	cost of finding next line directly: (disorientation constant) + (eye speed constant) * length.
+		note that there's some bonus to short lengths since you can keep the next line instantly in your visual area. but that gets baked into the disorientation constant anyway.
+	cost of finding next line by tracking paragraphs: (disorientation constant) + (small constant) * length + jump cost.
+	jump cost is not clear. but for an 80-char line, the second line uses the jump, and the third line is direct back-scan. for a 160-char line, the third line uses the jump too.
+	let's say for now that 2 lines on the top and bottom of each paragraph get a free paragraph scan. using the paragraph line-length estimation of [0, 400], that means that text gets a full skip up to 100 char/line, and then after that, 400/x - 4 lines need slow-mode normal scanning speed.
+		adjustment: there are paragraphs longer than 400 characters. this just smooths things out. for the real distribution, it's [skip 4x characters, then integrate the tail distribution]. the tail distribution is approximately exponential.
+		adjustment: really long lines allow you extend the jump distance a little further, to the third line.
+		adjustment: the lines next to the paragraph breaks allow for faster scanning than the lines that are 2 away, which have an extra constant cost. this should have minimal effect since its effect is spread out over all line lengths.
+	let's make a new approximation. 70% of paragraphs are in [0, 400], and the remaining 30% is an exponential distribution starting at 400, with constant 200. 
+	the equation is f(y) = 0.7/400 for y < 400, and f(y) = 0.3e^(-y/200 + 2)/200 for y > 400. 0.7 chosen to make the probability somewhat continuous at y=100.
+	the number of lines far from paragraph breaks: if the line length is x, then the cost is (integral from y=0 to infinity of yf(y+4x))/x.
+		if x < 100, then the integration of the tail is 0.7(400-4x)^2/800 + 0.3(400 + 200 - 4x) = 320 - 4 x + 0.014 x^2. then divide by x.
+		if x > 100, then [integrate 0.3y/200 e^((-y - 4x)/200 + 2)dy from 0 to infinity] = 60 e^{2-x/50}. then divide by x.
+		note that if we let the weights be 0.8 and 0.2 instead, [plot 0.8(400-4x)^2/800 + 0.2(400 + 200 - 4x), 40 e^{-x/50 + 2} from x=0 to 100] gives almost a perfect overlap.
+		let's pretend the exponential function is good everywhere. the number of lines far away from paragraph breaks becomes 40 e^(-x/50 + 2)/x.
+	the number of lines close to paragraph breaks is ([integrate yf(y) from y=0 to 4x] + [integrate 4xf(y) from y=4x to infinity])/x
+		if x < 100, then the integration is 0.7 * 0.02x^2 + x * 0.7/100 * (400 - 4x) + 4x * 0.3 = 4x - 0.014x^2. then divide by x.
+		if x > 100, then the integration is 0.7 * 200 + 0.3 [integrate y e^(-y/200 + 2)/200 from y=400 to 4x] + 0.3 [integrate 4x e^(-y/200 + 2)/200 from y = (4x) to infinity]
+			= 0.7 * 200 + 0.3(600 - 4 e^(2 - x/50) (x + 50)) + 0.3(4 e^(2 - x/50) x) = 320 - 60 e^(2 - x/50). then divide by x.
+		let b(x) = 4x - 0.014x^2 for x < 100, 320 - 60 e^(2 - x/50) for x > 100.
+	the number of breaks per paragraph is [integrate y f(y) from 0 to infinity] / x.
+		that's 0.7 * 200 + 600 * 0.3 = 320.
+	they're not that far apart, plot 0.7 * 0.02x^2 + x * 0.7/100 * (400 - 4x) + 4x * 0.3, 0.7 * 200 + 0.3(600 - 4 e^(2 - x/50) (x + 50)) + 0.3(4 e^(2 - x/50) x) from x=0 to 200
+		the exponential thing has a big negative near zero.
+let's assume that section break scanning is always at max speed, so that there isn't a continuous sequence of 2-line paragraphs (which would slow down the break scanning). if the lines start to become too long so that paragraphs stop spanning multiple lines, we will amend this assumption.
+	let's say it's 5x as fast as linebreak scanning (total guess). instead of a single gap, the required accuracy is way smaller, some entire lineheights, so the scan speed increases massively.
+	the disorientation constant is still the same!
+
+all units are in visual arc units, as 1em of the standard font.
+P = total page width in visual arc.
+w = letters per visual arc.
+m = left/right margin in visual arc units. so line length is P - 2m.
+a(x) = (320 - 4 x + 0.014 x^2) for x < 100, 60 e^{2-x/50} for x > 100.
+b(x) = 4x - 0.014x^2 for x < 100, 320 - 60 e^(2 - x/50) for x > 100.
+arctan(margin visual arc in em) - (average line breaks per paragraph) * (cost of jump backwards) - (scan cost)/5 - (margin % missing)
+let's set some constants. scan cost is 1em = 1. overall cost will be for a single paragraph. 30 is about the cost of a single slow scan.
+A arctan(m) - b((P-2m)/w)/5 + a((P-2m)/w) + (disorientation constant 10) * 320/((P-2m)/w) + (margin missing 40) (2m/P)
+in fact, this analysis is useless. the cost of having a long line is proportional to the length of that line. but linebreaks happen inversely to line length. so in reality, our analysis is not good, it assumes that you always jump back the full line length, which isn't true for short sentences.
+	if we were to do a perfect model, while retaining the assumptions, then if we take extremely long line lengths, the scan-back cost is equal to with short line lengths, since they happen less often and are proportionally more expensive. which means there's no point in having anything but the very longest line lengths.
+
+so we need to bring back 5-length paragraphs as the restriction. to enable the fast-scanning behavior, paragraphs should range between 1-5 lines.
+but, we should let the user control it a little bit. by letting the window control the line length, the user can manage different writing styles for different paragraph lengths.
+	that means about 100-characters wide is about good for getting the right line lengths. longer is good too, fewer linebreaks means less disorientation cost. and less "wasted margin" cost.
+	300 is too much, the paragraphs start fitting into 0-2 lines. three 1-line paragraphs in a row will cause issues, with a 1/8 chance of happening. multiple 2-line paragraphs is better, it is easier to find the beginning even if all paragraphs are 2 lines.
+	200 means 0-2.5 lines.
+	80 is too little. 1-5 lines, but some paragraphs are longer than 400 characters. these lines will be in the center of a paragraph and be hard to read. plus, having too many linebreaks is bad, each causes disorientation. but the disorientation is honestly very small, it's mainly the time gap that is the issue, not the break in flow.
+lots of dialogue, simplistic dialogue = short lines.

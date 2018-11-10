@@ -11,7 +11,7 @@ body {
 	--color-background: #fff;
 	--color-text: #222; /* off-black color to converge text and link luminance. */
 	--color-link: blue;
-	--color-history: #032;
+	--color-history: #060;
 	--color-history-link: #009; /* links in history aren't clickable. the user has Pavlovian training to click on blue links, and is constantly surprised by nonclickable blue text. darkening fixes this problem */
 	background-color: var(--color-background);
 	color: var(--color-text);
@@ -74,7 +74,7 @@ li {margin-bottom: 0px}
 <body id='flexboxflip' style='display:flex; min-height: 100%; margin-top:0px; margin-bottom:0px'>
 	<!-- role='status' is for ARIA accessibility. role='main' by itself is not re-read properly. w3c validator says one role only. note that IE doesn't support the main tag. -->
 	<!-- bottom margin must be 0 so that scrollTo doesn't have extra space left afterwards, which makes the scrollbar not reach the bottom -->
-	<div id=main_body role=status style='margin-top:0.3em; margin-bottom:0em; white-space:pre-wrap;' aria-live=polite>Waiting for game to load</div>
+	<div id=main_body role=status style='margin-bottom:0em; white-space:pre-wrap;' aria-live=polite>Waiting for game to load</div>
 
 	<hr id=history_separator style='margin:0.8em'>
 	<!-- visual testing shows that when history is displayed above the main message, both visible, then this horizontal bar is critical to helping the user find the beginning of the main message. that means when the main body fills the page, the bar should still be visible near the beginning of the page, instead of being off of it. if the user doesn't see the bar, the user worries and scrolls up to make sure he didn't miss anything. -->
@@ -186,9 +186,10 @@ history_number_option.textContent = 'History kept: ' + history_retention;
 
 //measure the font.
 var x_height_ratio = 0.52; //ratio of x-height to font size. 0.52 is an estimate. if the estimate is used as a default, it's better to have the default be a little too open than a little too cramped
-var average_width_ratio = 0.4; //ratio of letter width to font size, for the letters in the string 'Default i'. 0.4 is an estimate
+var character_width; //how wide the average character is
+var reported_font_size = parseFloat(window.getComputedStyle(main_body).fontSize); //nominal point size
 var effective_font_size; //how tall and wide the font really is. 16px standard font gives 16.
-var effective_font_height_ratio; //how tall the font is. 1.0 = equal to standard font.
+var effective_font_height; //how tall the font is.
 (function() {
 	//height measurement
 	var temporary_div = document.createElement('div');
@@ -204,7 +205,9 @@ var effective_font_height_ratio; //how tall the font is. 1.0 = equal to standard
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
     context.font = '100px ' + window.getComputedStyle(document.body).fontFamily; //get metrics for huge-size fonts instead of actual-size fonts, because the browser ignores zoom here.
+	var average_width_ratio = 0.4; //ratio of letter width to font size, for the letters in the string 'Default i'. 0.4 is an estimate
     average_width_ratio = context.measureText('Default i').width / 900; //divide by 9 because 'Default i' has 9 characters. use px here, em causes trouble.
+	character_width = average_width_ratio * reported_font_size;
 
 	//finds the true effective size of the font.
 	//the visual size of a font is very different from its font size. most of its size is determined by its x-height. thus, here we blend the x-height and the font size to produce a more accurate font measure.
@@ -213,26 +216,51 @@ var effective_font_height_ratio; //how tall the font is. 1.0 = equal to standard
 	var font_proportion = x_height_ratio * x_height_proportion + 1 - x_height_proportion; //blends x-height and font size to find a "visual font height" as a ratio of the stated font size.
 	var font_proportion_reference = 0.5 * x_height_proportion + 1 - x_height_proportion; //using the same formula, calculate the effective size of a "standard" calibration font with x-height = 0.5.
 
-	var reported_font_size = parseFloat(window.getComputedStyle(main_body).fontSize); //font size from the main message, because that's the section designed for best reading.
-
 	//the ratio used in conversion is (height + width / 2). we divide width by 2, because it doesn't seem to matter as much when determining the font size.
 	var current_font_to_standard_font_ratio = (font_proportion + average_width_ratio / 2) / (font_proportion_reference + 0.4 / 2);
 	effective_font_size = reported_font_size * current_font_to_standard_font_ratio;
-	effective_font_height_ratio = font_proportion / font_proportion_reference;
+	effective_font_height = font_proportion / font_proportion_reference * reported_font_size;
 })();
 //we only calculate metrics once, on page load, since zooming doesn't change any of the measurements or point sizes, and presumably the fonts should not change either. (even though zooming really should change things)
 //there's no cheap way to detect zoom events/font size changes.
 //window.addEventListener('resize', set_ratios(document.body), false); //this leads to infinite recursion, and probably doesn't work in every browser. http://stackoverflow.com/a/2658045/
 
+function remargin() {
+	/* margins */
+	var min_desired_line_length = 100; //in characters
+	var max_desired_line_length = 180; //in characters
+	//use innerWidth so it doesn't change when the scrollbar appears
+	var available_width = window.innerWidth; //in px
+	var available_height = window.innerHeight;
+	var total_area = available_width * available_height / effective_font_size / effective_font_size;
+	var top_margin = Math.atan(total_area / 4000) * effective_font_size * 0.3; //margin off the top if there's enough space in the page to see things without a vertical scrollbar too often
+	var minimum_margin = 0.7 * Math.atan(available_width / character_width / 40); //in visual arc units
+	var line_length_desire = available_width - minimum_margin * effective_font_size * 2; //in px
+	line_length_desire /= character_width; //in characters now
+	if (line_length_desire > min_desired_line_length) {
+		var additional_width = max_desired_line_length - min_desired_line_length;
+		line_length_desire = min_desired_line_length + additional_width * Math.atan((line_length_desire - min_desired_line_length)/additional_width/3); //approaches the max desired length at infinity. not sure what the derivative should be.
+	}
+	line_length_desire *= character_width; //in px now
+	var desired_margin = (available_width - line_length_desire) / 2;
+	//console.log(desired_margin);
+	css('body', 'margin-left', desired_margin + 'px');
+	css('body', 'margin-right', desired_margin + 'px');
+	css('#main_body', 'margin-top', top_margin + 'px'); //don't change the vertical margins of the <body>, those need to be 0 for flexbox to work
 
-function optimize_line_spacing(element) {
+	/* line spacing */
+	//the purpose of the gap between lines is to give a guide for your eyes to move back to the left.
+	//I think the gap should be a visual arc depending on the visual arc of the line length. it should be independent of the font height.
+	//however, there's an extra factor, the density of the text. high density text requires more line spacing. and narrow text is more dense. our current calculations don't consider this.
+	//unfortunately, what is cramped for Open Sans 16pt is open for Times New Roman. I think this is the usual zoom problem.
+	var element = document.body;
 	//all these default values are chosen by eyeballing, and without any peer-reviewed research.
-	var minimum_line_spacing = 1.28; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
-	var maximum_line_spacing = 1.47; //line spacing for very wide passages
+	var minimum_line_spacing = 0.47; //in em, for the standard font. this specifies the minimum line spacing for narrow passages.
+	var maximum_line_spacing = 0.66; //line spacing for very wide passages
 	var line_length_for_line_spacing_scaling = 30; //in em, for the standard font. when line length equals this value, the line spacing will be the average of the minimum and maximum.
 
-	var paragraph_extra_gap = 0.5; //additional paragraph gap as a multiple of (gap between lines + 0.4 of font tallness). we use part of font tallness because the paragraph gap should still be there even when the gap is zero.
-	var section_extra_gap = 1.0;
+	var paragraph_extra_gap = 0.45; //additional paragraph gap as a multiple of (gap between lines + 0.4 of font tallness). we use part of font tallness because the paragraph gap should still be there even when the gap is zero.
+	var section_extra_gap = 0.9;
 
 	var line_length = element.clientWidth / effective_font_size; //find the line's length in arcminutes in the user's vision
 
@@ -241,41 +269,14 @@ function optimize_line_spacing(element) {
 	//if your box has a horizontal scrollbar by default, then scrollWidth might be more reasonable, but that is a horrible situation to design for. you don't want horizontal scrollbars.
 	var scaled_line_length = Math.pow(line_length / line_length_for_line_spacing_scaling, 2);
 	var desired_ratio = (maximum_line_spacing * scaled_line_length + minimum_line_spacing)/(scaled_line_length + 1);
-	element.style.lineHeight = (desired_ratio * effective_font_height_ratio).toString();
-	console.log(desired_ratio);
-	console.log((desired_ratio - 1) * paragraph_extra_gap * effective_font_height_ratio);
-	css('#' + element.id + ' p', 'margin-top', (desired_ratio - 0.6) * paragraph_extra_gap * effective_font_height_ratio + 'em'); //margin is in addition to line-height.
-	if (element === history_container)
-		css('#' + element.id + ' > li', 'margin-bottom', (desired_ratio - 0.6) * section_extra_gap * effective_font_height_ratio + 'em');
-}
+	var pixel_line_height = effective_font_height * 0.8 + effective_font_size * desired_ratio; //* 0.8 is because the spacing is lower than the x-height
+	element.style.lineHeight = (pixel_line_height / reported_font_size).toString();
+	css('body p', 'margin-top', (pixel_line_height - 0.4 * effective_font_height) * paragraph_extra_gap + 'px'); //margin is in addition to line-height. we add part of the font height because the x-height is smaller than the font size.
+	css('#history_container > li', 'margin-bottom', (pixel_line_height - 0.4 * effective_font_height) * section_extra_gap + 'px');
 
-function remargin() {
-	var width_constant_margin_scaling = 70; //in em, for the standard font. when line length equals this value, the margin will be half of its maximum value.
-	var max_margin = 0.30; //this constant determines the margin's maximum proportion of the window width
-
-	css('#flexboxflip', 'margin-left', (effective_font_size / 2).toString() + 'px');
-	css('#flexboxflip', 'margin-right', (effective_font_size / 2).toString() + 'px'); //do this before getting body's clientWidth, because this changes the body
-
-	var available_width = document.body.clientWidth + effective_font_size; //total width, including built-in margin. don't use window.innerWidth, pinch zooming will change that.
-	var main_body_width = main_body.parentElement.clientWidth; //available space to stretch in. we use parentElement's width so that changing main_body's width doesn't change this number.
-	var scaled_width = Math.pow(available_width / width_constant_margin_scaling / effective_font_size, 2); //todo: should consider width a better way. high width should lead to smaller margins, not larger.
-	var margin_scaling = scaled_width / (scaled_width + 1);
-	var desired_margin = max_margin * margin_scaling * available_width - effective_font_size;
-	//note that flexboxflip's left margin is not being merged. that's why we calculate absolute units and subtract from there.
-
-	if (desired_margin < 0)
-		desired_margin = 0; //clamp to edge if it's below zero (when the built-in margin is sufficient).
-	var desired_margin_ratio = desired_margin / main_body_width;
-	css('#main_body', 'margin-left', (100 * desired_margin_ratio).toString() + '%');
-	css('#main_body', 'margin-right', (100 * desired_margin_ratio).toString() + '%');
-
-	optimize_line_spacing(history_container);
-	optimize_line_spacing(main_body);
-
-	//could use overall viewport width or screen width, not clientWidth. this also helps with side-by-side windows, or websites embedded in other websites. but multi-monitors have large sections that the user doesn't bother to look at. so viewport width/client width is fine, rather than screen width. note that viewport width includes the scrollbar, we don't want that. % doesn't include the scrollbar.
+	//when calculating visual arc, we could use overall viewport width or screen width, not clientWidth. this also helps with side-by-side windows, or websites embedded in other websites. but multi-monitors have large sections that the user doesn't bother to look at. so viewport width/client width is fine, rather than screen width. note that viewport width includes the scrollbar, we don't want that. % doesn't include the scrollbar.
 }
 remargin();
-//window.addEventListener('DOMContentLoaded', remargin); //since this javascript comes after the body, we don't need to wait for DOM to load; it's already loaded.
 window.addEventListener('resize', remargin);
 </script>
 {{{ SCRIPT }}}
